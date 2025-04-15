@@ -1,0 +1,45 @@
+# Book settings
+title: LLMs from Scratch # Title of the book
+author: Sebastian Raschka # Author of the book
+copyright: "2025" # Copyright year to be placed in the footer
+
+# Repository settings
+repository:
+  url: https://github.com/rasbt/llms-from-scratch # REQUIRED: Replace with the URL to your fork of the repository
+  path_to_book: "" # Optional path to your book, relative to the repository root
+  branch: main # Which branch of the repository should be used (usually main or master)
+
+# HTML-specific settings
+html:
+  use_repository_button: true # Add a link to your repository button
+  use_issues_button: true # Add a link to the issues page
+  use_edit_page_button: true # Add 'Suggest an edit' button
+  # baseurl: /LLMs-from-scratch/ # REQUIRED for GitHub Pages hosting. MUST match your repository name.
+  # E.g., if your GitHub Pages URL is https://<username>.github.io/LLMs-from-scratch/, set baseurl to /LLMs-from-scratch/
+  # If using a custom domain root, comment this out or set to ""
+  # favicon                   : ""  # A path to a favicon image
+  # logo                      : ""  # A path to an image file for the logo top-left
+
+# Execution settings
+execute:
+  execute_notebooks: cache # How to execute notebooks: 'force', 'cache', 'auto', 'off'. 'cache' is often a good balance. Use 'off' if pre-computed outputs are sufficient and reliable.
+  timeout: 600 # Timeout for executing a single cell in seconds (-1 for no timeout)
+  # Optional: specify kernel name if default isn't right
+  # kernel_name: python3
+
+# Launch button settings
+launch_buttons:
+  notebook_interface: "jupyterlab" # Or "classic"
+  binderhub_url: "https://mybinder.org" # Binder URL
+  colab_url: "https://colab.research.google.com" # Colab URL
+
+# Advanced settings
+# parse:
+#  myst_enable_extensions:  # Enable syntax extensions for MyST Markdown
+#    # - amsmath
+#    - colon_fence
+#    - dollarmath
+#    - linkify
+#    - substitution
+#    - tasklist
+#  myst_url_schemes: ["mailto", "http", "https"] # URI schemes that will be recognised as external URLs in Markdown links

@@ -1,0 +1,158 @@
+# Table of Contents based on the provided 'tree' output
+format: jb-book
+root: README
+parts:
+  - caption: Setup
+    chapters:
+      - file: setup/README
+        sections:
+          - file: setup/01_optional-python-setup-preferences/README
+            # Note: This section links to other .md files not automatically included by _toc.yml
+            # They might need to be linked manually within native-pixi.md / native-uv.md if desired
+          - file: setup/02_installing-python-libraries/README
+            sections:
+              - file: setup/02_installing-python-libraries/python_environment_check
+          - file: setup/03_optional-docker-environment/README
+          - file: setup/04_optional-aws-sagemaker-notebook/README
+
+  - caption: Chapters
+    chapters:
+      - file: ch01/README # Chapter 1 (Currently only a README)
+
+      - file: ch02/README # Chapter 2
+        sections:
+          - file: ch02/01_main-chapter-code/README
+            sections:
+              - file: ch02/01_main-chapter-code/ch02
+              - file: ch02/01_main-chapter-code/dataloader
+              - file: ch02/01_main-chapter-code/exercise-solutions
+          - file: ch02/02_bonus_bytepair-encoder/README
+            sections:
+              - file: ch02/02_bonus_bytepair-encoder/compare-bpe-tiktoken
+          - file: ch02/03_bonus_embedding-vs-matmul/README
+            sections:
+              - file: ch02/03_bonus_embedding-vs-matmul/embeddings-and-linear-layers
+          - file: ch02/04_bonus_dataloader-intuition/README
+            sections:
+              - file: ch02/04_bonus_dataloader-intuition/dataloader-intuition
+          - file: ch02/05_bpe-from-scratch/README
+            sections:
+              - file: ch02/05_bpe-from-scratch/bpe-from-scratch
+
+      - file: ch03/README # Chapter 3
+        sections:
+          - file: ch03/01_main-chapter-code/README
+            sections:
+              - file: ch03/01_main-chapter-code/ch03
+              - file: ch03/01_main-chapter-code/multihead-attention
+              - file: ch03/01_main-chapter-code/exercise-solutions
+          - file: ch03/02_bonus_efficient-multihead-attention/README
+            sections:
+              - file: ch03/02_bonus_efficient-multihead-attention/mha-implementations
+          - file: ch03/03_understanding-buffers/README
+            sections:
+              - file: ch03/03_understanding-buffers/understanding-buffers
+
+      - file: ch04/README # Chapter 4
+        sections:
+          - file: ch04/01_main-chapter-code/README
+            sections:
+              - file: ch04/01_main-chapter-code/ch04
+              - file: ch04/01_main-chapter-code/exercise-solutions
+          - file: ch04/02_performance-analysis/README
+            sections:
+              - file: ch04/02_performance-analysis/flops-analysis
+
+      - file: ch05/README # Chapter 5
+        sections:
+          - file: ch05/01_main-chapter-code/README
+            sections:
+              - file: ch05/01_main-chapter-code/ch05
+              - file: ch05/01_main-chapter-code/exercise-solutions
+          - file: ch05/02_alternative_weight_loading/README
+            sections:
+              - file: ch05/02_alternative_weight_loading/weight-loading-hf-safetensors
+              - file: ch05/02_alternative_weight_loading/weight-loading-hf-transformers
+              - file: ch05/02_alternative_weight_loading/weight-loading-pytorch
+          - file: ch05/03_bonus_pretraining_on_gutenberg/README # Code-focused, link README
+          - file: ch05/04_learning_rate_schedulers/README # Only README
+          - file: ch05/05_bonus_hparam_tuning/README # Code-focused, link README
+          - file: ch05/06_user_interface/README # Code-focused, link README
+          - file: ch05/07_gpt_to_llama/README
+            sections:
+              - file: ch05/07_gpt_to_llama/converting-gpt-to-llama2
+              - file: ch05/07_gpt_to_llama/converting-llama2-to-llama3
+              - file: ch05/07_gpt_to_llama/standalone-llama32
+              - file: ch05/07_gpt_to_llama/standalone-llama32-mem-opt
+          - file: ch05/08_memory_efficient_weight_loading/README
+            sections:
+              - file: ch05/08_memory_efficient_weight_loading/memory-efficient-state-dict
+          - file: ch05/09_extending-tokenizers/README
+            sections:
+              - file: ch05/09_extending-tokenizers/extend-tiktoken
+          - file: ch05/10_llm-training-speed/README # Code-focused, link README
+
+      - file: ch06/README # Chapter 6
+        sections:
+          - file: ch06/01_main-chapter-code/README
+            sections:
+              - file: ch06/01_main-chapter-code/ch06
+              - file: ch06/01_main-chapter-code/load-finetuned-model
+              - file: ch06/01_main-chapter-code/exercise-solutions
+          - file: ch06/02_bonus_additional-experiments/README # Code-focused, link README
+          - file: ch06/03_bonus_imdb-classification/README
+            sections:
+              - file: ch06/03_bonus_imdb-classification/sklearn-baseline
+          - file: ch06/04_user_interface/README # Code-focused, link README
+
+      - file: ch07/README # Chapter 7
+        sections:
+          - file: ch07/01_main-chapter-code/README
+            sections:
+              - file: ch07/01_main-chapter-code/ch07
+              - file: ch07/01_main-chapter-code/load-finetuned-model
+              - file: ch07/01_main-chapter-code/exercise-solutions
+          - file: ch07/02_dataset-utilities/README
+            sections:
+              - file: ch07/02_dataset-utilities/create-passive-voice-entries
+          - file: ch07/03_model-evaluation/README
+            sections:
+              - file: ch07/03_model-evaluation/llm-instruction-eval-ollama
+              - file: ch07/03_model-evaluation/llm-instruction-eval-openai
+              - file: ch07/03_model-evaluation/scores/correlation-analysis # Deeply nested example
+          - file: ch07/04_preference-tuning-with-dpo/README
+            sections:
+              - file: ch07/04_preference-tuning-with-dpo/create-preference-data-ollama
+              - file: ch07/04_preference-tuning-with-dpo/dpo-from-scratch
+          - file: ch07/05_dataset-generation/README
+            sections:
+              - file: ch07/05_dataset-generation/llama3-ollama
+              - file: ch07/05_dataset-generation/reflection-gpt4
+          - file: ch07/06_user_interface/README # Code-focused, link README
+
+  - caption: Appendices
+    chapters:
+      - file: appendix-A/README # Appendix A
+        sections:
+          - file: appendix-A/01_main-chapter-code/README
+            sections:
+              - file: appendix-A/01_main-chapter-code/code-part1
+              - file: appendix-A/01_main-chapter-code/code-part2
+              - file: appendix-A/01_main-chapter-code/exercise-solutions
+          - file: appendix-A/02_setup-recommendations/README
+
+      - file: appendix-D/README # Appendix D
+        sections:
+          - file: appendix-D/01_main-chapter-code/appendix-D # Link notebook directly if README is minimal
+
+      - file: appendix-E/README # Appendix E
+        sections:
+          - file: appendix-E/01_main-chapter-code/appendix-E # Link notebook directly
+
+# Notes:
+# - Paths are relative to the root directory where _toc.yml resides.
+# - File extensions (.md, .ipynb) are omitted.
+# - Nesting is achieved using the 'sections:' keyword.
+# - Judgment calls were made on whether to link a README or directly to notebooks
+#   for subdirectories containing code. Adjust as needed for desired presentation.
+# - Some READMEs in code-heavy bonus sections are linked directly as the primary content.

@@ -169,3 +169,18 @@ BibTeX entry:
   github       = {https://github.com/rasbt/LLMs-from-scratch}
 }
 ```
+
+## How to deploy
+
+1. install
+```
+pip install jupyter-book ghp-import
+```
+2. build
+```
+jupyter-book build .
+```
+3. deploy to gh-pages
+```
+ghp-import -n -p -f _build/html
+```
