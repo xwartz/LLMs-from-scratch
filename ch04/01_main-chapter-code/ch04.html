@@ -1,0 +1,1831 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Chapter 4: Implementing a GPT model from Scratch To Generate Text &#8212; LLMs from Scratch</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'ch04/01_main-chapter-code/ch04';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Chapter 4 Exercise solutions" href="exercise-solutions.html" />
+    <link rel="prev" title="Chapter 4: Implementing a GPT Model from Scratch To Generate Text" href="README.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../README.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">LLMs from Scratch</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../README.html">
+                    Build a Large Language Model (From Scratch)
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Setup</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../setup/README.html">Optional Setup Instructions</a></li>
+
+
+
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Chapters</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../ch01/README.html">Chapter 1: Understanding Large Language Models</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch02/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/01_main-chapter-code/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/01_main-chapter-code/ch02.html">Chapter 2: Working with Text Data</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/01_main-chapter-code/dataloader.html">The Main Data Loading Pipeline Summarized</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/01_main-chapter-code/exercise-solutions.html">Chapter 2 Exercise solutions</a></li>
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/02_bonus_bytepair-encoder/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/02_bonus_bytepair-encoder/compare-bpe-tiktoken.html">Comparing Various Byte Pair Encoding (BPE) Implementations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/03_bonus_embedding-vs-matmul/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/03_bonus_embedding-vs-matmul/embeddings-and-linear-layers.html">Understanding the Difference Between Embedding Layers and Linear Layers</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/04_bonus_dataloader-intuition/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/04_bonus_dataloader-intuition/dataloader-intuition.html">Data sampling with a sliding window with number data</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/05_bpe-from-scratch/README.html">Byte Pair Encoding (BPE) Tokenizer From Scratch</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/05_bpe-from-scratch/bpe-from-scratch.html">Byte Pair Encoding (BPE) Tokenizer From Scratch</a></li>
+
+
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch03/README.html">Chapter 3: Coding Attention Mechanisms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch03/01_main-chapter-code/README.html">Chapter 3: Coding Attention Mechanisms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/01_main-chapter-code/ch03.html">Chapter 3: Coding Attention Mechanisms</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/01_main-chapter-code/multihead-attention.html">Multi-head Attention Plus Data Loading</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/01_main-chapter-code/exercise-solutions.html">Chapter 3 Exercise solutions</a></li>
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch03/02_bonus_efficient-multihead-attention/README.html">More Efficient Multi-Head Attention Implementations</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/02_bonus_efficient-multihead-attention/mha-implementations.html">Comparing Efficient Multi-Head Attention Implementations</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch03/03_understanding-buffers/README.html">Understanding PyTorch Buffers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/03_understanding-buffers/understanding-buffers.html">Understanding PyTorch Buffers</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../README.html">Chapter 4: Implementing a GPT Model from Scratch to Generate Text</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="README.html">Chapter 4: Implementing a GPT Model from Scratch To Generate Text</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">Chapter 4: Implementing a GPT model from Scratch To Generate Text</a></li>
+<li class="toctree-l3"><a class="reference internal" href="exercise-solutions.html">Chapter 4 Exercise solutions</a></li>
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../02_performance-analysis/README.html">Chapter 4: Implementing a GPT Model from Scratch To Generate Text</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../02_performance-analysis/flops-analysis.html">FLOPS Analysis</a></li>
+
+
+
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch05/README.html">Chapter 5: Pretraining on Unlabeled Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch05/01_main-chapter-code/README.html">Chapter 5: Pretraining on Unlabeled Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/01_main-chapter-code/ch05.html">Chapter 5: Pretraining on Unlabeled Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/01_main-chapter-code/exercise-solutions.html">Chapter 5 Exercise solutions</a></li>
+
+
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch05/02_alternative_weight_loading/README.html">Alternative Approaches to Loading Pretrained Weights</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/02_alternative_weight_loading/weight-loading-hf-safetensors.html">Bonus Code for Chapter 5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/02_alternative_weight_loading/weight-loading-hf-transformers.html">Bonus Code for Chapter 5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/02_alternative_weight_loading/weight-loading-pytorch.html">Bonus Code for Chapter 5</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch05/03_bonus_pretraining_on_gutenberg/README.html">Pretraining GPT on the Project Gutenberg Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch05/04_learning_rate_schedulers/README.html">Adding Bells and Whistles to the Training Loop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch05/05_bonus_hparam_tuning/README.html">Optimizing Hyperparameters for Pretraining</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch05/06_user_interface/README.html">Building a User Interface to Interact With the Pretrained LLM</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch05/07_gpt_to_llama/README.html">Converting GPT to Llama</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/07_gpt_to_llama/converting-gpt-to-llama2.html">Converting a From-Scratch GPT Architecture to Llama 2</a></li>
+
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/07_gpt_to_llama/converting-llama2-to-llama3.html">Converting Llama 2 to Llama 3.2 From Scratch</a></li>
+
+
+
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/07_gpt_to_llama/standalone-llama32.html">Llama 3.2 From Scratch (A Standalone Notebook)</a></li>
+
+
+
+
+
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/07_gpt_to_llama/standalone-llama32-mem-opt.html">Llama 3.2 From Scratch (A Standalone Notebook)</a></li>
+
+
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch05/08_memory_efficient_weight_loading/README.html">Memory-efficient Model Weight Loading</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/08_memory_efficient_weight_loading/memory-efficient-state-dict.html">Memory-efficient Model Weight Loading</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch05/09_extending-tokenizers/README.html">Extending the Tiktoken BPE Tokenizer with New Tokens</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/09_extending-tokenizers/extend-tiktoken.html">Extending the Tiktoken BPE Tokenizer with New Tokens</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch05/10_llm-training-speed/README.html">PyTorch Performance Tips for Faster LLM Training</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch06/README.html">Chapter 6: Finetuning for Classification</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch06/01_main-chapter-code/README.html">Chapter 6: Finetuning for Classification</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch06/01_main-chapter-code/ch06.html">Chapter 6: Finetuning for Text Classification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch06/01_main-chapter-code/load-finetuned-model.html">Load And Use Finetuned Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch06/01_main-chapter-code/exercise-solutions.html">Chapter 6 Exercise solutions</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch06/02_bonus_additional-experiments/README.html">Additional Classification Finetuning Experiments</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch06/03_bonus_imdb-classification/README.html">Additional Experiments Classifying the Sentiment of 50k IMDB Movie Reviews</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch06/03_bonus_imdb-classification/sklearn-baseline.html">Scikit-learn Logistic Regression Model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch06/04_user_interface/README.html">Building a User Interface to Interact With the GPT-based Spam Classifier</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch07/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/01_main-chapter-code/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/01_main-chapter-code/ch07.html">Chapter 7: Finetuning To Follow Instructions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/01_main-chapter-code/load-finetuned-model.html">Load And Use Finetuned Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/01_main-chapter-code/exercise-solutions.html">Chapter 7 Exercise solutions</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/02_dataset-utilities/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/02_dataset-utilities/create-passive-voice-entries.html">Create “Passive Voice” Entries for an Instruction Dataset</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/03_model-evaluation/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/03_model-evaluation/llm-instruction-eval-ollama.html">Evaluating Instruction Responses Locally Using a Llama 3 Model Via Ollama</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/03_model-evaluation/llm-instruction-eval-openai.html">Evaluating Instruction Responses Using the OpenAI API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/03_model-evaluation/scores/correlation-analysis.html">Score Correlation Analysis</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/04_preference-tuning-with-dpo/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/04_preference-tuning-with-dpo/create-preference-data-ollama.html">Generating A Preference Dataset With Llama 3.1 70B And Ollama</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/04_preference-tuning-with-dpo/dpo-from-scratch.html">Direct Preference Optimization (DPO) for LLM Alignment (From Scratch)</a></li>
+
+
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/05_dataset-generation/README.html">Generating Datasets for Instruction Finetuning</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/05_dataset-generation/llama3-ollama.html">Generating An Instruction Dataset via Llama 3 and Ollama</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/05_dataset-generation/reflection-gpt4.html">Improving Instruction-Data Via Reflection-Tuning Using GPT-4</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch07/06_user_interface/README.html">Building a User Interface to Interact With the Instruction Finetuned GPT Model</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../appendix-A/README.html">Appendix A: Introduction to PyTorch</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/README.html">Appendix A: Introduction to PyTorch</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/code-part1.html">Appendix A: Introduction to PyTorch (Part 1)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/code-part2.html">Appendix A: Introduction to PyTorch (Part 2)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/exercise-solutions.html">Exercise A.1</a></li>
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../appendix-A/02_setup-recommendations/README.html">Python and Environment Setup Recommendations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../appendix-D/README.html">Appendix D: Adding Bells and Whistles to the Training Loop</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../appendix-D/01_main-chapter-code/appendix-D.html">Appendix D: Adding Bells and Whistles to the Training Loop</a></li>
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../appendix-E/README.html">Appendix E: Parameter-efficient Finetuning with LoRA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../appendix-E/01_main-chapter-code/appendix-E.html">Appendix E: Parameter-efficient Finetuning with LoRA</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-launch-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Launch interactive content">
+    <i class="fas fa-rocket"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://mybinder.org/v2/gh/rasbt/llms-from-scratch/main?urlpath=lab/tree/ch04/01_main-chapter-code/ch04.ipynb" target="_blank"
+   class="btn btn-sm dropdown-item"
+   title="Launch on Binder"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  
+    <img alt="Binder logo" src="../../_static/images/logo_binder.svg">
+  </span>
+<span class="btn__text-container">Binder</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://colab.research.google.com/github/rasbt/llms-from-scratch/blob/main/ch04/01_main-chapter-code/ch04.ipynb" target="_blank"
+   class="btn btn-sm dropdown-item"
+   title="Launch on Colab"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  
+    <img alt="Colab logo" src="../../_static/images/logo_colab.png">
+  </span>
+<span class="btn__text-container">Colab</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/rasbt/llms-from-scratch" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/rasbt/llms-from-scratch/edit/main/ch04/01_main-chapter-code/ch04.ipynb" target="_blank"
+   class="btn btn-sm btn-source-edit-button dropdown-item"
+   title="Suggest edit"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="btn__text-container">Suggest edit</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/rasbt/llms-from-scratch/issues/new?title=Issue%20on%20page%20%2Fch04/01_main-chapter-code/ch04.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/ch04/01_main-chapter-code/ch04.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Chapter 4: Implementing a GPT model from Scratch To Generate Text</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#coding-an-llm-architecture">4.1 Coding an LLM architecture</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#normalizing-activations-with-layer-normalization">4.2 Normalizing activations with layer normalization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementing-a-feed-forward-network-with-gelu-activations">4.3 Implementing a feed forward network with GELU activations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-shortcut-connections">4.4 Adding shortcut connections</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#connecting-attention-and-linear-layers-in-a-transformer-block">4.5 Connecting attention and linear layers in a transformer block</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#coding-the-gpt-model">4.6 Coding the GPT model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#generating-text">4.7 Generating text</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#summary-and-takeaways">Summary and takeaways</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <table style="width:100%">
+<tr>
+<td style="vertical-align:middle; text-align:left;">
+<font size="2">
+Supplementary code for the <a href="http://mng.bz/orYv">Build a Large Language Model From Scratch</a> book by <a href="https://sebastianraschka.com">Sebastian Raschka</a><br>
+<br>Code repository: <a href="https://github.com/rasbt/LLMs-from-scratch">https://github.com/rasbt/LLMs-from-scratch</a>
+</font>
+</td>
+<td style="vertical-align:middle; text-align:left;">
+<a href="http://mng.bz/orYv"><img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/cover-small.webp" width="100px"></a>
+</td>
+</tr>
+</table><section class="tex2jax_ignore mathjax_ignore" id="chapter-4-implementing-a-gpt-model-from-scratch-to-generate-text">
+<h1>Chapter 4: Implementing a GPT model from Scratch To Generate Text<a class="headerlink" href="#chapter-4-implementing-a-gpt-model-from-scratch-to-generate-text" title="Link to this heading">#</a></h1>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">importlib.metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">version</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;matplotlib version:&quot;</span><span class="p">,</span> <span class="n">version</span><span class="p">(</span><span class="s2">&quot;matplotlib&quot;</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;torch version:&quot;</span><span class="p">,</span> <span class="n">version</span><span class="p">(</span><span class="s2">&quot;torch&quot;</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;tiktoken version:&quot;</span><span class="p">,</span> <span class="n">version</span><span class="p">(</span><span class="s2">&quot;tiktoken&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">PackageNotFoundError</span><span class="g g-Whitespace">                      </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">line</span> <span class="mi">3</span>
+<span class="g g-Whitespace">      </span><span class="mi">1</span> <span class="kn">from</span><span class="w"> </span><span class="nn">importlib.metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">version</span>
+<span class="ne">----&gt; </span><span class="mi">3</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;matplotlib version:&quot;</span><span class="p">,</span> <span class="n">version</span><span class="p">(</span><span class="s2">&quot;matplotlib&quot;</span><span class="p">))</span>
+<span class="g g-Whitespace">      </span><span class="mi">4</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;torch version:&quot;</span><span class="p">,</span> <span class="n">version</span><span class="p">(</span><span class="s2">&quot;torch&quot;</span><span class="p">))</span>
+<span class="g g-Whitespace">      </span><span class="mi">5</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;tiktoken version:&quot;</span><span class="p">,</span> <span class="n">version</span><span class="p">(</span><span class="s2">&quot;tiktoken&quot;</span><span class="p">))</span>
+
+<span class="nn">File /Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/importlib/metadata/__init__.py:946,</span> in <span class="ni">version</span><span class="nt">(distribution_name)</span>
+<span class="g g-Whitespace">    </span><span class="mi">939</span> <span class="k">def</span><span class="w"> </span><span class="nf">version</span><span class="p">(</span><span class="n">distribution_name</span><span class="p">):</span>
+<span class="g g-Whitespace">    </span><span class="mi">940</span><span class="w">     </span><span class="sd">&quot;&quot;&quot;Get the version string for the named package.</span>
+<span class="g g-Whitespace">    </span><span class="mi">941</span><span class="sd"> </span>
+<span class="g g-Whitespace">    </span><span class="mi">942</span><span class="sd">     :param distribution_name: The name of the distribution package to query.</span>
+<span class="g g-Whitespace">    </span><span class="mi">943</span><span class="sd">     :return: The version string for the package as defined in the package&#39;s</span>
+<span class="g g-Whitespace">    </span><span class="mi">944</span><span class="sd">         &quot;Version&quot; metadata key.</span>
+<span class="g g-Whitespace">    </span><span class="mi">945</span><span class="sd">     &quot;&quot;&quot;</span>
+<span class="ne">--&gt; </span><span class="mi">946</span>     <span class="k">return</span> <span class="n">distribution</span><span class="p">(</span><span class="n">distribution_name</span><span class="p">)</span><span class="o">.</span><span class="n">version</span>
+
+<span class="nn">File /Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/importlib/metadata/__init__.py:919,</span> in <span class="ni">distribution</span><span class="nt">(distribution_name)</span>
+<span class="g g-Whitespace">    </span><span class="mi">913</span> <span class="k">def</span><span class="w"> </span><span class="nf">distribution</span><span class="p">(</span><span class="n">distribution_name</span><span class="p">):</span>
+<span class="g g-Whitespace">    </span><span class="mi">914</span><span class="w">     </span><span class="sd">&quot;&quot;&quot;Get the ``Distribution`` instance for the named package.</span>
+<span class="g g-Whitespace">    </span><span class="mi">915</span><span class="sd"> </span>
+<span class="g g-Whitespace">    </span><span class="mi">916</span><span class="sd">     :param distribution_name: The name of the distribution package as a string.</span>
+<span class="g g-Whitespace">    </span><span class="mi">917</span><span class="sd">     :return: A ``Distribution`` instance (or subclass thereof).</span>
+<span class="g g-Whitespace">    </span><span class="mi">918</span><span class="sd">     &quot;&quot;&quot;</span>
+<span class="ne">--&gt; </span><span class="mi">919</span>     <span class="k">return</span> <span class="n">Distribution</span><span class="o">.</span><span class="n">from_name</span><span class="p">(</span><span class="n">distribution_name</span><span class="p">)</span>
+
+<span class="nn">File /Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/importlib/metadata/__init__.py:518,</span> in <span class="ni">Distribution.from_name</span><span class="nt">(cls, name)</span>
+<span class="g g-Whitespace">    </span><span class="mi">516</span>         <span class="k">return</span> <span class="n">dist</span>
+<span class="g g-Whitespace">    </span><span class="mi">517</span> <span class="k">else</span><span class="p">:</span>
+<span class="ne">--&gt; </span><span class="mi">518</span>     <span class="k">raise</span> <span class="n">PackageNotFoundError</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+<span class="ne">PackageNotFoundError</span>: No package metadata was found for matplotlib
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>In this chapter, we implement a GPT-like LLM architecture; the next chapter will focus on training this LLM</p></li>
+</ul>
+<img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch04_compressed/01.webp" width="500px"><section id="coding-an-llm-architecture">
+<h2>4.1 Coding an LLM architecture<a class="headerlink" href="#coding-an-llm-architecture" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Chapter 1 discussed models like GPT and Llama, which generate words sequentially and are based on the decoder part of the original transformer architecture</p></li>
+<li><p>Therefore, these LLMs are often referred to as “decoder-like” LLMs</p></li>
+<li><p>Compared to conventional deep learning models, LLMs are larger, mainly due to their vast number of parameters, not the amount of code</p></li>
+<li><p>We’ll see that many elements are repeated in an LLM’s architecture</p></li>
+</ul>
+<img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch04_compressed/02.webp" width="400px"><ul class="simple">
+<li><p>In previous chapters, we used small embedding dimensions for token inputs and outputs for ease of illustration, ensuring they fit on a single page</p></li>
+<li><p>In this chapter, we consider embedding and model sizes akin to a small GPT-2 model</p></li>
+<li><p>We’ll specifically code the architecture of the smallest GPT-2 model (124 million parameters), as outlined in Radford et al.’s <a class="reference external" href="https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf">Language Models are Unsupervised Multitask Learners</a> (note that the initial report lists it as 117M parameters, but this was later corrected in the model weight repository)</p></li>
+<li><p>Chapter 6 will show how to load pretrained weights into our implementation, which will be compatible with model sizes of 345, 762, and 1542 million parameters</p></li>
+</ul>
+<ul class="simple">
+<li><p>Configuration details for the 124 million parameter GPT-2 model include:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">GPT_CONFIG_124M</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;vocab_size&quot;</span><span class="p">:</span> <span class="mi">50257</span><span class="p">,</span>    <span class="c1"># Vocabulary size</span>
+    <span class="s2">&quot;context_length&quot;</span><span class="p">:</span> <span class="mi">1024</span><span class="p">,</span> <span class="c1"># Context length</span>
+    <span class="s2">&quot;emb_dim&quot;</span><span class="p">:</span> <span class="mi">768</span><span class="p">,</span>         <span class="c1"># Embedding dimension</span>
+    <span class="s2">&quot;n_heads&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>          <span class="c1"># Number of attention heads</span>
+    <span class="s2">&quot;n_layers&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>         <span class="c1"># Number of layers</span>
+    <span class="s2">&quot;drop_rate&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>       <span class="c1"># Dropout rate</span>
+    <span class="s2">&quot;qkv_bias&quot;</span><span class="p">:</span> <span class="kc">False</span>       <span class="c1"># Query-Key-Value bias</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>We use short variable names to avoid long lines of code later</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;vocab_size&quot;</span></code> indicates a vocabulary size of 50,257 words, supported by the BPE tokenizer discussed in Chapter 2</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;context_length&quot;</span></code> represents the model’s maximum input token count, as enabled by positional embeddings covered in Chapter 2</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;emb_dim&quot;</span></code> is the embedding size for token inputs, converting each input token into a 768-dimensional vector</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;n_heads&quot;</span></code> is the number of attention heads in the multi-head attention mechanism implemented in Chapter 3</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;n_layers&quot;</span></code> is the number of transformer blocks within the model, which we’ll implement in upcoming sections</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;drop_rate&quot;</span></code> is the dropout mechanism’s intensity, discussed in Chapter 3; 0.1 means dropping 10% of hidden units during training to mitigate overfitting</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;qkv_bias&quot;</span></code> decides if the <code class="docutils literal notranslate"><span class="pre">Linear</span></code> layers in the multi-head attention mechanism (from Chapter 3) should include a bias vector when computing query (Q), key (K), and value (V) tensors; we’ll disable this option, which is standard practice in modern LLMs; however, we’ll revisit this later when loading pretrained GPT-2 weights from OpenAI into our reimplementation in chapter 5</p></li>
+</ul>
+<img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch04_compressed/03.webp" width="500px"><div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch.nn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nn</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">DummyGPTModel</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tok_emb</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Embedding</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;vocab_size&quot;</span><span class="p">],</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;emb_dim&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos_emb</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Embedding</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;context_length&quot;</span><span class="p">],</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;emb_dim&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">drop_emb</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;drop_rate&quot;</span><span class="p">])</span>
+        
+        <span class="c1"># Use a placeholder for TransformerBlock</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trf_blocks</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="o">*</span><span class="p">[</span><span class="n">DummyTransformerBlock</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;n_layers&quot;</span><span class="p">])])</span>
+        
+        <span class="c1"># Use a placeholder for LayerNorm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">final_norm</span> <span class="o">=</span> <span class="n">DummyLayerNorm</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;emb_dim&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_head</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span>
+            <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;emb_dim&quot;</span><span class="p">],</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;vocab_size&quot;</span><span class="p">],</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_idx</span><span class="p">):</span>
+        <span class="n">batch_size</span><span class="p">,</span> <span class="n">seq_len</span> <span class="o">=</span> <span class="n">in_idx</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">tok_embeds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tok_emb</span><span class="p">(</span><span class="n">in_idx</span><span class="p">)</span>
+        <span class="n">pos_embeds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_emb</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">seq_len</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">in_idx</span><span class="o">.</span><span class="n">device</span><span class="p">))</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">tok_embeds</span> <span class="o">+</span> <span class="n">pos_embeds</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">drop_emb</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trf_blocks</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_norm</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">logits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_head</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">logits</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">DummyTransformerBlock</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="c1"># A simple placeholder</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="c1"># This block does nothing and just returns its input.</span>
+        <span class="k">return</span> <span class="n">x</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">DummyLayerNorm</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">normalized_shape</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="c1"># The parameters here are just to mimic the LayerNorm interface.</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="c1"># This layer does nothing and just returns its input.</span>
+        <span class="k">return</span> <span class="n">x</span>
+</pre></div>
+</div>
+</div>
+</div>
+<img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch04_compressed/04.webp?123" width="500px"><div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tiktoken</span>
+
+<span class="n">tokenizer</span> <span class="o">=</span> <span class="n">tiktoken</span><span class="o">.</span><span class="n">get_encoding</span><span class="p">(</span><span class="s2">&quot;gpt2&quot;</span><span class="p">)</span>
+
+<span class="n">batch</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="n">txt1</span> <span class="o">=</span> <span class="s2">&quot;Every effort moves you&quot;</span>
+<span class="n">txt2</span> <span class="o">=</span> <span class="s2">&quot;Every day holds a&quot;</span>
+
+<span class="n">batch</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">txt1</span><span class="p">)))</span>
+<span class="n">batch</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">txt2</span><span class="p">)))</span>
+<span class="n">batch</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>tensor([[6109, 3626, 6100,  345],
+        [6109, 1110, 6622,  257]])
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">123</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">DummyGPTModel</span><span class="p">(</span><span class="n">GPT_CONFIG_124M</span><span class="p">)</span>
+
+<span class="n">logits</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Output shape:&quot;</span><span class="p">,</span> <span class="n">logits</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">logits</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Output shape: torch.Size([2, 4, 50257])
+tensor([[[-1.2034,  0.3201, -0.7130,  ..., -1.5548, -0.2390, -0.4667],
+         [-0.1192,  0.4539, -0.4432,  ...,  0.2392,  1.3469,  1.2430],
+         [ 0.5307,  1.6720, -0.4695,  ...,  1.1966,  0.0111,  0.5835],
+         [ 0.0139,  1.6754, -0.3388,  ...,  1.1586, -0.0435, -1.0400]],
+
+        [[-1.0908,  0.1798, -0.9484,  ..., -1.6047,  0.2439, -0.4530],
+         [-0.7860,  0.5581, -0.0610,  ...,  0.4835, -0.0077,  1.6621],
+         [ 0.3567,  1.2698, -0.6398,  ..., -0.0162, -0.1296,  0.3717],
+         [-0.2407, -0.7349, -0.5102,  ...,  2.0057, -0.3694,  0.1814]]],
+       grad_fn=&lt;UnsafeViewBackward0&gt;)
+</pre></div>
+</div>
+</div>
+</div>
+<hr class="docutils" />
+<p><strong>Note</strong></p>
+<ul class="simple">
+<li><p>If you are running this code on Windows or Linux, the resulting values above may look like as follows:</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Output</span> <span class="n">shape</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">50257</span><span class="p">])</span>
+<span class="n">tensor</span><span class="p">([[[</span><span class="o">-</span><span class="mf">0.9289</span><span class="p">,</span>  <span class="mf">0.2748</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.7557</span><span class="p">,</span>  <span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.6070</span><span class="p">,</span>  <span class="mf">0.2702</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5888</span><span class="p">],</span>
+         <span class="p">[</span><span class="o">-</span><span class="mf">0.4476</span><span class="p">,</span>  <span class="mf">0.1726</span><span class="p">,</span>  <span class="mf">0.5354</span><span class="p">,</span>  <span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.3932</span><span class="p">,</span>  <span class="mf">1.5285</span><span class="p">,</span>  <span class="mf">0.8557</span><span class="p">],</span>
+         <span class="p">[</span> <span class="mf">0.5680</span><span class="p">,</span>  <span class="mf">1.6053</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.2155</span><span class="p">,</span>  <span class="o">...</span><span class="p">,</span>  <span class="mf">1.1624</span><span class="p">,</span>  <span class="mf">0.1380</span><span class="p">,</span>  <span class="mf">0.7425</span><span class="p">],</span>
+         <span class="p">[</span> <span class="mf">0.0447</span><span class="p">,</span>  <span class="mf">2.4787</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.8843</span><span class="p">,</span>  <span class="o">...</span><span class="p">,</span>  <span class="mf">1.3219</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.0864</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5856</span><span class="p">]],</span>
+
+        <span class="p">[[</span><span class="o">-</span><span class="mf">1.5474</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.0542</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0571</span><span class="p">,</span>  <span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.8061</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.4494</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.6747</span><span class="p">],</span>
+         <span class="p">[</span><span class="o">-</span><span class="mf">0.8422</span><span class="p">,</span>  <span class="mf">0.8243</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.1098</span><span class="p">,</span>  <span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.1434</span><span class="p">,</span>  <span class="mf">0.2079</span><span class="p">,</span>  <span class="mf">1.2046</span><span class="p">],</span>
+         <span class="p">[</span> <span class="mf">0.1355</span><span class="p">,</span>  <span class="mf">1.1858</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.1453</span><span class="p">,</span>  <span class="o">...</span><span class="p">,</span>  <span class="mf">0.0869</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.1590</span><span class="p">,</span>  <span class="mf">0.1552</span><span class="p">],</span>
+         <span class="p">[</span> <span class="mf">0.1666</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.8138</span><span class="p">,</span>  <span class="mf">0.2307</span><span class="p">,</span>  <span class="o">...</span><span class="p">,</span>  <span class="mf">2.5035</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.3055</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.3083</span><span class="p">]]],</span>
+       <span class="n">grad_fn</span><span class="o">=&lt;</span><span class="n">UnsafeViewBackward0</span><span class="o">&gt;</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Since these are just random numbers, this is not a reason for concern, and you can proceed with the remainder of the chapter without issues</p></li>
+<li><p>One possible reason for this discrepancy is the differing behavior of <code class="docutils literal notranslate"><span class="pre">nn.Dropout</span></code> across operating systems, depending on how PyTorch was compiled, as discussed <a class="reference external" href="https://github.com/pytorch/pytorch/issues/121595">here on the PyTorch issue tracker</a></p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="normalizing-activations-with-layer-normalization">
+<h2>4.2 Normalizing activations with layer normalization<a class="headerlink" href="#normalizing-activations-with-layer-normalization" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Layer normalization, also known as LayerNorm (<a class="reference external" href="https://arxiv.org/abs/1607.06450">Ba et al. 2016</a>), centers the activations of a neural network layer around a mean of 0 and normalizes their variance to 1</p></li>
+<li><p>This stabilizes training and enables faster convergence to effective weights</p></li>
+<li><p>Layer normalization is applied both before and after the multi-head attention module within the transformer block, which we will implement later; it’s also applied before the final output layer</p></li>
+</ul>
+<img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch04_compressed/05.webp" width="400px"><ul class="simple">
+<li><p>Let’s see how layer normalization works by passing a small input sample through a simple neural network layer:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">123</span><span class="p">)</span>
+
+<span class="c1"># create 2 training examples with 5 dimensions (features) each</span>
+<span class="n">batch_example</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span> 
+
+<span class="n">layer</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">())</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="n">batch_example</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>tensor([[0.2260, 0.3470, 0.0000, 0.2216, 0.0000, 0.0000],
+        [0.2133, 0.2394, 0.0000, 0.5198, 0.3297, 0.0000]],
+       grad_fn=&lt;ReluBackward0&gt;)
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>Let’s compute the mean and variance for each of the 2 inputs above:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mean</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">var</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Mean:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">mean</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Variance:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Mean:
+ tensor([[0.1324],
+        [0.2170]], grad_fn=&lt;MeanBackward1&gt;)
+Variance:
+ tensor([[0.0231],
+        [0.0398]], grad_fn=&lt;VarBackward0&gt;)
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>The normalization is applied to each of the two inputs (rows) independently; using dim=-1 applies the calculation across the last dimension (in this case, the feature dimension) instead of the row dimension</p></li>
+</ul>
+<img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch04_compressed/06.webp" width="400px"><ul class="simple">
+<li><p>Subtracting the mean and dividing by the square-root of the variance (standard deviation) centers the inputs to have a mean of 0 and a variance of 1 across the column (feature) dimension:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">out_norm</span> <span class="o">=</span> <span class="p">(</span><span class="n">out</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Normalized layer outputs:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">out_norm</span><span class="p">)</span>
+
+<span class="n">mean</span> <span class="o">=</span> <span class="n">out_norm</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">var</span> <span class="o">=</span> <span class="n">out_norm</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Mean:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">mean</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Variance:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Normalized layer outputs:
+ tensor([[ 0.6159,  1.4126, -0.8719,  0.5872, -0.8719, -0.8719],
+        [-0.0189,  0.1121, -1.0876,  1.5173,  0.5647, -1.0876]],
+       grad_fn=&lt;DivBackward0&gt;)
+Mean:
+ tensor([[-5.9605e-08],
+        [ 1.9868e-08]], grad_fn=&lt;MeanBackward1&gt;)
+Variance:
+ tensor([[1.0000],
+        [1.0000]], grad_fn=&lt;VarBackward0&gt;)
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>Each input is centered at 0 and has a unit variance of 1; to improve readability, we can disable PyTorch’s scientific notation:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">torch</span><span class="o">.</span><span class="n">set_printoptions</span><span class="p">(</span><span class="n">sci_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Mean:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">mean</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Variance:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Mean:
+ tensor([[    -0.0000],
+        [     0.0000]], grad_fn=&lt;MeanBackward1&gt;)
+Variance:
+ tensor([[1.0000],
+        [1.0000]], grad_fn=&lt;VarBackward0&gt;)
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>Above, we normalized the features of each input</p></li>
+<li><p>Now, using the same idea, we can implement a <code class="docutils literal notranslate"><span class="pre">LayerNorm</span></code> class:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">LayerNorm</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">emb_dim</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eps</span> <span class="o">=</span> <span class="mf">1e-5</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">emb_dim</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shift</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">emb_dim</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">mean</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">var</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">unbiased</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">norm_x</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">var</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale</span> <span class="o">*</span> <span class="n">norm_x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">shift</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p><strong>Scale and shift</strong></p>
+<ul class="simple">
+<li><p>Note that in addition to performing the normalization by subtracting the mean and dividing by the variance, we added two trainable parameters, a <code class="docutils literal notranslate"><span class="pre">scale</span></code> and a <code class="docutils literal notranslate"><span class="pre">shift</span></code> parameter</p></li>
+<li><p>The initial <code class="docutils literal notranslate"><span class="pre">scale</span></code> (multiplying by 1) and <code class="docutils literal notranslate"><span class="pre">shift</span></code> (adding 0) values don’t have any effect; however, <code class="docutils literal notranslate"><span class="pre">scale</span></code> and <code class="docutils literal notranslate"><span class="pre">shift</span></code> are trainable parameters that the LLM automatically adjusts during training if it is determined that doing so would improve the model’s performance on its training task</p></li>
+<li><p>This allows the model to learn appropriate scaling and shifting that best suit the data it is processing</p></li>
+<li><p>Note that we also add a smaller value (<code class="docutils literal notranslate"><span class="pre">eps</span></code>) before computing the square root of the variance; this is to avoid division-by-zero errors if the variance is 0</p></li>
+</ul>
+<p><strong>Biased variance</strong></p>
+<ul class="simple">
+<li><p>In the variance calculation above, setting <code class="docutils literal notranslate"><span class="pre">unbiased=False</span></code> means using the formula <span class="math notranslate nohighlight">\(\frac{\sum_i (x_i - \bar{x})^2}{n}\)</span> to compute the variance where n is the sample size (here, the number of features or columns); this formula does not include Bessel’s correction (which uses <code class="docutils literal notranslate"><span class="pre">n-1</span></code> in the denominator), thus providing a biased estimate of the variance</p></li>
+<li><p>For LLMs, where the embedding dimension <code class="docutils literal notranslate"><span class="pre">n</span></code> is very large, the difference between using n and <code class="docutils literal notranslate"><span class="pre">n-1</span></code>
+is negligible</p></li>
+<li><p>However, GPT-2 was trained with a biased variance in the normalization layers, which is why we also adopted this setting for compatibility reasons with the pretrained weights that we will load in later chapters</p></li>
+<li><p>Let’s now try out <code class="docutils literal notranslate"><span class="pre">LayerNorm</span></code> in practice:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ln</span> <span class="o">=</span> <span class="n">LayerNorm</span><span class="p">(</span><span class="n">emb_dim</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">out_ln</span> <span class="o">=</span> <span class="n">ln</span><span class="p">(</span><span class="n">batch_example</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mean</span> <span class="o">=</span> <span class="n">out_ln</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">var</span> <span class="o">=</span> <span class="n">out_ln</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">unbiased</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Mean:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">mean</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Variance:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Mean:
+ tensor([[    -0.0000],
+        [     0.0000]], grad_fn=&lt;MeanBackward1&gt;)
+Variance:
+ tensor([[1.0000],
+        [1.0000]], grad_fn=&lt;VarBackward0&gt;)
+</pre></div>
+</div>
+</div>
+</div>
+<img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch04_compressed/07.webp" width="400px"></section>
+<section id="implementing-a-feed-forward-network-with-gelu-activations">
+<h2>4.3 Implementing a feed forward network with GELU activations<a class="headerlink" href="#implementing-a-feed-forward-network-with-gelu-activations" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>In this section, we implement a small neural network submodule that is used as part of the transformer block in LLMs</p></li>
+<li><p>We start with the activation function</p></li>
+<li><p>In deep learning, ReLU (Rectified Linear Unit) activation functions are commonly used due to their simplicity and effectiveness in various neural network architectures</p></li>
+<li><p>In LLMs, various other types of activation functions are used beyond the traditional ReLU; two notable examples are GELU (Gaussian Error Linear Unit) and SwiGLU (Swish-Gated Linear Unit)</p></li>
+<li><p>GELU and SwiGLU are more complex, smooth activation functions incorporating Gaussian and sigmoid-gated linear units, respectively, offering better performance for deep learning models, unlike the simpler, piecewise linear function of ReLU</p></li>
+</ul>
+<ul class="simple">
+<li><p>GELU (<a class="reference external" href="https://arxiv.org/abs/1606.08415">Hendrycks and Gimpel 2016</a>) can be implemented in several ways; the exact version is defined as GELU(x)=x⋅Φ(x), where Φ(x) is the cumulative distribution function of the standard Gaussian distribution.</p></li>
+<li><p>In practice, it’s common to implement a computationally cheaper approximation: <span class="math notranslate nohighlight">\(\text{GELU}(x) \approx 0.5 \cdot x \cdot \left(1 + \tanh\left[\sqrt{\frac{2}{\pi}} \cdot \left(x + 0.044715 \cdot x^3\right)\right]\right)
+\)</span> (the original GPT-2 model was also trained with this approximation)</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">GELU</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">x</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">torch</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">/</span> <span class="n">torch</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span> <span class="o">*</span> 
+            <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mf">0.044715</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="n">gelu</span><span class="p">,</span> <span class="n">relu</span> <span class="o">=</span> <span class="n">GELU</span><span class="p">(),</span> <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">()</span>
+
+<span class="c1"># Some sample data</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">y_gelu</span><span class="p">,</span> <span class="n">y_relu</span> <span class="o">=</span> <span class="n">gelu</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">relu</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">([</span><span class="n">y_gelu</span><span class="p">,</span> <span class="n">y_relu</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;GELU&quot;</span><span class="p">,</span> <span class="s2">&quot;ReLU&quot;</span><span class="p">]),</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> activation function&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">(x)&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../../_images/157be7289c82b79692488e2cc95d83fa44d7ca4b0346cbbce93b1bbdc2f37bd7.png" src="../../_images/157be7289c82b79692488e2cc95d83fa44d7ca4b0346cbbce93b1bbdc2f37bd7.png" />
+</div>
+</div>
+<ul class="simple">
+<li><p>As we can see, ReLU is a piecewise linear function that outputs the input directly if it is positive; otherwise, it outputs zero</p></li>
+<li><p>GELU is a smooth, non-linear function that approximates ReLU but with a non-zero gradient for negative values (except at approximately -0.75)</p></li>
+<li><p>Next, let’s implement the small neural network module, <code class="docutils literal notranslate"><span class="pre">FeedForward</span></code>, that we will be using in the LLM’s transformer block later:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">FeedForward</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layers</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;emb_dim&quot;</span><span class="p">],</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;emb_dim&quot;</span><span class="p">]),</span>
+            <span class="n">GELU</span><span class="p">(),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;emb_dim&quot;</span><span class="p">],</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;emb_dim&quot;</span><span class="p">]),</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">GPT_CONFIG_124M</span><span class="p">[</span><span class="s2">&quot;emb_dim&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>768
+</pre></div>
+</div>
+</div>
+</div>
+<img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch04_compressed/09.webp?12" width="400px"><div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ffn</span> <span class="o">=</span> <span class="n">FeedForward</span><span class="p">(</span><span class="n">GPT_CONFIG_124M</span><span class="p">)</span>
+
+<span class="c1"># input shape: [batch_size, num_token, emb_size]</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">768</span><span class="p">)</span> 
+<span class="n">out</span> <span class="o">=</span> <span class="n">ffn</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>torch.Size([2, 3, 768])
+</pre></div>
+</div>
+</div>
+</div>
+<img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch04_compressed/10.webp" width="400px"><img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch04_compressed/11.webp" width="400px"></section>
+<section id="adding-shortcut-connections">
+<h2>4.4 Adding shortcut connections<a class="headerlink" href="#adding-shortcut-connections" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Next, let’s talk about the concept behind shortcut connections, also called skip or residual connections</p></li>
+<li><p>Originally, shortcut connections were proposed in deep networks for computer vision (residual networks) to mitigate vanishing gradient problems</p></li>
+<li><p>A shortcut connection creates an alternative shorter path for the gradient to flow through the network</p></li>
+<li><p>This is achieved by adding the output of one layer to the output of a later layer, usually skipping one or more layers in between</p></li>
+<li><p>Let’s illustrate this idea with a small example network:</p></li>
+</ul>
+<img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch04_compressed/12.webp?123" width="400px"><ul class="simple">
+<li><p>In code, it looks like this:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">ExampleDeepNeuralNetwork</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer_sizes</span><span class="p">,</span> <span class="n">use_shortcut</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_shortcut</span> <span class="o">=</span> <span class="n">use_shortcut</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layers</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">([</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">layer_sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">layer_sizes</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">GELU</span><span class="p">()),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">layer_sizes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">layer_sizes</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span> <span class="n">GELU</span><span class="p">()),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">layer_sizes</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">layer_sizes</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span> <span class="n">GELU</span><span class="p">()),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">layer_sizes</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">layer_sizes</span><span class="p">[</span><span class="mi">4</span><span class="p">]),</span> <span class="n">GELU</span><span class="p">()),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">layer_sizes</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">layer_sizes</span><span class="p">[</span><span class="mi">5</span><span class="p">]),</span> <span class="n">GELU</span><span class="p">())</span>
+        <span class="p">])</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">:</span>
+            <span class="c1"># Compute the output of the current layer</span>
+            <span class="n">layer_output</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="c1"># Check if shortcut can be applied</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_shortcut</span> <span class="ow">and</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">layer_output</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">layer_output</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">layer_output</span>
+        <span class="k">return</span> <span class="n">x</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">print_gradients</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="c1"># Forward pass</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mf">0.</span><span class="p">]])</span>
+
+    <span class="c1"># Calculate loss based on how close the target</span>
+    <span class="c1"># and output are</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">MSELoss</span><span class="p">()</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">loss</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+    
+    <span class="c1"># Backward pass to calculate the gradients</span>
+    <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">named_parameters</span><span class="p">():</span>
+        <span class="k">if</span> <span class="s1">&#39;weight&#39;</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>
+            <span class="c1"># Print the mean absolute gradient of the weights</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> has gradient mean of </span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="n">grad</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>Let’s print the gradient values first <strong>without</strong> shortcut connections:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">layer_sizes</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>  
+
+<span class="n">sample_input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.</span><span class="p">]])</span>
+
+<span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">123</span><span class="p">)</span>
+<span class="n">model_without_shortcut</span> <span class="o">=</span> <span class="n">ExampleDeepNeuralNetwork</span><span class="p">(</span>
+    <span class="n">layer_sizes</span><span class="p">,</span> <span class="n">use_shortcut</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+<span class="n">print_gradients</span><span class="p">(</span><span class="n">model_without_shortcut</span><span class="p">,</span> <span class="n">sample_input</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>layers.0.0.weight has gradient mean of 0.00020173587836325169
+layers.1.0.weight has gradient mean of 0.00012011159560643137
+layers.2.0.weight has gradient mean of 0.0007152039906941354
+layers.3.0.weight has gradient mean of 0.0013988736318424344
+layers.4.0.weight has gradient mean of 0.005049645435065031
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>Next, let’s print the gradient values <strong>with</strong> shortcut connections:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">123</span><span class="p">)</span>
+<span class="n">model_with_shortcut</span> <span class="o">=</span> <span class="n">ExampleDeepNeuralNetwork</span><span class="p">(</span>
+    <span class="n">layer_sizes</span><span class="p">,</span> <span class="n">use_shortcut</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+<span class="n">print_gradients</span><span class="p">(</span><span class="n">model_with_shortcut</span><span class="p">,</span> <span class="n">sample_input</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>layers.0.0.weight has gradient mean of 0.22169792652130127
+layers.1.0.weight has gradient mean of 0.20694106817245483
+layers.2.0.weight has gradient mean of 0.32896995544433594
+layers.3.0.weight has gradient mean of 0.2665732204914093
+layers.4.0.weight has gradient mean of 1.3258540630340576
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>As we can see based on the output above, shortcut connections prevent the gradients from vanishing in the early layers (towards <code class="docutils literal notranslate"><span class="pre">layer.0</span></code>)</p></li>
+<li><p>We will use this concept of a shortcut connection next when we implement a transformer block</p></li>
+</ul>
+</section>
+<section id="connecting-attention-and-linear-layers-in-a-transformer-block">
+<h2>4.5 Connecting attention and linear layers in a transformer block<a class="headerlink" href="#connecting-attention-and-linear-layers-in-a-transformer-block" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>In this section, we now combine the previous concepts into a so-called transformer block</p></li>
+<li><p>A transformer block combines the causal multi-head attention module from the previous chapter with the linear layers, the feed forward neural network we implemented in an earlier section</p></li>
+<li><p>In addition, the transformer block also uses dropout and shortcut connections</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># If the `previous_chapters.py` file is not available locally,</span>
+<span class="c1"># you can import it from the `llms-from-scratch` PyPI package.</span>
+<span class="c1"># For details, see: https://github.com/rasbt/LLMs-from-scratch/tree/main/pkg</span>
+<span class="c1"># E.g.,</span>
+<span class="c1"># from llms_from_scratch.ch03 import MultiHeadAttention</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">previous_chapters</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultiHeadAttention</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TransformerBlock</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">att</span> <span class="o">=</span> <span class="n">MultiHeadAttention</span><span class="p">(</span>
+            <span class="n">d_in</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;emb_dim&quot;</span><span class="p">],</span>
+            <span class="n">d_out</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;emb_dim&quot;</span><span class="p">],</span>
+            <span class="n">context_length</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;context_length&quot;</span><span class="p">],</span>
+            <span class="n">num_heads</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;n_heads&quot;</span><span class="p">],</span> 
+            <span class="n">dropout</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;drop_rate&quot;</span><span class="p">],</span>
+            <span class="n">qkv_bias</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;qkv_bias&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ff</span> <span class="o">=</span> <span class="n">FeedForward</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">norm1</span> <span class="o">=</span> <span class="n">LayerNorm</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;emb_dim&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">norm2</span> <span class="o">=</span> <span class="n">LayerNorm</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;emb_dim&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">drop_shortcut</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;drop_rate&quot;</span><span class="p">])</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="c1"># Shortcut connection for attention block</span>
+        <span class="n">shortcut</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">att</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>  <span class="c1"># Shape [batch_size, num_tokens, emb_size]</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">drop_shortcut</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">shortcut</span>  <span class="c1"># Add the original input back</span>
+
+        <span class="c1"># Shortcut connection for feed forward block</span>
+        <span class="n">shortcut</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm2</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ff</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">drop_shortcut</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">shortcut</span>  <span class="c1"># Add the original input back</span>
+
+        <span class="k">return</span> <span class="n">x</span>
+</pre></div>
+</div>
+</div>
+</div>
+<img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch04_compressed/13.webp?1" width="400px"><ul class="simple">
+<li><p>Suppose we have 2 input samples with 6 tokens each, where each token is a 768-dimensional embedding vector; then this transformer block applies self-attention, followed by linear layers, to produce an output of similar size</p></li>
+<li><p>You can think of the output as an augmented version of the context vectors we discussed in the previous chapter</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">123</span><span class="p">)</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">768</span><span class="p">)</span>  <span class="c1"># Shape: [batch_size, num_tokens, emb_dim]</span>
+<span class="n">block</span> <span class="o">=</span> <span class="n">TransformerBlock</span><span class="p">(</span><span class="n">GPT_CONFIG_124M</span><span class="p">)</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">block</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Input shape:&quot;</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Output shape:&quot;</span><span class="p">,</span> <span class="n">output</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Input shape: torch.Size([2, 4, 768])
+Output shape: torch.Size([2, 4, 768])
+</pre></div>
+</div>
+</div>
+</div>
+<img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch04_compressed/14.webp?1" width="400px"></section>
+<section id="coding-the-gpt-model">
+<h2>4.6 Coding the GPT model<a class="headerlink" href="#coding-the-gpt-model" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>We are almost there: now let’s plug in the transformer block into the architecture we coded at the very beginning of this chapter so that we obtain a usable GPT architecture</p></li>
+<li><p>Note that the transformer block is repeated multiple times; in the case of the smallest 124M GPT-2 model, we repeat it 12 times:</p></li>
+</ul>
+<img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch04_compressed/15.webp" width="400px"><ul class="simple">
+<li><p>The corresponding code implementation, where <code class="docutils literal notranslate"><span class="pre">cfg[&quot;n_layers&quot;]</span> <span class="pre">=</span> <span class="pre">12</span></code>:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">GPTModel</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tok_emb</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Embedding</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;vocab_size&quot;</span><span class="p">],</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;emb_dim&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos_emb</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Embedding</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;context_length&quot;</span><span class="p">],</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;emb_dim&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">drop_emb</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;drop_rate&quot;</span><span class="p">])</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">trf_blocks</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="o">*</span><span class="p">[</span><span class="n">TransformerBlock</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;n_layers&quot;</span><span class="p">])])</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">final_norm</span> <span class="o">=</span> <span class="n">LayerNorm</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;emb_dim&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_head</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span>
+            <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;emb_dim&quot;</span><span class="p">],</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;vocab_size&quot;</span><span class="p">],</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_idx</span><span class="p">):</span>
+        <span class="n">batch_size</span><span class="p">,</span> <span class="n">seq_len</span> <span class="o">=</span> <span class="n">in_idx</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">tok_embeds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tok_emb</span><span class="p">(</span><span class="n">in_idx</span><span class="p">)</span>
+        <span class="n">pos_embeds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_emb</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">seq_len</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">in_idx</span><span class="o">.</span><span class="n">device</span><span class="p">))</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">tok_embeds</span> <span class="o">+</span> <span class="n">pos_embeds</span>  <span class="c1"># Shape [batch_size, num_tokens, emb_size]</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">drop_emb</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trf_blocks</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_norm</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">logits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_head</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">logits</span>
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>Using the configuration of the 124M parameter model, we can now instantiate this GPT model with random initial weights as follows:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">123</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">GPTModel</span><span class="p">(</span><span class="n">GPT_CONFIG_124M</span><span class="p">)</span>
+
+<span class="n">out</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Input batch:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">batch</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Output shape:&quot;</span><span class="p">,</span> <span class="n">out</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Input batch:
+ tensor([[6109, 3626, 6100,  345],
+        [6109, 1110, 6622,  257]])
+
+Output shape: torch.Size([2, 4, 50257])
+tensor([[[ 0.3613,  0.4222, -0.0711,  ...,  0.3483,  0.4661, -0.2838],
+         [-0.1792, -0.5660, -0.9485,  ...,  0.0477,  0.5181, -0.3168],
+         [ 0.7120,  0.0332,  0.1085,  ...,  0.1018, -0.4327, -0.2553],
+         [-1.0076,  0.3418, -0.1190,  ...,  0.7195,  0.4023,  0.0532]],
+
+        [[-0.2564,  0.0900,  0.0335,  ...,  0.2659,  0.4454, -0.6806],
+         [ 0.1230,  0.3653, -0.2074,  ...,  0.7705,  0.2710,  0.2246],
+         [ 1.0558,  1.0318, -0.2800,  ...,  0.6936,  0.3205, -0.3178],
+         [-0.1565,  0.3926,  0.3288,  ...,  1.2630, -0.1858,  0.0388]]],
+       grad_fn=&lt;UnsafeViewBackward0&gt;)
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>We will train this model in the next chapter</p></li>
+<li><p>However, a quick note about its size: we previously referred to it as a 124M parameter model; we can double check this number as follows:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">total_params</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total number of parameters: </span><span class="si">{</span><span class="n">total_params</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Total number of parameters: 163,009,536
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>As we see above, this model has 163M, not 124M parameters; why?</p></li>
+<li><p>In the original GPT-2 paper, the researchers applied weight tying, which means that they reused the token embedding layer (<code class="docutils literal notranslate"><span class="pre">tok_emb</span></code>) as the output layer, which means setting <code class="docutils literal notranslate"><span class="pre">self.out_head.weight</span> <span class="pre">=</span> <span class="pre">self.tok_emb.weight</span></code></p></li>
+<li><p>The token embedding layer projects the 50,257-dimensional one-hot encoded input tokens to a 768-dimensional embedding representation</p></li>
+<li><p>The output layer projects 768-dimensional embeddings back into a 50,257-dimensional representation so that we can convert these back into words (more about that in the next section)</p></li>
+<li><p>So, the embedding and output layer have the same number of weight parameters, as we can see based on the shape of their weight matrices</p></li>
+<li><p>However, a quick note about its size: we previously referred to it as a 124M parameter model; we can double check this number as follows:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Token embedding layer shape:&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">tok_emb</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Output layer shape:&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">out_head</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Token embedding layer shape: torch.Size([50257, 768])
+Output layer shape: torch.Size([50257, 768])
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>In the original GPT-2 paper, the researchers reused the token embedding matrix as an output matrix</p></li>
+<li><p>Correspondingly, if we subtracted the number of parameters of the output layer, we’d get a 124M parameter model:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">total_params_gpt2</span> <span class="o">=</span>  <span class="n">total_params</span> <span class="o">-</span> <span class="nb">sum</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">out_head</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of trainable parameters considering weight tying: </span><span class="si">{</span><span class="n">total_params_gpt2</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Number of trainable parameters considering weight tying: 124,412,160
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>In practice, I found it easier to train the model without weight-tying, which is why we didn’t implement it here</p></li>
+<li><p>However, we will revisit and apply this weight-tying idea later when we load the pretrained weights in chapter 5</p></li>
+<li><p>Lastly, we can compute the memory requirements of the model as follows, which can be a helpful reference point:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Calculate the total size in bytes (assuming float32, 4 bytes per parameter)</span>
+<span class="n">total_size_bytes</span> <span class="o">=</span> <span class="n">total_params</span> <span class="o">*</span> <span class="mi">4</span>
+
+<span class="c1"># Convert to megabytes</span>
+<span class="n">total_size_mb</span> <span class="o">=</span> <span class="n">total_size_bytes</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total size of the model: </span><span class="si">{</span><span class="n">total_size_mb</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> MB&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Total size of the model: 621.83 MB
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>Exercise: you can try the following other configurations, which are referenced in the <a class="reference external" href="https://scholar.google.com/citations?view_op=view_citation&amp;amp;hl=en&amp;amp;user=dOad5HoAAAAJ&amp;amp;citation_for_view=dOad5HoAAAAJ:YsMSGLbcyi4C">GPT-2 paper</a>, as well.</p>
+<ul>
+<li><p><strong>GPT2-small</strong> (the 124M configuration we already implemented):</p>
+<ul>
+<li><p>“emb_dim” = 768</p></li>
+<li><p>“n_layers” = 12</p></li>
+<li><p>“n_heads” = 12</p></li>
+</ul>
+</li>
+<li><p><strong>GPT2-medium:</strong></p>
+<ul>
+<li><p>“emb_dim” = 1024</p></li>
+<li><p>“n_layers” = 24</p></li>
+<li><p>“n_heads” = 16</p></li>
+</ul>
+</li>
+<li><p><strong>GPT2-large:</strong></p>
+<ul>
+<li><p>“emb_dim” = 1280</p></li>
+<li><p>“n_layers” = 36</p></li>
+<li><p>“n_heads” = 20</p></li>
+</ul>
+</li>
+<li><p><strong>GPT2-XL:</strong></p>
+<ul>
+<li><p>“emb_dim” = 1600</p></li>
+<li><p>“n_layers” = 48</p></li>
+<li><p>“n_heads” = 25</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="generating-text">
+<h2>4.7 Generating text<a class="headerlink" href="#generating-text" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>LLMs like the GPT model we implemented above are used to generate one word at a time</p></li>
+</ul>
+<img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch04_compressed/16.webp" width="400px"><ul class="simple">
+<li><p>The following <code class="docutils literal notranslate"><span class="pre">generate_text_simple</span></code> function implements greedy decoding, which is a simple and fast method to generate text</p></li>
+<li><p>In greedy decoding, at each step, the model chooses the word (or token) with the highest probability as its next output (the highest logit corresponds to the highest probability, so we technically wouldn’t even have to compute the softmax function explicitly)</p></li>
+<li><p>In the next chapter, we will implement a more advanced <code class="docutils literal notranslate"><span class="pre">generate_text</span></code> function</p></li>
+<li><p>The figure below depicts how the GPT model, given an input context, generates the next word token</p></li>
+</ul>
+<img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch04_compressed/17.webp" width="600px"><div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">generate_text_simple</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">max_new_tokens</span><span class="p">,</span> <span class="n">context_size</span><span class="p">):</span>
+    <span class="c1"># idx is (batch, n_tokens) array of indices in the current context</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_new_tokens</span><span class="p">):</span>
+        
+        <span class="c1"># Crop current context if it exceeds the supported context size</span>
+        <span class="c1"># E.g., if LLM supports only 5 tokens, and the context size is 10</span>
+        <span class="c1"># then only the last 5 tokens are used as context</span>
+        <span class="n">idx_cond</span> <span class="o">=</span> <span class="n">idx</span><span class="p">[:,</span> <span class="o">-</span><span class="n">context_size</span><span class="p">:]</span>
+        
+        <span class="c1"># Get the predictions</span>
+        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+            <span class="n">logits</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">idx_cond</span><span class="p">)</span>
+        
+        <span class="c1"># Focus only on the last time step</span>
+        <span class="c1"># (batch, n_tokens, vocab_size) becomes (batch, vocab_size)</span>
+        <span class="n">logits</span> <span class="o">=</span> <span class="n">logits</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>  
+
+        <span class="c1"># Apply softmax to get probabilities</span>
+        <span class="n">probas</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># (batch, vocab_size)</span>
+
+        <span class="c1"># Get the idx of the vocab entry with the highest probability value</span>
+        <span class="n">idx_next</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">probas</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># (batch, 1)</span>
+
+        <span class="c1"># Append sampled index to the running sequence</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">idx</span><span class="p">,</span> <span class="n">idx_next</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># (batch, n_tokens+1)</span>
+
+    <span class="k">return</span> <span class="n">idx</span>
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">generate_text_simple</span></code> above implements an iterative process, where it creates one token at a time</p></li>
+</ul>
+<img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch04_compressed/18.webp" width="600px"><ul class="simple">
+<li><p>Let’s prepare an input example:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">start_context</span> <span class="o">=</span> <span class="s2">&quot;Hello, I am&quot;</span>
+
+<span class="n">encoded</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">start_context</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;encoded:&quot;</span><span class="p">,</span> <span class="n">encoded</span><span class="p">)</span>
+
+<span class="n">encoded_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">encoded</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;encoded_tensor.shape:&quot;</span><span class="p">,</span> <span class="n">encoded_tensor</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>encoded: [15496, 11, 314, 716]
+encoded_tensor.shape: torch.Size([1, 4])
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span> <span class="c1"># disable dropout</span>
+
+<span class="n">out</span> <span class="o">=</span> <span class="n">generate_text_simple</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+    <span class="n">idx</span><span class="o">=</span><span class="n">encoded_tensor</span><span class="p">,</span> 
+    <span class="n">max_new_tokens</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> 
+    <span class="n">context_size</span><span class="o">=</span><span class="n">GPT_CONFIG_124M</span><span class="p">[</span><span class="s2">&quot;context_length&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Output:&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Output length:&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Output: tensor([[15496,    11,   314,   716, 27018, 24086, 47843, 30961, 42348,  7267]])
+Output length: 10
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>Remove batch dimension and convert back into text:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">decoded_text</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">decoded_text</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Hello, I am Featureiman Byeswickattribute argue
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>Note that the model is untrained; hence the random output texts above</p></li>
+<li><p>We will train the model in the next chapter</p></li>
+</ul>
+</section>
+<section id="summary-and-takeaways">
+<h2>Summary and takeaways<a class="headerlink" href="#summary-and-takeaways" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>See the <a class="reference download internal" download="" href="../../_downloads/f2a2f89534a7cbd58e57cc95bb203d75/gpt.py"><span class="xref download myst">./gpt.py</span></a> script, a self-contained script containing the GPT model we implement in this Jupyter notebook</p></li>
+<li><p>You can find the exercise solutions in <a class="reference internal" href="exercise-solutions.html"><span class="std std-doc">./exercise-solutions.ipynb</span></a></p></li>
+</ul>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./ch04/01_main-chapter-code"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="README.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Chapter 4: Implementing a GPT Model from Scratch To Generate Text</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="exercise-solutions.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Chapter 4 Exercise solutions</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#coding-an-llm-architecture">4.1 Coding an LLM architecture</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#normalizing-activations-with-layer-normalization">4.2 Normalizing activations with layer normalization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementing-a-feed-forward-network-with-gelu-activations">4.3 Implementing a feed forward network with GELU activations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-shortcut-connections">4.4 Adding shortcut connections</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#connecting-attention-and-linear-layers-in-a-transformer-block">4.5 Connecting attention and linear layers in a transformer block</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#coding-the-gpt-model">4.6 Coding the GPT model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#generating-text">4.7 Generating text</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#summary-and-takeaways">Summary and takeaways</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Sebastian Raschka
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

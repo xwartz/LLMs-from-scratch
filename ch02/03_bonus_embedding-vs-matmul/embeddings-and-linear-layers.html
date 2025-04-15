@@ -1,0 +1,1042 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Understanding the Difference Between Embedding Layers and Linear Layers &#8212; LLMs from Scratch</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'ch02/03_bonus_embedding-vs-matmul/embeddings-and-linear-layers';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Chapter 2: Working with Text Data" href="../04_bonus_dataloader-intuition/README.html" />
+    <link rel="prev" title="Chapter 2: Working with Text Data" href="README.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../README.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">LLMs from Scratch</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../README.html">
+                    Build a Large Language Model (From Scratch)
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Setup</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../setup/README.html">Optional Setup Instructions</a></li>
+
+
+
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Chapters</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../ch01/README.html">Chapter 1: Understanding Large Language Models</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../README.html">Chapter 2: Working with Text Data</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../01_main-chapter-code/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../01_main-chapter-code/ch02.html">Chapter 2: Working with Text Data</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="../01_main-chapter-code/dataloader.html">The Main Data Loading Pipeline Summarized</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01_main-chapter-code/exercise-solutions.html">Chapter 2 Exercise solutions</a></li>
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../02_bonus_bytepair-encoder/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../02_bonus_bytepair-encoder/compare-bpe-tiktoken.html">Comparing Various Byte Pair Encoding (BPE) Implementations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="README.html">Chapter 2: Working with Text Data</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">Understanding the Difference Between Embedding Layers and Linear Layers</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../04_bonus_dataloader-intuition/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../04_bonus_dataloader-intuition/dataloader-intuition.html">Data sampling with a sliding window with number data</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../05_bpe-from-scratch/README.html">Byte Pair Encoding (BPE) Tokenizer From Scratch</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../05_bpe-from-scratch/bpe-from-scratch.html">Byte Pair Encoding (BPE) Tokenizer From Scratch</a></li>
+
+
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch03/README.html">Chapter 3: Coding Attention Mechanisms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch03/01_main-chapter-code/README.html">Chapter 3: Coding Attention Mechanisms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/01_main-chapter-code/ch03.html">Chapter 3: Coding Attention Mechanisms</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/01_main-chapter-code/multihead-attention.html">Multi-head Attention Plus Data Loading</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/01_main-chapter-code/exercise-solutions.html">Chapter 3 Exercise solutions</a></li>
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch03/02_bonus_efficient-multihead-attention/README.html">More Efficient Multi-Head Attention Implementations</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/02_bonus_efficient-multihead-attention/mha-implementations.html">Comparing Efficient Multi-Head Attention Implementations</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch03/03_understanding-buffers/README.html">Understanding PyTorch Buffers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/03_understanding-buffers/understanding-buffers.html">Understanding PyTorch Buffers</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch04/README.html">Chapter 4: Implementing a GPT Model from Scratch to Generate Text</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch04/01_main-chapter-code/README.html">Chapter 4: Implementing a GPT Model from Scratch To Generate Text</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch04/01_main-chapter-code/ch04.html">Chapter 4: Implementing a GPT model from Scratch To Generate Text</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch04/01_main-chapter-code/exercise-solutions.html">Chapter 4 Exercise solutions</a></li>
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch04/02_performance-analysis/README.html">Chapter 4: Implementing a GPT Model from Scratch To Generate Text</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch04/02_performance-analysis/flops-analysis.html">FLOPS Analysis</a></li>
+
+
+
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch05/README.html">Chapter 5: Pretraining on Unlabeled Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch05/01_main-chapter-code/README.html">Chapter 5: Pretraining on Unlabeled Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/01_main-chapter-code/ch05.html">Chapter 5: Pretraining on Unlabeled Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/01_main-chapter-code/exercise-solutions.html">Chapter 5 Exercise solutions</a></li>
+
+
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch05/02_alternative_weight_loading/README.html">Alternative Approaches to Loading Pretrained Weights</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/02_alternative_weight_loading/weight-loading-hf-safetensors.html">Bonus Code for Chapter 5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/02_alternative_weight_loading/weight-loading-hf-transformers.html">Bonus Code for Chapter 5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/02_alternative_weight_loading/weight-loading-pytorch.html">Bonus Code for Chapter 5</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch05/03_bonus_pretraining_on_gutenberg/README.html">Pretraining GPT on the Project Gutenberg Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch05/04_learning_rate_schedulers/README.html">Adding Bells and Whistles to the Training Loop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch05/05_bonus_hparam_tuning/README.html">Optimizing Hyperparameters for Pretraining</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch05/06_user_interface/README.html">Building a User Interface to Interact With the Pretrained LLM</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch05/07_gpt_to_llama/README.html">Converting GPT to Llama</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/07_gpt_to_llama/converting-gpt-to-llama2.html">Converting a From-Scratch GPT Architecture to Llama 2</a></li>
+
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/07_gpt_to_llama/converting-llama2-to-llama3.html">Converting Llama 2 to Llama 3.2 From Scratch</a></li>
+
+
+
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/07_gpt_to_llama/standalone-llama32.html">Llama 3.2 From Scratch (A Standalone Notebook)</a></li>
+
+
+
+
+
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/07_gpt_to_llama/standalone-llama32-mem-opt.html">Llama 3.2 From Scratch (A Standalone Notebook)</a></li>
+
+
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch05/08_memory_efficient_weight_loading/README.html">Memory-efficient Model Weight Loading</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/08_memory_efficient_weight_loading/memory-efficient-state-dict.html">Memory-efficient Model Weight Loading</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch05/09_extending-tokenizers/README.html">Extending the Tiktoken BPE Tokenizer with New Tokens</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/09_extending-tokenizers/extend-tiktoken.html">Extending the Tiktoken BPE Tokenizer with New Tokens</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch05/10_llm-training-speed/README.html">PyTorch Performance Tips for Faster LLM Training</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch06/README.html">Chapter 6: Finetuning for Classification</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch06/01_main-chapter-code/README.html">Chapter 6: Finetuning for Classification</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch06/01_main-chapter-code/ch06.html">Chapter 6: Finetuning for Text Classification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch06/01_main-chapter-code/load-finetuned-model.html">Load And Use Finetuned Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch06/01_main-chapter-code/exercise-solutions.html">Chapter 6 Exercise solutions</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch06/02_bonus_additional-experiments/README.html">Additional Classification Finetuning Experiments</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch06/03_bonus_imdb-classification/README.html">Additional Experiments Classifying the Sentiment of 50k IMDB Movie Reviews</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch06/03_bonus_imdb-classification/sklearn-baseline.html">Scikit-learn Logistic Regression Model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch06/04_user_interface/README.html">Building a User Interface to Interact With the GPT-based Spam Classifier</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch07/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/01_main-chapter-code/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/01_main-chapter-code/ch07.html">Chapter 7: Finetuning To Follow Instructions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/01_main-chapter-code/load-finetuned-model.html">Load And Use Finetuned Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/01_main-chapter-code/exercise-solutions.html">Chapter 7 Exercise solutions</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/02_dataset-utilities/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/02_dataset-utilities/create-passive-voice-entries.html">Create “Passive Voice” Entries for an Instruction Dataset</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/03_model-evaluation/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/03_model-evaluation/llm-instruction-eval-ollama.html">Evaluating Instruction Responses Locally Using a Llama 3 Model Via Ollama</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/03_model-evaluation/llm-instruction-eval-openai.html">Evaluating Instruction Responses Using the OpenAI API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/03_model-evaluation/scores/correlation-analysis.html">Score Correlation Analysis</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/04_preference-tuning-with-dpo/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/04_preference-tuning-with-dpo/create-preference-data-ollama.html">Generating A Preference Dataset With Llama 3.1 70B And Ollama</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/04_preference-tuning-with-dpo/dpo-from-scratch.html">Direct Preference Optimization (DPO) for LLM Alignment (From Scratch)</a></li>
+
+
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/05_dataset-generation/README.html">Generating Datasets for Instruction Finetuning</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/05_dataset-generation/llama3-ollama.html">Generating An Instruction Dataset via Llama 3 and Ollama</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/05_dataset-generation/reflection-gpt4.html">Improving Instruction-Data Via Reflection-Tuning Using GPT-4</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch07/06_user_interface/README.html">Building a User Interface to Interact With the Instruction Finetuned GPT Model</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../appendix-A/README.html">Appendix A: Introduction to PyTorch</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/README.html">Appendix A: Introduction to PyTorch</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/code-part1.html">Appendix A: Introduction to PyTorch (Part 1)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/code-part2.html">Appendix A: Introduction to PyTorch (Part 2)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/exercise-solutions.html">Exercise A.1</a></li>
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../appendix-A/02_setup-recommendations/README.html">Python and Environment Setup Recommendations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../appendix-D/README.html">Appendix D: Adding Bells and Whistles to the Training Loop</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../appendix-D/01_main-chapter-code/appendix-D.html">Appendix D: Adding Bells and Whistles to the Training Loop</a></li>
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../appendix-E/README.html">Appendix E: Parameter-efficient Finetuning with LoRA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../appendix-E/01_main-chapter-code/appendix-E.html">Appendix E: Parameter-efficient Finetuning with LoRA</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-launch-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Launch interactive content">
+    <i class="fas fa-rocket"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://mybinder.org/v2/gh/rasbt/llms-from-scratch/main?urlpath=lab/tree/ch02/03_bonus_embedding-vs-matmul/embeddings-and-linear-layers.ipynb" target="_blank"
+   class="btn btn-sm dropdown-item"
+   title="Launch on Binder"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  
+    <img alt="Binder logo" src="../../_static/images/logo_binder.svg">
+  </span>
+<span class="btn__text-container">Binder</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://colab.research.google.com/github/rasbt/llms-from-scratch/blob/main/ch02/03_bonus_embedding-vs-matmul/embeddings-and-linear-layers.ipynb" target="_blank"
+   class="btn btn-sm dropdown-item"
+   title="Launch on Colab"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  
+    <img alt="Colab logo" src="../../_static/images/logo_colab.png">
+  </span>
+<span class="btn__text-container">Colab</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/rasbt/llms-from-scratch" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/rasbt/llms-from-scratch/edit/main/ch02/03_bonus_embedding-vs-matmul/embeddings-and-linear-layers.ipynb" target="_blank"
+   class="btn btn-sm btn-source-edit-button dropdown-item"
+   title="Suggest edit"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="btn__text-container">Suggest edit</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/rasbt/llms-from-scratch/issues/new?title=Issue%20on%20page%20%2Fch02/03_bonus_embedding-vs-matmul/embeddings-and-linear-layers.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/ch02/03_bonus_embedding-vs-matmul/embeddings-and-linear-layers.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Understanding the Difference Between Embedding Layers and Linear Layers</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-nn-embedding">Using nn.Embedding</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-nn-linear">Using nn.Linear</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <table style="width:100%">
+<tr>
+<td style="vertical-align:middle; text-align:left;">
+<font size="2">
+Supplementary code for the <a href="http://mng.bz/orYv">Build a Large Language Model From Scratch</a> book by <a href="https://sebastianraschka.com">Sebastian Raschka</a><br>
+<br>Code repository: <a href="https://github.com/rasbt/LLMs-from-scratch">https://github.com/rasbt/LLMs-from-scratch</a>
+</font>
+</td>
+<td style="vertical-align:middle; text-align:left;">
+<a href="http://mng.bz/orYv"><img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/cover-small.webp" width="100px"></a>
+</td>
+</tr>
+</table>
+<section class="tex2jax_ignore mathjax_ignore" id="understanding-the-difference-between-embedding-layers-and-linear-layers">
+<h1>Understanding the Difference Between Embedding Layers and Linear Layers<a class="headerlink" href="#understanding-the-difference-between-embedding-layers-and-linear-layers" title="Link to this heading">#</a></h1>
+<ul class="simple">
+<li><p>Embedding layers in PyTorch accomplish the same as linear layers that perform matrix multiplications; the reason we use embedding layers is computational efficiency</p></li>
+<li><p>We will take a look at this relationship step by step using code examples in PyTorch</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;PyTorch version:&quot;</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">ModuleNotFoundError</span><span class="g g-Whitespace">                       </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">line</span> <span class="mi">1</span>
+<span class="ne">----&gt; </span><span class="mi">1</span> <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="g g-Whitespace">      </span><span class="mi">3</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;PyTorch version:&quot;</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+
+<span class="ne">ModuleNotFoundError</span>: No module named &#39;torch&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<br>
+&nbsp;
+<section id="using-nn-embedding">
+<h2>Using nn.Embedding<a class="headerlink" href="#using-nn-embedding" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Suppose we have the following 3 training examples,</span>
+<span class="c1"># which may represent token IDs in a LLM context</span>
+<span class="n">idx</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+<span class="c1"># The number of rows in the embedding matrix can be determined</span>
+<span class="c1"># by obtaining the largest token ID + 1.</span>
+<span class="c1"># If the highest token ID is 3, then we want 4 rows, for the possible</span>
+<span class="c1"># token IDs 0, 1, 2, 3</span>
+<span class="n">num_idx</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+
+<span class="c1"># The desired embedding dimension is a hyperparameter</span>
+<span class="n">out_dim</span> <span class="o">=</span> <span class="mi">5</span>
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>Let’s implement a simple embedding layer:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># We use the random seed for reproducibility since</span>
+<span class="c1"># weights in the embedding layer are initialized with</span>
+<span class="c1"># small random values</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">123</span><span class="p">)</span>
+
+<span class="n">embedding</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Embedding</span><span class="p">(</span><span class="n">num_idx</span><span class="p">,</span> <span class="n">out_dim</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can optionally take a look at the embedding weights:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">embedding</span><span class="o">.</span><span class="n">weight</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Parameter containing:
+tensor([[ 0.3374, -0.1778, -0.3035, -0.5880,  1.5810],
+        [ 1.3010,  1.2753, -0.2010, -0.1606, -0.4015],
+        [ 0.6957, -1.8061, -1.1589,  0.3255, -0.6315],
+        [-2.8400, -0.7849, -1.4096, -0.4076,  0.7953]], requires_grad=True)
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>We can then use the embedding layers to obtain the vector representation of a training example with ID 1:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">embedding</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">]))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>tensor([[ 1.3010,  1.2753, -0.2010, -0.1606, -0.4015]],
+       grad_fn=&lt;EmbeddingBackward0&gt;)
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>Below is a visualization of what happens under the hood:</p></li>
+</ul>
+<img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/bonus/embeddings-and-linear-layers/1.png" width="400px"><ul class="simple">
+<li><p>Similarly, we can use embedding layers to obtain the vector representation of a training example with ID 2:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">embedding</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">2</span><span class="p">]))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>tensor([[ 0.6957, -1.8061, -1.1589,  0.3255, -0.6315]],
+       grad_fn=&lt;EmbeddingBackward0&gt;)
+</pre></div>
+</div>
+</div>
+</div>
+<img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/bonus/embeddings-and-linear-layers/2.png" width="400px"><ul class="simple">
+<li><p>Now, let’s convert all the training examples we have defined previously:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">idx</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="n">embedding</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>tensor([[ 0.6957, -1.8061, -1.1589,  0.3255, -0.6315],
+        [-2.8400, -0.7849, -1.4096, -0.4076,  0.7953],
+        [ 1.3010,  1.2753, -0.2010, -0.1606, -0.4015]],
+       grad_fn=&lt;EmbeddingBackward0&gt;)
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>Under the hood, it’s still the same look-up concept:</p></li>
+</ul>
+<img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/bonus/embeddings-and-linear-layers/3.png" width="450px"><br>
+&nbsp;
+</section>
+<section id="using-nn-linear">
+<h2>Using nn.Linear<a class="headerlink" href="#using-nn-linear" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Now, we will demonstrate that the embedding layer above accomplishes exactly the same as <code class="docutils literal notranslate"><span class="pre">nn.Linear</span></code> layer on a one-hot encoded representation in PyTorch</p></li>
+<li><p>First, let’s convert the token IDs into a one-hot representation:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">onehot</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">one_hot</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+<span class="n">onehot</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>tensor([[0, 0, 1, 0],
+        [0, 0, 0, 1],
+        [0, 1, 0, 0]])
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>Next, we initialize a <code class="docutils literal notranslate"><span class="pre">Linear</span></code> layer, which carries out a matrix multiplication <span class="math notranslate nohighlight">\(X W^\top\)</span>:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">123</span><span class="p">)</span>
+<span class="n">linear</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">num_idx</span><span class="p">,</span> <span class="n">out_dim</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">linear</span><span class="o">.</span><span class="n">weight</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Parameter containing:
+tensor([[-0.2039,  0.0166, -0.2483,  0.1886],
+        [-0.4260,  0.3665, -0.3634, -0.3975],
+        [-0.3159,  0.2264, -0.1847,  0.1871],
+        [-0.4244, -0.3034, -0.1836, -0.0983],
+        [-0.3814,  0.3274, -0.1179,  0.1605]], requires_grad=True)
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>Note that the linear layer in PyTorch is also initialized with small random weights; to directly compare it to the <code class="docutils literal notranslate"><span class="pre">Embedding</span></code> layer above, we have to use the same small random weights, which is why we reassign them here:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">linear</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">embedding</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>Now we can use the linear layer on the one-hot encoded representation of the inputs:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">linear</span><span class="p">(</span><span class="n">onehot</span><span class="o">.</span><span class="n">float</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>tensor([[ 0.6957, -1.8061, -1.1589,  0.3255, -0.6315],
+        [-2.8400, -0.7849, -1.4096, -0.4076,  0.7953],
+        [ 1.3010,  1.2753, -0.2010, -0.1606, -0.4015]], grad_fn=&lt;MmBackward0&gt;)
+</pre></div>
+</div>
+</div>
+</div>
+<p>As we can see, this is exactly the same as what we got when we used the embedding layer:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">embedding</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>tensor([[ 0.6957, -1.8061, -1.1589,  0.3255, -0.6315],
+        [-2.8400, -0.7849, -1.4096, -0.4076,  0.7953],
+        [ 1.3010,  1.2753, -0.2010, -0.1606, -0.4015]],
+       grad_fn=&lt;EmbeddingBackward0&gt;)
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>What happens under the hood is the following computation for the first training example’s token ID:</p></li>
+</ul>
+<img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/bonus/embeddings-and-linear-layers/4.png" width="450px"><ul class="simple">
+<li><p>And for the second training example’s token ID:</p></li>
+</ul>
+<img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/bonus/embeddings-and-linear-layers/5.png" width="450px"><ul class="simple">
+<li><p>Since all but one index in each one-hot encoded row are 0 (by design), this matrix multiplication is essentially the same as a look-up of the one-hot elements</p></li>
+<li><p>This use of the matrix multiplication on one-hot encodings is equivalent to the embedding layer look-up but can be inefficient if we work with large embedding matrices, because there are a lot of wasteful multiplications by zero</p></li>
+</ul>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./ch02/03_bonus_embedding-vs-matmul"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="README.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Chapter 2: Working with Text Data</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../04_bonus_dataloader-intuition/README.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Chapter 2: Working with Text Data</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-nn-embedding">Using nn.Embedding</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-nn-linear">Using nn.Linear</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Sebastian Raschka
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

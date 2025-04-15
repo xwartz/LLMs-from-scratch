@@ -1,0 +1,1578 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Chapter 5 Exercise solutions &#8212; LLMs from Scratch</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'ch05/01_main-chapter-code/exercise-solutions';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Alternative Approaches to Loading Pretrained Weights" href="../02_alternative_weight_loading/README.html" />
+    <link rel="prev" title="Chapter 5: Pretraining on Unlabeled Data" href="ch05.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../README.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">LLMs from Scratch</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../README.html">
+                    Build a Large Language Model (From Scratch)
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Setup</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../setup/README.html">Optional Setup Instructions</a></li>
+
+
+
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Chapters</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../ch01/README.html">Chapter 1: Understanding Large Language Models</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch02/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/01_main-chapter-code/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/01_main-chapter-code/ch02.html">Chapter 2: Working with Text Data</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/01_main-chapter-code/dataloader.html">The Main Data Loading Pipeline Summarized</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/01_main-chapter-code/exercise-solutions.html">Chapter 2 Exercise solutions</a></li>
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/02_bonus_bytepair-encoder/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/02_bonus_bytepair-encoder/compare-bpe-tiktoken.html">Comparing Various Byte Pair Encoding (BPE) Implementations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/03_bonus_embedding-vs-matmul/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/03_bonus_embedding-vs-matmul/embeddings-and-linear-layers.html">Understanding the Difference Between Embedding Layers and Linear Layers</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/04_bonus_dataloader-intuition/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/04_bonus_dataloader-intuition/dataloader-intuition.html">Data sampling with a sliding window with number data</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/05_bpe-from-scratch/README.html">Byte Pair Encoding (BPE) Tokenizer From Scratch</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/05_bpe-from-scratch/bpe-from-scratch.html">Byte Pair Encoding (BPE) Tokenizer From Scratch</a></li>
+
+
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch03/README.html">Chapter 3: Coding Attention Mechanisms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch03/01_main-chapter-code/README.html">Chapter 3: Coding Attention Mechanisms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/01_main-chapter-code/ch03.html">Chapter 3: Coding Attention Mechanisms</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/01_main-chapter-code/multihead-attention.html">Multi-head Attention Plus Data Loading</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/01_main-chapter-code/exercise-solutions.html">Chapter 3 Exercise solutions</a></li>
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch03/02_bonus_efficient-multihead-attention/README.html">More Efficient Multi-Head Attention Implementations</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/02_bonus_efficient-multihead-attention/mha-implementations.html">Comparing Efficient Multi-Head Attention Implementations</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch03/03_understanding-buffers/README.html">Understanding PyTorch Buffers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/03_understanding-buffers/understanding-buffers.html">Understanding PyTorch Buffers</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch04/README.html">Chapter 4: Implementing a GPT Model from Scratch to Generate Text</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch04/01_main-chapter-code/README.html">Chapter 4: Implementing a GPT Model from Scratch To Generate Text</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch04/01_main-chapter-code/ch04.html">Chapter 4: Implementing a GPT model from Scratch To Generate Text</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch04/01_main-chapter-code/exercise-solutions.html">Chapter 4 Exercise solutions</a></li>
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch04/02_performance-analysis/README.html">Chapter 4: Implementing a GPT Model from Scratch To Generate Text</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch04/02_performance-analysis/flops-analysis.html">FLOPS Analysis</a></li>
+
+
+
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../README.html">Chapter 5: Pretraining on Unlabeled Data</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="README.html">Chapter 5: Pretraining on Unlabeled Data</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="ch05.html">Chapter 5: Pretraining on Unlabeled Data</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">Chapter 5 Exercise solutions</a></li>
+
+
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../02_alternative_weight_loading/README.html">Alternative Approaches to Loading Pretrained Weights</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../02_alternative_weight_loading/weight-loading-hf-safetensors.html">Bonus Code for Chapter 5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02_alternative_weight_loading/weight-loading-hf-transformers.html">Bonus Code for Chapter 5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02_alternative_weight_loading/weight-loading-pytorch.html">Bonus Code for Chapter 5</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../03_bonus_pretraining_on_gutenberg/README.html">Pretraining GPT on the Project Gutenberg Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04_learning_rate_schedulers/README.html">Adding Bells and Whistles to the Training Loop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05_bonus_hparam_tuning/README.html">Optimizing Hyperparameters for Pretraining</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06_user_interface/README.html">Building a User Interface to Interact With the Pretrained LLM</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../07_gpt_to_llama/README.html">Converting GPT to Llama</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../07_gpt_to_llama/converting-gpt-to-llama2.html">Converting a From-Scratch GPT Architecture to Llama 2</a></li>
+
+
+<li class="toctree-l3"><a class="reference internal" href="../07_gpt_to_llama/converting-llama2-to-llama3.html">Converting Llama 2 to Llama 3.2 From Scratch</a></li>
+
+
+
+
+<li class="toctree-l3"><a class="reference internal" href="../07_gpt_to_llama/standalone-llama32.html">Llama 3.2 From Scratch (A Standalone Notebook)</a></li>
+
+
+
+
+
+
+<li class="toctree-l3"><a class="reference internal" href="../07_gpt_to_llama/standalone-llama32-mem-opt.html">Llama 3.2 From Scratch (A Standalone Notebook)</a></li>
+
+
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../08_memory_efficient_weight_loading/README.html">Memory-efficient Model Weight Loading</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../08_memory_efficient_weight_loading/memory-efficient-state-dict.html">Memory-efficient Model Weight Loading</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../09_extending-tokenizers/README.html">Extending the Tiktoken BPE Tokenizer with New Tokens</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../09_extending-tokenizers/extend-tiktoken.html">Extending the Tiktoken BPE Tokenizer with New Tokens</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../10_llm-training-speed/README.html">PyTorch Performance Tips for Faster LLM Training</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch06/README.html">Chapter 6: Finetuning for Classification</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch06/01_main-chapter-code/README.html">Chapter 6: Finetuning for Classification</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch06/01_main-chapter-code/ch06.html">Chapter 6: Finetuning for Text Classification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch06/01_main-chapter-code/load-finetuned-model.html">Load And Use Finetuned Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch06/01_main-chapter-code/exercise-solutions.html">Chapter 6 Exercise solutions</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch06/02_bonus_additional-experiments/README.html">Additional Classification Finetuning Experiments</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch06/03_bonus_imdb-classification/README.html">Additional Experiments Classifying the Sentiment of 50k IMDB Movie Reviews</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch06/03_bonus_imdb-classification/sklearn-baseline.html">Scikit-learn Logistic Regression Model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch06/04_user_interface/README.html">Building a User Interface to Interact With the GPT-based Spam Classifier</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch07/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/01_main-chapter-code/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/01_main-chapter-code/ch07.html">Chapter 7: Finetuning To Follow Instructions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/01_main-chapter-code/load-finetuned-model.html">Load And Use Finetuned Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/01_main-chapter-code/exercise-solutions.html">Chapter 7 Exercise solutions</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/02_dataset-utilities/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/02_dataset-utilities/create-passive-voice-entries.html">Create “Passive Voice” Entries for an Instruction Dataset</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/03_model-evaluation/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/03_model-evaluation/llm-instruction-eval-ollama.html">Evaluating Instruction Responses Locally Using a Llama 3 Model Via Ollama</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/03_model-evaluation/llm-instruction-eval-openai.html">Evaluating Instruction Responses Using the OpenAI API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/03_model-evaluation/scores/correlation-analysis.html">Score Correlation Analysis</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/04_preference-tuning-with-dpo/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/04_preference-tuning-with-dpo/create-preference-data-ollama.html">Generating A Preference Dataset With Llama 3.1 70B And Ollama</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/04_preference-tuning-with-dpo/dpo-from-scratch.html">Direct Preference Optimization (DPO) for LLM Alignment (From Scratch)</a></li>
+
+
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/05_dataset-generation/README.html">Generating Datasets for Instruction Finetuning</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/05_dataset-generation/llama3-ollama.html">Generating An Instruction Dataset via Llama 3 and Ollama</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/05_dataset-generation/reflection-gpt4.html">Improving Instruction-Data Via Reflection-Tuning Using GPT-4</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch07/06_user_interface/README.html">Building a User Interface to Interact With the Instruction Finetuned GPT Model</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../appendix-A/README.html">Appendix A: Introduction to PyTorch</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/README.html">Appendix A: Introduction to PyTorch</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/code-part1.html">Appendix A: Introduction to PyTorch (Part 1)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/code-part2.html">Appendix A: Introduction to PyTorch (Part 2)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/exercise-solutions.html">Exercise A.1</a></li>
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../appendix-A/02_setup-recommendations/README.html">Python and Environment Setup Recommendations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../appendix-D/README.html">Appendix D: Adding Bells and Whistles to the Training Loop</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../appendix-D/01_main-chapter-code/appendix-D.html">Appendix D: Adding Bells and Whistles to the Training Loop</a></li>
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../appendix-E/README.html">Appendix E: Parameter-efficient Finetuning with LoRA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../appendix-E/01_main-chapter-code/appendix-E.html">Appendix E: Parameter-efficient Finetuning with LoRA</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-launch-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Launch interactive content">
+    <i class="fas fa-rocket"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://mybinder.org/v2/gh/rasbt/llms-from-scratch/main?urlpath=lab/tree/ch05/01_main-chapter-code/exercise-solutions.ipynb" target="_blank"
+   class="btn btn-sm dropdown-item"
+   title="Launch on Binder"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  
+    <img alt="Binder logo" src="../../_static/images/logo_binder.svg">
+  </span>
+<span class="btn__text-container">Binder</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://colab.research.google.com/github/rasbt/llms-from-scratch/blob/main/ch05/01_main-chapter-code/exercise-solutions.ipynb" target="_blank"
+   class="btn btn-sm dropdown-item"
+   title="Launch on Colab"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  
+    <img alt="Colab logo" src="../../_static/images/logo_colab.png">
+  </span>
+<span class="btn__text-container">Colab</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/rasbt/llms-from-scratch" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/rasbt/llms-from-scratch/edit/main/ch05/01_main-chapter-code/exercise-solutions.ipynb" target="_blank"
+   class="btn btn-sm btn-source-edit-button dropdown-item"
+   title="Suggest edit"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="btn__text-container">Suggest edit</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/rasbt/llms-from-scratch/issues/new?title=Issue%20on%20page%20%2Fch05/01_main-chapter-code/exercise-solutions.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/ch05/01_main-chapter-code/exercise-solutions.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Chapter 5 Exercise solutions</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Chapter 5 Exercise solutions</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-5-1-temperature-scaled-softmax-scores-and-sampling-probabilities">Exercise 5.1: Temperature-scaled softmax scores and sampling probabilities</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-5-2-different-temperature-and-top-k-settings">Exercise 5.2: Different temperature and top-k settings</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-5-3-deterministic-behavior-in-the-decoding-functions">Exercise 5.3: Deterministic behavior in the decoding functions</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-5-4-continued-pretraining">Exercise 5.4: Continued pretraining</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-5-5-training-and-validation-set-losses-of-the-pretrained-model">Exercise 5.5: Training and validation set losses of the pretrained model</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-5-6-trying-larger-models">Exercise 5.6: Trying larger models</a></li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <table style="width:100%">
+<tr>
+<td style="vertical-align:middle; text-align:left;">
+<font size="2">
+Supplementary code for the <a href="http://mng.bz/orYv">Build a Large Language Model From Scratch</a> book by <a href="https://sebastianraschka.com">Sebastian Raschka</a><br>
+<br>Code repository: <a href="https://github.com/rasbt/LLMs-from-scratch">https://github.com/rasbt/LLMs-from-scratch</a>
+</font>
+</td>
+<td style="vertical-align:middle; text-align:left;">
+<a href="http://mng.bz/orYv"><img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/cover-small.webp" width="100px"></a>
+</td>
+</tr>
+</table><section class="tex2jax_ignore mathjax_ignore" id="chapter-5-exercise-solutions">
+<h1>Chapter 5 Exercise solutions<a class="headerlink" href="#chapter-5-exercise-solutions" title="Link to this heading">#</a></h1>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">importlib.metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">version</span>
+
+<span class="n">pkgs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;numpy&quot;</span><span class="p">,</span> 
+        <span class="s2">&quot;tiktoken&quot;</span><span class="p">,</span> 
+        <span class="s2">&quot;torch&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;tensorflow&quot;</span> <span class="c1"># For OpenAI&#39;s pretrained weights</span>
+       <span class="p">]</span>
+<span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pkgs</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2"> version: </span><span class="si">{</span><span class="n">version</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>numpy version: 2.2.3
+</pre></div>
+</div>
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">PackageNotFoundError</span><span class="g g-Whitespace">                      </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">line</span> <span class="mi">9</span>
+<span class="g g-Whitespace">      </span><span class="mi">3</span> <span class="n">pkgs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;numpy&quot;</span><span class="p">,</span> 
+<span class="g g-Whitespace">      </span><span class="mi">4</span>         <span class="s2">&quot;tiktoken&quot;</span><span class="p">,</span> 
+<span class="g g-Whitespace">      </span><span class="mi">5</span>         <span class="s2">&quot;torch&quot;</span><span class="p">,</span>
+<span class="g g-Whitespace">      </span><span class="mi">6</span>         <span class="s2">&quot;tensorflow&quot;</span> <span class="c1"># For OpenAI&#39;s pretrained weights</span>
+<span class="g g-Whitespace">      </span><span class="mi">7</span>        <span class="p">]</span>
+<span class="g g-Whitespace">      </span><span class="mi">8</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pkgs</span><span class="p">:</span>
+<span class="ne">----&gt; </span><span class="mi">9</span>     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2"> version: </span><span class="si">{</span><span class="n">version</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="nn">File /Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/importlib/metadata/__init__.py:946,</span> in <span class="ni">version</span><span class="nt">(distribution_name)</span>
+<span class="g g-Whitespace">    </span><span class="mi">939</span> <span class="k">def</span><span class="w"> </span><span class="nf">version</span><span class="p">(</span><span class="n">distribution_name</span><span class="p">):</span>
+<span class="g g-Whitespace">    </span><span class="mi">940</span><span class="w">     </span><span class="sd">&quot;&quot;&quot;Get the version string for the named package.</span>
+<span class="g g-Whitespace">    </span><span class="mi">941</span><span class="sd"> </span>
+<span class="g g-Whitespace">    </span><span class="mi">942</span><span class="sd">     :param distribution_name: The name of the distribution package to query.</span>
+<span class="g g-Whitespace">    </span><span class="mi">943</span><span class="sd">     :return: The version string for the package as defined in the package&#39;s</span>
+<span class="g g-Whitespace">    </span><span class="mi">944</span><span class="sd">         &quot;Version&quot; metadata key.</span>
+<span class="g g-Whitespace">    </span><span class="mi">945</span><span class="sd">     &quot;&quot;&quot;</span>
+<span class="ne">--&gt; </span><span class="mi">946</span>     <span class="k">return</span> <span class="n">distribution</span><span class="p">(</span><span class="n">distribution_name</span><span class="p">)</span><span class="o">.</span><span class="n">version</span>
+
+<span class="nn">File /Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/importlib/metadata/__init__.py:919,</span> in <span class="ni">distribution</span><span class="nt">(distribution_name)</span>
+<span class="g g-Whitespace">    </span><span class="mi">913</span> <span class="k">def</span><span class="w"> </span><span class="nf">distribution</span><span class="p">(</span><span class="n">distribution_name</span><span class="p">):</span>
+<span class="g g-Whitespace">    </span><span class="mi">914</span><span class="w">     </span><span class="sd">&quot;&quot;&quot;Get the ``Distribution`` instance for the named package.</span>
+<span class="g g-Whitespace">    </span><span class="mi">915</span><span class="sd"> </span>
+<span class="g g-Whitespace">    </span><span class="mi">916</span><span class="sd">     :param distribution_name: The name of the distribution package as a string.</span>
+<span class="g g-Whitespace">    </span><span class="mi">917</span><span class="sd">     :return: A ``Distribution`` instance (or subclass thereof).</span>
+<span class="g g-Whitespace">    </span><span class="mi">918</span><span class="sd">     &quot;&quot;&quot;</span>
+<span class="ne">--&gt; </span><span class="mi">919</span>     <span class="k">return</span> <span class="n">Distribution</span><span class="o">.</span><span class="n">from_name</span><span class="p">(</span><span class="n">distribution_name</span><span class="p">)</span>
+
+<span class="nn">File /Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/importlib/metadata/__init__.py:518,</span> in <span class="ni">Distribution.from_name</span><span class="nt">(cls, name)</span>
+<span class="g g-Whitespace">    </span><span class="mi">516</span>         <span class="k">return</span> <span class="n">dist</span>
+<span class="g g-Whitespace">    </span><span class="mi">517</span> <span class="k">else</span><span class="p">:</span>
+<span class="ne">--&gt; </span><span class="mi">518</span>     <span class="k">raise</span> <span class="n">PackageNotFoundError</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+<span class="ne">PackageNotFoundError</span>: No package metadata was found for tiktoken
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="exercise-5-1-temperature-scaled-softmax-scores-and-sampling-probabilities">
+<h1>Exercise 5.1: Temperature-scaled softmax scores and sampling probabilities<a class="headerlink" href="#exercise-5-1-temperature-scaled-softmax-scores-and-sampling-probabilities" title="Link to this heading">#</a></h1>
+<ul class="simple">
+<li><p>We can print the number of times the word “pizza” is sampled using the <code class="docutils literal notranslate"><span class="pre">print_sampled_tokens</span></code> function we defined in this section</p></li>
+<li><p>Let’s start with the code we defined in section 5.3.1</p></li>
+<li><p>It is sampled 0x if the temperature is 0 or 0.1, and it is sampled 32x if the temperature is scaled up to 5. The estimated probability is 32/1000 * 100% = 3.2%</p></li>
+<li><p>The actual probability is 4.3% and contained in the rescaled softmax probability tensor (<code class="docutils literal notranslate"><span class="pre">scaled_probas[2][6]</span></code>)</p></li>
+</ul>
+<ul class="simple">
+<li><p>Below is a self-contained example using code from chapter 5:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+
+<span class="n">vocab</span> <span class="o">=</span> <span class="p">{</span> 
+    <span class="s2">&quot;closer&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s2">&quot;every&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> 
+    <span class="s2">&quot;effort&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> 
+    <span class="s2">&quot;forward&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="s2">&quot;inches&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="s2">&quot;moves&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> 
+    <span class="s2">&quot;pizza&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+    <span class="s2">&quot;toward&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+    <span class="s2">&quot;you&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+<span class="p">}</span> 
+<span class="n">inverse_vocab</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vocab</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+<span class="n">next_token_logits</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span>
+    <span class="p">[</span><span class="mf">4.51</span><span class="p">,</span> <span class="mf">0.89</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.90</span><span class="p">,</span> <span class="mf">6.75</span><span class="p">,</span> <span class="mf">1.63</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.62</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.89</span><span class="p">,</span> <span class="mf">6.28</span><span class="p">,</span> <span class="mf">1.79</span><span class="p">]</span>
+<span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">print_sampled_tokens</span><span class="p">(</span><span class="n">probas</span><span class="p">):</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">123</span><span class="p">)</span>
+    <span class="n">sample</span> <span class="o">=</span> <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">multinomial</span><span class="p">(</span><span class="n">probas</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1_000</span><span class="p">)]</span>
+    <span class="n">sampled_ids</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">sample</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">freq</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sampled_ids</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">freq</span><span class="si">}</span><span class="s2"> x </span><span class="si">{</span><span class="n">inverse_vocab</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">softmax_with_temperature</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">temperature</span><span class="p">):</span>
+    <span class="n">scaled_logits</span> <span class="o">=</span> <span class="n">logits</span> <span class="o">/</span> <span class="n">temperature</span>
+    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">scaled_logits</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+
+<span class="n">temperatures</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>  <span class="c1"># Original, higher, and lower temperature</span>
+<span class="n">scaled_probas</span> <span class="o">=</span> <span class="p">[</span><span class="n">softmax_with_temperature</span><span class="p">(</span><span class="n">next_token_logits</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span> <span class="k">for</span> <span class="n">T</span> <span class="ow">in</span> <span class="n">temperatures</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>Now, we can iterate over the <code class="docutils literal notranslate"><span class="pre">scaled_probas</span></code> and print the sampling frequencies in each case:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">probas</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">scaled_probas</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Temperature:&quot;</span><span class="p">,</span> <span class="n">temperatures</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="n">print_sampled_tokens</span><span class="p">(</span><span class="n">probas</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Temperature: 1
+73 x closer
+0 x every
+0 x effort
+582 x forward
+2 x inches
+0 x moves
+0 x pizza
+343 x toward
+
+
+Temperature: 0.1
+0 x closer
+0 x every
+0 x effort
+985 x forward
+0 x inches
+0 x moves
+0 x pizza
+15 x toward
+
+
+Temperature: 5
+165 x closer
+75 x every
+42 x effort
+239 x forward
+71 x inches
+46 x moves
+32 x pizza
+227 x toward
+103 x you
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>Note that sampling offers an approximation of the actual probabilities when the word “pizza” is sampled</p></li>
+<li><p>E.g., if it is sampled 32/1000 times, the estimated probability is 3.2%</p></li>
+<li><p>To obtain the actual probability, we can check the probabilities directly by accessing the corresponding entry in <code class="docutils literal notranslate"><span class="pre">scaled_probas</span></code></p></li>
+<li><p>Since “pizza” is the 7th entry in the vocabulary, for the temperature of 5, we obtain it as follows:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">temp5_idx</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">pizza_idx</span> <span class="o">=</span> <span class="mi">6</span>
+
+<span class="n">scaled_probas</span><span class="p">[</span><span class="n">temp5_idx</span><span class="p">][</span><span class="n">pizza_idx</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>tensor(0.0430)
+</pre></div>
+</div>
+</div>
+</div>
+<p>There is a 4.3% probability that the word “pizza” is sampled if the temperature is set to 5</p>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="exercise-5-2-different-temperature-and-top-k-settings">
+<h1>Exercise 5.2: Different temperature and top-k settings<a class="headerlink" href="#exercise-5-2-different-temperature-and-top-k-settings" title="Link to this heading">#</a></h1>
+<ul class="simple">
+<li><p>Both temperature and top-k settings have to be adjusted based on the individual LLM (a kind of trial and error process until it generates desirable outputs)</p></li>
+<li><p>The desirable outcomes are also application-specific, though</p>
+<ul>
+<li><p>Lower top-k and temperatures result in less random outcomes, which is desired when creating educational content, technical writing or question answering, data analyses, code generation, and so forth</p></li>
+<li><p>Higher top-k and temperatures result in more diverse and random outputs, which is more desirable for brainstorming tasks, creative writing, and so forth</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="exercise-5-3-deterministic-behavior-in-the-decoding-functions">
+<h1>Exercise 5.3: Deterministic behavior in the decoding functions<a class="headerlink" href="#exercise-5-3-deterministic-behavior-in-the-decoding-functions" title="Link to this heading">#</a></h1>
+<p>There are multiple ways to force deterministic behavior with the <code class="docutils literal notranslate"><span class="pre">generate</span></code> function:</p>
+<ol class="arabic simple">
+<li><p>Setting to <code class="docutils literal notranslate"><span class="pre">temperature=0.0</span></code>;</p></li>
+<li><p>Setting <code class="docutils literal notranslate"><span class="pre">top_k=1</span></code>.</p></li>
+</ol>
+<p>Below is a self-contained example using code from chapter 5:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tiktoken</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">previous_chapters</span><span class="w"> </span><span class="kn">import</span> <span class="n">GPTModel</span>
+
+
+<span class="n">GPT_CONFIG_124M</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;vocab_size&quot;</span><span class="p">:</span> <span class="mi">50257</span><span class="p">,</span>  <span class="c1"># Vocabulary size</span>
+    <span class="s2">&quot;context_length&quot;</span><span class="p">:</span> <span class="mi">256</span><span class="p">,</span>       <span class="c1"># Shortened context length (orig: 1024)</span>
+    <span class="s2">&quot;emb_dim&quot;</span><span class="p">:</span> <span class="mi">768</span><span class="p">,</span>       <span class="c1"># Embedding dimension</span>
+    <span class="s2">&quot;n_heads&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>        <span class="c1"># Number of attention heads</span>
+    <span class="s2">&quot;n_layers&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>       <span class="c1"># Number of layers</span>
+    <span class="s2">&quot;drop_rate&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>     <span class="c1"># Dropout rate</span>
+    <span class="s2">&quot;qkv_bias&quot;</span><span class="p">:</span> <span class="kc">False</span>     <span class="c1"># Query-key-value bias</span>
+<span class="p">}</span>
+
+
+<span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">123</span><span class="p">)</span>
+
+<span class="n">tokenizer</span> <span class="o">=</span> <span class="n">tiktoken</span><span class="o">.</span><span class="n">get_encoding</span><span class="p">(</span><span class="s2">&quot;gpt2&quot;</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">GPTModel</span><span class="p">(</span><span class="n">GPT_CONFIG_124M</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;model.pth&quot;</span><span class="p">,</span> <span class="n">weights_only</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gpt_generate</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate</span><span class="p">,</span> <span class="n">text_to_token_ids</span><span class="p">,</span> <span class="n">token_ids_to_text</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">previous_chapters</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_text_simple</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Deterministic function that used torch.argmax</span>
+
+<span class="n">start_context</span> <span class="o">=</span> <span class="s2">&quot;Every effort moves you&quot;</span>
+
+<span class="n">token_ids</span> <span class="o">=</span> <span class="n">generate_text_simple</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+    <span class="n">idx</span><span class="o">=</span><span class="n">text_to_token_ids</span><span class="p">(</span><span class="n">start_context</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">),</span>
+    <span class="n">max_new_tokens</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
+    <span class="n">context_size</span><span class="o">=</span><span class="n">GPT_CONFIG_124M</span><span class="p">[</span><span class="s2">&quot;context_length&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Output text:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">token_ids_to_text</span><span class="p">(</span><span class="n">token_ids</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Output text:
+ Every effort moves you know,&quot; was one of the axioms he laid down across the Sevres and silver of an exquisitely appointed lun
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Deterministic behavior: No top_k, no temperature scaling</span>
+
+<span class="n">token_ids</span> <span class="o">=</span> <span class="n">generate</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+    <span class="n">idx</span><span class="o">=</span><span class="n">text_to_token_ids</span><span class="p">(</span><span class="s2">&quot;Every effort moves you&quot;</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">),</span>
+    <span class="n">max_new_tokens</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
+    <span class="n">context_size</span><span class="o">=</span><span class="n">GPT_CONFIG_124M</span><span class="p">[</span><span class="s2">&quot;context_length&quot;</span><span class="p">],</span>
+    <span class="n">top_k</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">temperature</span><span class="o">=</span><span class="mf">0.0</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Output text:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">token_ids_to_text</span><span class="p">(</span><span class="n">token_ids</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Output text:
+ Every effort moves you know,&quot; was one of the axioms he laid down across the Sevres and silver of an exquisitely appointed lun
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>Note that re-executing the previous code cell will produce the exact same generated text:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Deterministic behavior: No top_k, no temperature scaling</span>
+
+<span class="n">token_ids</span> <span class="o">=</span> <span class="n">generate</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+    <span class="n">idx</span><span class="o">=</span><span class="n">text_to_token_ids</span><span class="p">(</span><span class="s2">&quot;Every effort moves you&quot;</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">),</span>
+    <span class="n">max_new_tokens</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
+    <span class="n">context_size</span><span class="o">=</span><span class="n">GPT_CONFIG_124M</span><span class="p">[</span><span class="s2">&quot;context_length&quot;</span><span class="p">],</span>
+    <span class="n">top_k</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">temperature</span><span class="o">=</span><span class="mf">0.0</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Output text:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">token_ids_to_text</span><span class="p">(</span><span class="n">token_ids</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Output text:
+ Every effort moves you know,&quot; was one of the axioms he laid down across the Sevres and silver of an exquisitely appointed lun
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="exercise-5-4-continued-pretraining">
+<h1>Exercise 5.4: Continued pretraining<a class="headerlink" href="#exercise-5-4-continued-pretraining" title="Link to this heading">#</a></h1>
+<ul class="simple">
+<li><p>If we are still in the Python session where you first trained the model in chapter 5, to continue the pretraining for one more epoch, we just have to load the model and optimizer that we saved in the main chapter and call the <code class="docutils literal notranslate"><span class="pre">train_model_simple</span></code> function again</p></li>
+<li><p>It takes a couple more steps to make this reproducible in this new code environment</p></li>
+<li><p>First, we load the tokenizer, model, and optimizer:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tiktoken</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">previous_chapters</span><span class="w"> </span><span class="kn">import</span> <span class="n">GPTModel</span>
+
+
+<span class="n">GPT_CONFIG_124M</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;vocab_size&quot;</span><span class="p">:</span> <span class="mi">50257</span><span class="p">,</span>   <span class="c1"># Vocabulary size</span>
+    <span class="s2">&quot;context_length&quot;</span><span class="p">:</span> <span class="mi">256</span><span class="p">,</span> <span class="c1"># Shortened context length (orig: 1024)</span>
+    <span class="s2">&quot;emb_dim&quot;</span><span class="p">:</span> <span class="mi">768</span><span class="p">,</span>        <span class="c1"># Embedding dimension</span>
+    <span class="s2">&quot;n_heads&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>         <span class="c1"># Number of attention heads</span>
+    <span class="s2">&quot;n_layers&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>        <span class="c1"># Number of layers</span>
+    <span class="s2">&quot;drop_rate&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>      <span class="c1"># Dropout rate</span>
+    <span class="s2">&quot;qkv_bias&quot;</span><span class="p">:</span> <span class="kc">False</span>      <span class="c1"># Query-key-value bias</span>
+<span class="p">}</span>
+
+<span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+
+<span class="n">tokenizer</span> <span class="o">=</span> <span class="n">tiktoken</span><span class="o">.</span><span class="n">get_encoding</span><span class="p">(</span><span class="s2">&quot;gpt2&quot;</span><span class="p">)</span>
+
+<span class="n">checkpoint</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;model_and_optimizer.pth&quot;</span><span class="p">,</span> <span class="n">weights_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">GPTModel</span><span class="p">(</span><span class="n">GPT_CONFIG_124M</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">[</span><span class="s2">&quot;model_state_dict&quot;</span><span class="p">])</span>
+<span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">AdamW</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.0004</span><span class="p">,</span> <span class="n">weight_decay</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="n">optimizer</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">[</span><span class="s2">&quot;optimizer_state_dict&quot;</span><span class="p">])</span>
+<span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>Next, we initialize the data loader:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">urllib.request</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">previous_chapters</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_dataloader_v1</span>
+
+
+<span class="n">file_path</span> <span class="o">=</span> <span class="s2">&quot;the-verdict.txt&quot;</span>
+<span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://raw.githubusercontent.com/rasbt/LLMs-from-scratch/main/ch02/01_main-chapter-code/the-verdict.txt&quot;</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">)</span> <span class="k">as</span> <span class="n">response</span><span class="p">:</span>
+        <span class="n">text_data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+        <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">text_data</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+        <span class="n">text_data</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+
+<span class="c1"># Train/validation ratio</span>
+<span class="n">train_ratio</span> <span class="o">=</span> <span class="mf">0.90</span>
+<span class="n">split_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">train_ratio</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">text_data</span><span class="p">))</span>
+<span class="n">train_data</span> <span class="o">=</span> <span class="n">text_data</span><span class="p">[:</span><span class="n">split_idx</span><span class="p">]</span>
+<span class="n">val_data</span> <span class="o">=</span> <span class="n">text_data</span><span class="p">[</span><span class="n">split_idx</span><span class="p">:]</span>
+
+
+<span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">123</span><span class="p">)</span>
+
+<span class="n">train_loader</span> <span class="o">=</span> <span class="n">create_dataloader_v1</span><span class="p">(</span>
+    <span class="n">train_data</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">max_length</span><span class="o">=</span><span class="n">GPT_CONFIG_124M</span><span class="p">[</span><span class="s2">&quot;context_length&quot;</span><span class="p">],</span>
+    <span class="n">stride</span><span class="o">=</span><span class="n">GPT_CONFIG_124M</span><span class="p">[</span><span class="s2">&quot;context_length&quot;</span><span class="p">],</span>
+    <span class="n">drop_last</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">num_workers</span><span class="o">=</span><span class="mi">0</span>
+<span class="p">)</span>
+
+<span class="n">val_loader</span> <span class="o">=</span> <span class="n">create_dataloader_v1</span><span class="p">(</span>
+    <span class="n">val_data</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">max_length</span><span class="o">=</span><span class="n">GPT_CONFIG_124M</span><span class="p">[</span><span class="s2">&quot;context_length&quot;</span><span class="p">],</span>
+    <span class="n">stride</span><span class="o">=</span><span class="n">GPT_CONFIG_124M</span><span class="p">[</span><span class="s2">&quot;context_length&quot;</span><span class="p">],</span>
+    <span class="n">drop_last</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">num_workers</span><span class="o">=</span><span class="mi">0</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>Lastly, we use the <code class="docutils literal notranslate"><span class="pre">train_model_simple</span></code> function to train the model:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gpt_train</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_model_simple</span>
+
+<span class="n">num_epochs</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">train_losses</span><span class="p">,</span> <span class="n">val_losses</span><span class="p">,</span> <span class="n">tokens_seen</span> <span class="o">=</span> <span class="n">train_model_simple</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">,</span> <span class="n">train_loader</span><span class="p">,</span> <span class="n">val_loader</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span>
+    <span class="n">num_epochs</span><span class="o">=</span><span class="n">num_epochs</span><span class="p">,</span> <span class="n">eval_freq</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">eval_iter</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">start_context</span><span class="o">=</span><span class="s2">&quot;Every effort moves you&quot;</span><span class="p">,</span> <span class="n">tokenizer</span><span class="o">=</span><span class="n">tokenizer</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Ep 1 (Step 000000): Train loss 0.271, Val loss 6.545
+Ep 1 (Step 000005): Train loss 0.244, Val loss 6.614
+Every effort moves you?&quot;  &quot;Yes--quite insensible to the irony. She wanted him vindicated--and by me!&quot;  He laughed again, and threw back his head to look up at the sketch of the donkey. &quot;There were days when I
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="exercise-5-5-training-and-validation-set-losses-of-the-pretrained-model">
+<h1>Exercise 5.5: Training and validation set losses of the pretrained model<a class="headerlink" href="#exercise-5-5-training-and-validation-set-losses-of-the-pretrained-model" title="Link to this heading">#</a></h1>
+<ul class="simple">
+<li><p>We can use the following code to calculate the training and validation set losses of the GPT model:</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">train_loss</span> <span class="o">=</span> <span class="n">calc_loss_loader</span><span class="p">(</span><span class="n">train_loader</span><span class="p">,</span> <span class="n">gpt</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
+<span class="n">val_loss</span> <span class="o">=</span> <span class="n">calc_loss_loader</span><span class="p">(</span><span class="n">val_loader</span><span class="p">,</span> <span class="n">gpt</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>The resulting losses for the 124M parameter are as follows:</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Training</span> <span class="n">loss</span><span class="p">:</span> <span class="mf">3.754748503367106</span>
+<span class="n">Validation</span> <span class="n">loss</span><span class="p">:</span> <span class="mf">3.559617757797241</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>The main observation is that the training and validation set performances are in the same ballpark</p></li>
+<li><p>This can have multiple explanations:</p></li>
+</ul>
+<ol class="arabic simple">
+<li><p>The Verdict was not part of the pretraining dataset when OpenAI trained GPT-2. Hence, the model is not explicitly overfitting to the training set and performs similarly well on The Verdict’s training and validation set portions. (The validation set loss is slightly lower than the training set loss, which is unusual in deep learning. However, it’s likely due to random noise since the dataset is relatively small. In practice, if there is no overfitting, the training and validation set performances are expected to be roughly identical).</p></li>
+<li><p>The Verdict was part of GPT -2’s training dataset. In this case, we can’t tell whether the model is overfitting the training data because the validation set would have been used for training as well. To evaluate the degree of overfitting, we’d need a new dataset generated after OpenAI finished training GPT-2 to make sure that it couldn’t have been part of the pretraining.</p></li>
+</ol>
+<p>The code below is a reproducible standalone example for this new notebook.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tiktoken</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">previous_chapters</span><span class="w"> </span><span class="kn">import</span> <span class="n">GPTModel</span>
+
+
+<span class="n">GPT_CONFIG_124M</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;vocab_size&quot;</span><span class="p">:</span> <span class="mi">50257</span><span class="p">,</span>   <span class="c1"># Vocabulary size</span>
+    <span class="s2">&quot;context_length&quot;</span><span class="p">:</span> <span class="mi">256</span><span class="p">,</span> <span class="c1"># Shortened context length (orig: 1024)</span>
+    <span class="s2">&quot;emb_dim&quot;</span><span class="p">:</span> <span class="mi">768</span><span class="p">,</span>        <span class="c1"># Embedding dimension</span>
+    <span class="s2">&quot;n_heads&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>         <span class="c1"># Number of attention heads</span>
+    <span class="s2">&quot;n_layers&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>        <span class="c1"># Number of layers</span>
+    <span class="s2">&quot;drop_rate&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>      <span class="c1"># Dropout rate</span>
+    <span class="s2">&quot;qkv_bias&quot;</span><span class="p">:</span> <span class="kc">False</span>      <span class="c1"># Query-key-value bias</span>
+<span class="p">}</span>
+
+
+<span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">123</span><span class="p">)</span>
+
+<span class="n">tokenizer</span> <span class="o">=</span> <span class="n">tiktoken</span><span class="o">.</span><span class="n">get_encoding</span><span class="p">(</span><span class="s2">&quot;gpt2&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gpt_download</span><span class="w"> </span><span class="kn">import</span> <span class="n">download_and_load_gpt2</span>
+
+<span class="n">settings</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="n">download_and_load_gpt2</span><span class="p">(</span><span class="n">model_size</span><span class="o">=</span><span class="s2">&quot;124M&quot;</span><span class="p">,</span> <span class="n">models_dir</span><span class="o">=</span><span class="s2">&quot;gpt2&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>File already exists and is up-to-date: gpt2/124M/checkpoint
+File already exists and is up-to-date: gpt2/124M/encoder.json
+File already exists and is up-to-date: gpt2/124M/hparams.json
+File already exists and is up-to-date: gpt2/124M/model.ckpt.data-00000-of-00001
+File already exists and is up-to-date: gpt2/124M/model.ckpt.index
+File already exists and is up-to-date: gpt2/124M/model.ckpt.meta
+File already exists and is up-to-date: gpt2/124M/vocab.bpe
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define model configurations in a dictionary for compactness</span>
+<span class="n">model_configs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;gpt2-small (124M)&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;emb_dim&quot;</span><span class="p">:</span> <span class="mi">768</span><span class="p">,</span> <span class="s2">&quot;n_layers&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="s2">&quot;n_heads&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">},</span>
+    <span class="s2">&quot;gpt2-medium (355M)&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;emb_dim&quot;</span><span class="p">:</span> <span class="mi">1024</span><span class="p">,</span> <span class="s2">&quot;n_layers&quot;</span><span class="p">:</span> <span class="mi">24</span><span class="p">,</span> <span class="s2">&quot;n_heads&quot;</span><span class="p">:</span> <span class="mi">16</span><span class="p">},</span>
+    <span class="s2">&quot;gpt2-large (774M)&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;emb_dim&quot;</span><span class="p">:</span> <span class="mi">1280</span><span class="p">,</span> <span class="s2">&quot;n_layers&quot;</span><span class="p">:</span> <span class="mi">36</span><span class="p">,</span> <span class="s2">&quot;n_heads&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">},</span>
+    <span class="s2">&quot;gpt2-xl (1558M)&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;emb_dim&quot;</span><span class="p">:</span> <span class="mi">1600</span><span class="p">,</span> <span class="s2">&quot;n_layers&quot;</span><span class="p">:</span> <span class="mi">48</span><span class="p">,</span> <span class="s2">&quot;n_heads&quot;</span><span class="p">:</span> <span class="mi">25</span><span class="p">},</span>
+<span class="p">}</span>
+
+<span class="c1"># Copy the base configuration and update with specific model settings</span>
+<span class="n">model_name</span> <span class="o">=</span> <span class="s2">&quot;gpt2-small (124M)&quot;</span>  <span class="c1"># Example model name</span>
+<span class="n">NEW_CONFIG</span> <span class="o">=</span> <span class="n">GPT_CONFIG_124M</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">NEW_CONFIG</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">model_configs</span><span class="p">[</span><span class="n">model_name</span><span class="p">])</span>
+<span class="n">NEW_CONFIG</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;context_length&quot;</span><span class="p">:</span> <span class="mi">1024</span><span class="p">,</span> <span class="s2">&quot;qkv_bias&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+
+<span class="n">gpt</span> <span class="o">=</span> <span class="n">GPTModel</span><span class="p">(</span><span class="n">NEW_CONFIG</span><span class="p">)</span>
+<span class="n">gpt</span><span class="o">.</span><span class="n">eval</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gpt_generate</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_weights_into_gpt</span>
+
+
+<span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+<span class="n">load_weights_into_gpt</span><span class="p">(</span><span class="n">gpt</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+<span class="n">gpt</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">urllib.request</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">previous_chapters</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_dataloader_v1</span>
+
+
+<span class="n">file_path</span> <span class="o">=</span> <span class="s2">&quot;the-verdict.txt&quot;</span>
+<span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://raw.githubusercontent.com/rasbt/LLMs-from-scratch/main/ch02/01_main-chapter-code/the-verdict.txt&quot;</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">)</span> <span class="k">as</span> <span class="n">response</span><span class="p">:</span>
+        <span class="n">text_data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+        <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">text_data</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+        <span class="n">text_data</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+
+<span class="c1"># Train/validation ratio</span>
+<span class="n">train_ratio</span> <span class="o">=</span> <span class="mf">0.90</span>
+<span class="n">split_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">train_ratio</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">text_data</span><span class="p">))</span>
+<span class="n">train_data</span> <span class="o">=</span> <span class="n">text_data</span><span class="p">[:</span><span class="n">split_idx</span><span class="p">]</span>
+<span class="n">val_data</span> <span class="o">=</span> <span class="n">text_data</span><span class="p">[</span><span class="n">split_idx</span><span class="p">:]</span>
+
+
+<span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">123</span><span class="p">)</span>
+
+<span class="n">train_loader</span> <span class="o">=</span> <span class="n">create_dataloader_v1</span><span class="p">(</span>
+    <span class="n">train_data</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">max_length</span><span class="o">=</span><span class="n">GPT_CONFIG_124M</span><span class="p">[</span><span class="s2">&quot;context_length&quot;</span><span class="p">],</span>
+    <span class="n">stride</span><span class="o">=</span><span class="n">GPT_CONFIG_124M</span><span class="p">[</span><span class="s2">&quot;context_length&quot;</span><span class="p">],</span>
+    <span class="n">drop_last</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">num_workers</span><span class="o">=</span><span class="mi">0</span>
+<span class="p">)</span>
+
+<span class="n">val_loader</span> <span class="o">=</span> <span class="n">create_dataloader_v1</span><span class="p">(</span>
+    <span class="n">val_data</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">max_length</span><span class="o">=</span><span class="n">GPT_CONFIG_124M</span><span class="p">[</span><span class="s2">&quot;context_length&quot;</span><span class="p">],</span>
+    <span class="n">stride</span><span class="o">=</span><span class="n">GPT_CONFIG_124M</span><span class="p">[</span><span class="s2">&quot;context_length&quot;</span><span class="p">],</span>
+    <span class="n">drop_last</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">num_workers</span><span class="o">=</span><span class="mi">0</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gpt_train</span><span class="w"> </span><span class="kn">import</span> <span class="n">calc_loss_loader</span>
+
+<span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">123</span><span class="p">)</span> <span class="c1"># For reproducibility due to the shuffling in the data loader</span>
+<span class="n">train_loss</span> <span class="o">=</span> <span class="n">calc_loss_loader</span><span class="p">(</span><span class="n">train_loader</span><span class="p">,</span> <span class="n">gpt</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
+<span class="n">val_loss</span> <span class="o">=</span> <span class="n">calc_loss_loader</span><span class="p">(</span><span class="n">val_loader</span><span class="p">,</span> <span class="n">gpt</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Training loss:&quot;</span><span class="p">,</span> <span class="n">train_loss</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Validation loss:&quot;</span><span class="p">,</span> <span class="n">val_loss</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Training loss: 3.7547486888037787
+Validation loss: 3.5596182346343994
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can also repeat this for the largest GPT-2 model, but don’t forget to update the context length:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">settings</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="n">download_and_load_gpt2</span><span class="p">(</span><span class="n">model_size</span><span class="o">=</span><span class="s2">&quot;1558M&quot;</span><span class="p">,</span> <span class="n">models_dir</span><span class="o">=</span><span class="s2">&quot;gpt2&quot;</span><span class="p">)</span>
+
+<span class="n">model_name</span> <span class="o">=</span> <span class="s2">&quot;gpt2-xl (1558M)&quot;</span>
+<span class="n">NEW_CONFIG</span> <span class="o">=</span> <span class="n">GPT_CONFIG_124M</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">NEW_CONFIG</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">model_configs</span><span class="p">[</span><span class="n">model_name</span><span class="p">])</span>
+<span class="n">NEW_CONFIG</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;context_length&quot;</span><span class="p">:</span> <span class="mi">1024</span><span class="p">,</span> <span class="s2">&quot;qkv_bias&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+
+<span class="n">gpt</span> <span class="o">=</span> <span class="n">GPTModel</span><span class="p">(</span><span class="n">NEW_CONFIG</span><span class="p">)</span>
+<span class="n">gpt</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+
+<span class="n">load_weights_into_gpt</span><span class="p">(</span><span class="n">gpt</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+<span class="n">gpt</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+<span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">123</span><span class="p">)</span>
+<span class="n">train_loss</span> <span class="o">=</span> <span class="n">calc_loss_loader</span><span class="p">(</span><span class="n">train_loader</span><span class="p">,</span> <span class="n">gpt</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
+<span class="n">val_loss</span> <span class="o">=</span> <span class="n">calc_loss_loader</span><span class="p">(</span><span class="n">val_loader</span><span class="p">,</span> <span class="n">gpt</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Training loss:&quot;</span><span class="p">,</span> <span class="n">train_loss</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Validation loss:&quot;</span><span class="p">,</span> <span class="n">val_loss</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>checkpoint: 100%|███████████████████████████| 77.0/77.0 [00:00&lt;00:00, 43.5kiB/s]
+encoder.json: 100%|███████████████████████| 1.04M/1.04M [00:00&lt;00:00, 2.75MiB/s]
+hparams.json: 100%|█████████████████████████| 91.0/91.0 [00:00&lt;00:00, 60.2kiB/s]
+model.ckpt.data-00000-of-00001: 100%|█████| 6.23G/6.23G [06:02&lt;00:00, 17.2MiB/s]
+model.ckpt.index: 100%|████████████████████| 20.7k/20.7k [00:00&lt;00:00, 171kiB/s]
+model.ckpt.meta: 100%|████████████████████| 1.84M/1.84M [00:00&lt;00:00, 4.27MiB/s]
+vocab.bpe: 100%|████████████████████████████| 456k/456k [00:00&lt;00:00, 1.73MiB/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Training loss: 3.3046312861972384
+Validation loss: 3.1195147037506104
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="exercise-5-6-trying-larger-models">
+<h1>Exercise 5.6: Trying larger models<a class="headerlink" href="#exercise-5-6-trying-larger-models" title="Link to this heading">#</a></h1>
+<ul class="simple">
+<li><p>In the main chapter, we experimented with the smallest GPT-2 model, which has only 124M parameters</p></li>
+<li><p>The reason was to keep the resource requirements as low as possible</p></li>
+<li><p>However, you can easily experiment with larger models with minimal code changes</p></li>
+<li><p>For example, instead of loading the 1558M instead of 124M model in chapter 5, the only 2 lines of code that we have to change are</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">settings</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="n">download_and_load_gpt2</span><span class="p">(</span><span class="n">model_size</span><span class="o">=</span><span class="s2">&quot;124M&quot;</span><span class="p">,</span> <span class="n">models_dir</span><span class="o">=</span><span class="s2">&quot;gpt2&quot;</span><span class="p">)</span>
+<span class="n">model_name</span> <span class="o">=</span> <span class="s2">&quot;gpt2-small (124M)&quot;</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>The updated code becomes</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">settings</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="n">download_and_load_gpt2</span><span class="p">(</span><span class="n">model_size</span><span class="o">=</span><span class="s2">&quot;1558M&quot;</span><span class="p">,</span> <span class="n">models_dir</span><span class="o">=</span><span class="s2">&quot;gpt2&quot;</span><span class="p">)</span>
+<span class="n">model_name</span> <span class="o">=</span> <span class="s2">&quot;gpt2-xl (1558M)&quot;</span>
+</pre></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tiktoken</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">previous_chapters</span><span class="w"> </span><span class="kn">import</span> <span class="n">GPTModel</span>
+
+
+<span class="n">GPT_CONFIG_124M</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;vocab_size&quot;</span><span class="p">:</span> <span class="mi">50257</span><span class="p">,</span>   <span class="c1"># Vocabulary size</span>
+    <span class="s2">&quot;context_length&quot;</span><span class="p">:</span> <span class="mi">256</span><span class="p">,</span> <span class="c1"># Shortened context length (orig: 1024)</span>
+    <span class="s2">&quot;emb_dim&quot;</span><span class="p">:</span> <span class="mi">768</span><span class="p">,</span>        <span class="c1"># Embedding dimension</span>
+    <span class="s2">&quot;n_heads&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>         <span class="c1"># Number of attention heads</span>
+    <span class="s2">&quot;n_layers&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>        <span class="c1"># Number of layers</span>
+    <span class="s2">&quot;drop_rate&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>      <span class="c1"># Dropout rate</span>
+    <span class="s2">&quot;qkv_bias&quot;</span><span class="p">:</span> <span class="kc">False</span>      <span class="c1"># Query-key-value bias</span>
+<span class="p">}</span>
+
+
+<span class="n">tokenizer</span> <span class="o">=</span> <span class="n">tiktoken</span><span class="o">.</span><span class="n">get_encoding</span><span class="p">(</span><span class="s2">&quot;gpt2&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gpt_download</span><span class="w"> </span><span class="kn">import</span> <span class="n">download_and_load_gpt2</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">gpt_generate</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_weights_into_gpt</span>
+
+
+<span class="n">model_configs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;gpt2-small (124M)&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;emb_dim&quot;</span><span class="p">:</span> <span class="mi">768</span><span class="p">,</span> <span class="s2">&quot;n_layers&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="s2">&quot;n_heads&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">},</span>
+    <span class="s2">&quot;gpt2-medium (355M)&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;emb_dim&quot;</span><span class="p">:</span> <span class="mi">1024</span><span class="p">,</span> <span class="s2">&quot;n_layers&quot;</span><span class="p">:</span> <span class="mi">24</span><span class="p">,</span> <span class="s2">&quot;n_heads&quot;</span><span class="p">:</span> <span class="mi">16</span><span class="p">},</span>
+    <span class="s2">&quot;gpt2-large (774M)&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;emb_dim&quot;</span><span class="p">:</span> <span class="mi">1280</span><span class="p">,</span> <span class="s2">&quot;n_layers&quot;</span><span class="p">:</span> <span class="mi">36</span><span class="p">,</span> <span class="s2">&quot;n_heads&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">},</span>
+    <span class="s2">&quot;gpt2-xl (1558M)&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;emb_dim&quot;</span><span class="p">:</span> <span class="mi">1600</span><span class="p">,</span> <span class="s2">&quot;n_layers&quot;</span><span class="p">:</span> <span class="mi">48</span><span class="p">,</span> <span class="s2">&quot;n_heads&quot;</span><span class="p">:</span> <span class="mi">25</span><span class="p">},</span>
+<span class="p">}</span>
+
+<span class="n">model_name</span> <span class="o">=</span> <span class="s2">&quot;gpt2-xl (1558M)&quot;</span>
+<span class="n">NEW_CONFIG</span> <span class="o">=</span> <span class="n">GPT_CONFIG_124M</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">NEW_CONFIG</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">model_configs</span><span class="p">[</span><span class="n">model_name</span><span class="p">])</span>
+<span class="n">NEW_CONFIG</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;context_length&quot;</span><span class="p">:</span> <span class="mi">1024</span><span class="p">,</span> <span class="s2">&quot;qkv_bias&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+
+<span class="n">gpt</span> <span class="o">=</span> <span class="n">GPTModel</span><span class="p">(</span><span class="n">NEW_CONFIG</span><span class="p">)</span>
+<span class="n">gpt</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+
+<span class="n">settings</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="n">download_and_load_gpt2</span><span class="p">(</span><span class="n">model_size</span><span class="o">=</span><span class="s2">&quot;1558M&quot;</span><span class="p">,</span> <span class="n">models_dir</span><span class="o">=</span><span class="s2">&quot;gpt2&quot;</span><span class="p">)</span>
+<span class="n">load_weights_into_gpt</span><span class="p">(</span><span class="n">gpt</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>File already exists and is up-to-date: gpt2/1558M/checkpoint
+File already exists and is up-to-date: gpt2/1558M/encoder.json
+File already exists and is up-to-date: gpt2/1558M/hparams.json
+File already exists and is up-to-date: gpt2/1558M/model.ckpt.data-00000-of-00001
+File already exists and is up-to-date: gpt2/1558M/model.ckpt.index
+File already exists and is up-to-date: gpt2/1558M/model.ckpt.meta
+File already exists and is up-to-date: gpt2/1558M/vocab.bpe
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gpt_generate</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate</span><span class="p">,</span> <span class="n">text_to_token_ids</span><span class="p">,</span> <span class="n">token_ids_to_text</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">123</span><span class="p">)</span>
+
+<span class="n">token_ids</span> <span class="o">=</span> <span class="n">generate</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">gpt</span><span class="p">,</span>
+    <span class="n">idx</span><span class="o">=</span><span class="n">text_to_token_ids</span><span class="p">(</span><span class="s2">&quot;Every effort moves you&quot;</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">),</span>
+    <span class="n">max_new_tokens</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
+    <span class="n">context_size</span><span class="o">=</span><span class="n">NEW_CONFIG</span><span class="p">[</span><span class="s2">&quot;context_length&quot;</span><span class="p">],</span>
+    <span class="n">top_k</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+    <span class="n">temperature</span><span class="o">=</span><span class="mf">1.5</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Output text:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">token_ids_to_text</span><span class="p">(</span><span class="n">token_ids</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Output text:
+ Every effort moves you toward finding an ideal life. You don&#39;t have to accept your current one at once, because if you do you&#39;ll never
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./ch05/01_main-chapter-code"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="ch05.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Chapter 5: Pretraining on Unlabeled Data</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../02_alternative_weight_loading/README.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Alternative Approaches to Loading Pretrained Weights</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Chapter 5 Exercise solutions</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-5-1-temperature-scaled-softmax-scores-and-sampling-probabilities">Exercise 5.1: Temperature-scaled softmax scores and sampling probabilities</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-5-2-different-temperature-and-top-k-settings">Exercise 5.2: Different temperature and top-k settings</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-5-3-deterministic-behavior-in-the-decoding-functions">Exercise 5.3: Deterministic behavior in the decoding functions</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-5-4-continued-pretraining">Exercise 5.4: Continued pretraining</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-5-5-training-and-validation-set-losses-of-the-pretrained-model">Exercise 5.5: Training and validation set losses of the pretrained model</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-5-6-trying-larger-models">Exercise 5.6: Trying larger models</a></li>
+</ul>
+
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Sebastian Raschka
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,929 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Pretraining GPT on the Project Gutenberg Dataset &#8212; LLMs from Scratch</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'ch05/03_bonus_pretraining_on_gutenberg/README';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Adding Bells and Whistles to the Training Loop" href="../04_learning_rate_schedulers/README.html" />
+    <link rel="prev" title="Bonus Code for Chapter 5" href="../02_alternative_weight_loading/weight-loading-pytorch.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../README.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">LLMs from Scratch</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../README.html">
+                    Build a Large Language Model (From Scratch)
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Setup</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../setup/README.html">Optional Setup Instructions</a></li>
+
+
+
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Chapters</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../ch01/README.html">Chapter 1: Understanding Large Language Models</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch02/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/01_main-chapter-code/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/01_main-chapter-code/ch02.html">Chapter 2: Working with Text Data</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/01_main-chapter-code/dataloader.html">The Main Data Loading Pipeline Summarized</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/01_main-chapter-code/exercise-solutions.html">Chapter 2 Exercise solutions</a></li>
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/02_bonus_bytepair-encoder/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/02_bonus_bytepair-encoder/compare-bpe-tiktoken.html">Comparing Various Byte Pair Encoding (BPE) Implementations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/03_bonus_embedding-vs-matmul/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/03_bonus_embedding-vs-matmul/embeddings-and-linear-layers.html">Understanding the Difference Between Embedding Layers and Linear Layers</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/04_bonus_dataloader-intuition/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/04_bonus_dataloader-intuition/dataloader-intuition.html">Data sampling with a sliding window with number data</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/05_bpe-from-scratch/README.html">Byte Pair Encoding (BPE) Tokenizer From Scratch</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/05_bpe-from-scratch/bpe-from-scratch.html">Byte Pair Encoding (BPE) Tokenizer From Scratch</a></li>
+
+
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch03/README.html">Chapter 3: Coding Attention Mechanisms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch03/01_main-chapter-code/README.html">Chapter 3: Coding Attention Mechanisms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/01_main-chapter-code/ch03.html">Chapter 3: Coding Attention Mechanisms</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/01_main-chapter-code/multihead-attention.html">Multi-head Attention Plus Data Loading</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/01_main-chapter-code/exercise-solutions.html">Chapter 3 Exercise solutions</a></li>
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch03/02_bonus_efficient-multihead-attention/README.html">More Efficient Multi-Head Attention Implementations</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/02_bonus_efficient-multihead-attention/mha-implementations.html">Comparing Efficient Multi-Head Attention Implementations</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch03/03_understanding-buffers/README.html">Understanding PyTorch Buffers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/03_understanding-buffers/understanding-buffers.html">Understanding PyTorch Buffers</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch04/README.html">Chapter 4: Implementing a GPT Model from Scratch to Generate Text</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch04/01_main-chapter-code/README.html">Chapter 4: Implementing a GPT Model from Scratch To Generate Text</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch04/01_main-chapter-code/ch04.html">Chapter 4: Implementing a GPT model from Scratch To Generate Text</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch04/01_main-chapter-code/exercise-solutions.html">Chapter 4 Exercise solutions</a></li>
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch04/02_performance-analysis/README.html">Chapter 4: Implementing a GPT Model from Scratch To Generate Text</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch04/02_performance-analysis/flops-analysis.html">FLOPS Analysis</a></li>
+
+
+
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../README.html">Chapter 5: Pretraining on Unlabeled Data</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../01_main-chapter-code/README.html">Chapter 5: Pretraining on Unlabeled Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../01_main-chapter-code/ch05.html">Chapter 5: Pretraining on Unlabeled Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01_main-chapter-code/exercise-solutions.html">Chapter 5 Exercise solutions</a></li>
+
+
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../02_alternative_weight_loading/README.html">Alternative Approaches to Loading Pretrained Weights</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../02_alternative_weight_loading/weight-loading-hf-safetensors.html">Bonus Code for Chapter 5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02_alternative_weight_loading/weight-loading-hf-transformers.html">Bonus Code for Chapter 5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02_alternative_weight_loading/weight-loading-pytorch.html">Bonus Code for Chapter 5</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Pretraining GPT on the Project Gutenberg Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04_learning_rate_schedulers/README.html">Adding Bells and Whistles to the Training Loop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05_bonus_hparam_tuning/README.html">Optimizing Hyperparameters for Pretraining</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06_user_interface/README.html">Building a User Interface to Interact With the Pretrained LLM</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../07_gpt_to_llama/README.html">Converting GPT to Llama</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../07_gpt_to_llama/converting-gpt-to-llama2.html">Converting a From-Scratch GPT Architecture to Llama 2</a></li>
+
+
+<li class="toctree-l3"><a class="reference internal" href="../07_gpt_to_llama/converting-llama2-to-llama3.html">Converting Llama 2 to Llama 3.2 From Scratch</a></li>
+
+
+
+
+<li class="toctree-l3"><a class="reference internal" href="../07_gpt_to_llama/standalone-llama32.html">Llama 3.2 From Scratch (A Standalone Notebook)</a></li>
+
+
+
+
+
+
+<li class="toctree-l3"><a class="reference internal" href="../07_gpt_to_llama/standalone-llama32-mem-opt.html">Llama 3.2 From Scratch (A Standalone Notebook)</a></li>
+
+
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../08_memory_efficient_weight_loading/README.html">Memory-efficient Model Weight Loading</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../08_memory_efficient_weight_loading/memory-efficient-state-dict.html">Memory-efficient Model Weight Loading</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../09_extending-tokenizers/README.html">Extending the Tiktoken BPE Tokenizer with New Tokens</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../09_extending-tokenizers/extend-tiktoken.html">Extending the Tiktoken BPE Tokenizer with New Tokens</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../10_llm-training-speed/README.html">PyTorch Performance Tips for Faster LLM Training</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch06/README.html">Chapter 6: Finetuning for Classification</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch06/01_main-chapter-code/README.html">Chapter 6: Finetuning for Classification</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch06/01_main-chapter-code/ch06.html">Chapter 6: Finetuning for Text Classification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch06/01_main-chapter-code/load-finetuned-model.html">Load And Use Finetuned Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch06/01_main-chapter-code/exercise-solutions.html">Chapter 6 Exercise solutions</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch06/02_bonus_additional-experiments/README.html">Additional Classification Finetuning Experiments</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch06/03_bonus_imdb-classification/README.html">Additional Experiments Classifying the Sentiment of 50k IMDB Movie Reviews</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch06/03_bonus_imdb-classification/sklearn-baseline.html">Scikit-learn Logistic Regression Model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch06/04_user_interface/README.html">Building a User Interface to Interact With the GPT-based Spam Classifier</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch07/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/01_main-chapter-code/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/01_main-chapter-code/ch07.html">Chapter 7: Finetuning To Follow Instructions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/01_main-chapter-code/load-finetuned-model.html">Load And Use Finetuned Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/01_main-chapter-code/exercise-solutions.html">Chapter 7 Exercise solutions</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/02_dataset-utilities/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/02_dataset-utilities/create-passive-voice-entries.html">Create “Passive Voice” Entries for an Instruction Dataset</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/03_model-evaluation/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/03_model-evaluation/llm-instruction-eval-ollama.html">Evaluating Instruction Responses Locally Using a Llama 3 Model Via Ollama</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/03_model-evaluation/llm-instruction-eval-openai.html">Evaluating Instruction Responses Using the OpenAI API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/03_model-evaluation/scores/correlation-analysis.html">Score Correlation Analysis</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/04_preference-tuning-with-dpo/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/04_preference-tuning-with-dpo/create-preference-data-ollama.html">Generating A Preference Dataset With Llama 3.1 70B And Ollama</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/04_preference-tuning-with-dpo/dpo-from-scratch.html">Direct Preference Optimization (DPO) for LLM Alignment (From Scratch)</a></li>
+
+
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/05_dataset-generation/README.html">Generating Datasets for Instruction Finetuning</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/05_dataset-generation/llama3-ollama.html">Generating An Instruction Dataset via Llama 3 and Ollama</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/05_dataset-generation/reflection-gpt4.html">Improving Instruction-Data Via Reflection-Tuning Using GPT-4</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch07/06_user_interface/README.html">Building a User Interface to Interact With the Instruction Finetuned GPT Model</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../appendix-A/README.html">Appendix A: Introduction to PyTorch</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/README.html">Appendix A: Introduction to PyTorch</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/code-part1.html">Appendix A: Introduction to PyTorch (Part 1)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/code-part2.html">Appendix A: Introduction to PyTorch (Part 2)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/exercise-solutions.html">Exercise A.1</a></li>
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../appendix-A/02_setup-recommendations/README.html">Python and Environment Setup Recommendations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../appendix-D/README.html">Appendix D: Adding Bells and Whistles to the Training Loop</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../appendix-D/01_main-chapter-code/appendix-D.html">Appendix D: Adding Bells and Whistles to the Training Loop</a></li>
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../appendix-E/README.html">Appendix E: Parameter-efficient Finetuning with LoRA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../appendix-E/01_main-chapter-code/appendix-E.html">Appendix E: Parameter-efficient Finetuning with LoRA</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/rasbt/llms-from-scratch" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/rasbt/llms-from-scratch/edit/main/ch05/03_bonus_pretraining_on_gutenberg/README.md" target="_blank"
+   class="btn btn-sm btn-source-edit-button dropdown-item"
+   title="Suggest edit"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="btn__text-container">Suggest edit</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/rasbt/llms-from-scratch/issues/new?title=Issue%20on%20page%20%2Fch05/03_bonus_pretraining_on_gutenberg/README.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/ch05/03_bonus_pretraining_on_gutenberg/README.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Pretraining GPT on the Project Gutenberg Dataset</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-use-this-code">How to Use This Code</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#download-the-dataset">1) Download the dataset</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#download-instructions-for-linux-and-macos-users">Download instructions for Linux and macOS users</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#special-instructions-for-windows-users">Special instructions for Windows users</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#prepare-the-dataset">2) Prepare the dataset</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#run-the-pretraining-script">3) Run the pretraining script</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#design-decisions-and-improvements">Design Decisions and Improvements</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="pretraining-gpt-on-the-project-gutenberg-dataset">
+<h1>Pretraining GPT on the Project Gutenberg Dataset<a class="headerlink" href="#pretraining-gpt-on-the-project-gutenberg-dataset" title="Link to this heading">#</a></h1>
+<p>The code in this directory contains code for training a small GPT model on the free books provided by Project Gutenberg.</p>
+<p>As the Project Gutenberg website states, “the vast majority of Project Gutenberg eBooks are in the public domain in the US.”</p>
+<p>Please read the <a class="reference external" href="https://www.gutenberg.org/policy/permission.html">Project Gutenberg Permissions, Licensing and other Common Requests</a> page for more information about using the resources provided by Project Gutenberg.</p>
+<p> </p>
+<section id="how-to-use-this-code">
+<h2>How to Use This Code<a class="headerlink" href="#how-to-use-this-code" title="Link to this heading">#</a></h2>
+<p> </p>
+<section id="download-the-dataset">
+<h3>1) Download the dataset<a class="headerlink" href="#download-the-dataset" title="Link to this heading">#</a></h3>
+<p>In this section, we download books from Project Gutenberg using code from the <a class="reference external" href="https://github.com/pgcorpus/gutenberg"><code class="docutils literal notranslate"><span class="pre">pgcorpus/gutenberg</span></code></a> GitHub repository.</p>
+<p>As of this writing, this will require approximately 50 GB of disk space and take about 10-15 hours, but it may be more depending on how much Project Gutenberg grew since then.</p>
+<p> </p>
+<section id="download-instructions-for-linux-and-macos-users">
+<h4>Download instructions for Linux and macOS users<a class="headerlink" href="#download-instructions-for-linux-and-macos-users" title="Link to this heading">#</a></h4>
+<p>Linux and macOS users can follow these steps to download the dataset (if you are a Windows user, please see the note below):</p>
+<ol class="arabic simple">
+<li><p>Set the <code class="docutils literal notranslate"><span class="pre">03_bonus_pretraining_on_gutenberg</span></code> folder as working directory to clone the <code class="docutils literal notranslate"><span class="pre">gutenberg</span></code> repository locally in this folder (this is necessary to run the provided scripts <code class="docutils literal notranslate"><span class="pre">prepare_dataset.py</span></code> and <code class="docutils literal notranslate"><span class="pre">pretraining_simple.py</span></code>). For instance, when being in the <code class="docutils literal notranslate"><span class="pre">LLMs-from-scratch</span></code> repository’s folder, navigate into the <em>03_bonus_pretraining_on_gutenberg</em> folder via:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>ch05/03_bonus_pretraining_on_gutenberg
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Clone the <code class="docutils literal notranslate"><span class="pre">gutenberg</span></code> repository in there:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/pgcorpus/gutenberg.git
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Navigate into the locally cloned <code class="docutils literal notranslate"><span class="pre">gutenberg</span></code> repository’s folder:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>gutenberg
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>Install the required packages defined in <em>requirements.txt</em> from the <code class="docutils literal notranslate"><span class="pre">gutenberg</span></code> repository’s folder:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+</pre></div>
+</div>
+<ol class="arabic simple" start="5">
+<li><p>Download the data:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>get_data.py
+</pre></div>
+</div>
+<ol class="arabic simple" start="6">
+<li><p>Go back into the <code class="docutils literal notranslate"><span class="pre">03_bonus_pretraining_on_gutenberg</span></code> folder</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>..
+</pre></div>
+</div>
+<p> </p>
+</section>
+<section id="special-instructions-for-windows-users">
+<h4>Special instructions for Windows users<a class="headerlink" href="#special-instructions-for-windows-users" title="Link to this heading">#</a></h4>
+<p>The <a class="reference external" href="https://github.com/pgcorpus/gutenberg"><code class="docutils literal notranslate"><span class="pre">pgcorpus/gutenberg</span></code></a> code is compatible with both Linux and macOS. However, Windows users would have to make small adjustments, such as adding <code class="docutils literal notranslate"><span class="pre">shell=True</span></code> to the <code class="docutils literal notranslate"><span class="pre">subprocess</span></code> calls and replacing <code class="docutils literal notranslate"><span class="pre">rsync</span></code>.</p>
+<p>Alternatively, an easier way to run this code on Windows is by using the “Windows Subsystem for Linux” (WSL) feature, which allows users to run a Linux environment using Ubuntu in Windows. For more information, please read <a class="reference external" href="https://learn.microsoft.com/en-us/windows/wsl/install">Microsoft’s official installation instruction</a> and <a class="reference external" href="https://learn.microsoft.com/en-us/training/modules/wsl-introduction/">tutorial</a>.</p>
+<p>When using WSL, please make sure you have Python 3 installed (check via <code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">--version</span></code>, or install it for instance with <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">-y</span> <span class="pre">python3.10</span></code> for Python 3.10) and install following packages there:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt-get<span class="w"> </span>update<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+sudo<span class="w"> </span>apt-get<span class="w"> </span>upgrade<span class="w"> </span>-y<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>python3-pip<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>python-is-python3<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>rsync
+</pre></div>
+</div>
+<blockquote>
+<div><p><strong>Note:</strong>
+Instructions about how to set up Python and installing packages can be found in <a class="reference internal" href="../../setup/01_optional-python-setup-preferences/README.html"><span class="std std-doc">Optional Python Setup Preferences</span></a> and <a class="reference internal" href="../../setup/02_installing-python-libraries/README.html"><span class="std std-doc">Installing Python Libraries</span></a>.</p>
+<p>Optionally, a Docker image running Ubuntu is provided with this repository. Instructions about how to run a container with the provided Docker image can be found in <a class="reference internal" href="../../setup/03_optional-docker-environment/README.html"><span class="std std-doc">Optional Docker Environment</span></a>.</p>
+</div></blockquote>
+<p> </p>
+</section>
+</section>
+<section id="prepare-the-dataset">
+<h3>2) Prepare the dataset<a class="headerlink" href="#prepare-the-dataset" title="Link to this heading">#</a></h3>
+<p>Next, run the <code class="docutils literal notranslate"><span class="pre">prepare_dataset.py</span></code> script, which concatenates the (as of this writing, 60,173) text files into fewer larger files so that they can be more efficiently transferred and accessed:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>prepare_dataset.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--data_dir<span class="w"> </span>gutenberg/data/raw<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max_size_mb<span class="w"> </span><span class="m">500</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--output_dir<span class="w"> </span>gutenberg_preprocessed
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>...
+Skipping gutenberg/data/raw/PG29836_raw.txt as it does not contain primarily English text.                                     Skipping gutenberg/data/raw/PG16527_raw.txt as it does not contain primarily English text.                                     100%|██████████████████████████████████████████████████████████| 57250/57250 [25:04&lt;00:00, 38.05it/s]
+42 file(s) saved in /Users/sebastian/Developer/LLMs-from-scratch/ch05/03_bonus_pretraining_on_gutenberg/gutenberg_preprocessed
+</pre></div>
+</div>
+<blockquote>
+<div><p><strong>Tip:</strong>
+Note that the produced files are stored in plaintext format and are not pre-tokenized for simplicity. However, you may want to update the codes to store the dataset in a pre-tokenized form to save computation time if you are planning to use the dataset more often or train for multiple epochs. See the <em>Design Decisions and Improvements</em> at the bottom of this page for more information.</p>
+</div></blockquote>
+<blockquote>
+<div><p><strong>Tip:</strong>
+You can choose smaller file sizes, for example, 50 MB. This will result in more files but might be useful for quicker pretraining runs on a small number of files for testing purposes.</p>
+</div></blockquote>
+<p> </p>
+</section>
+<section id="run-the-pretraining-script">
+<h3>3) Run the pretraining script<a class="headerlink" href="#run-the-pretraining-script" title="Link to this heading">#</a></h3>
+<p>You can run the pretraining script as follows. Note that the additional command line arguments are shown with the default values for illustration purposes:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>pretraining_simple.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--data_dir<span class="w"> </span><span class="s2">&quot;gutenberg_preprocessed&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--n_epochs<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--batch_size<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--output_dir<span class="w"> </span>model_checkpoints
+</pre></div>
+</div>
+<p>The output will be formatted in the following way:</p>
+<blockquote>
+<div><p>Total files: 3
+Tokenizing file 1 of 3: data_small/combined_1.txt
+Training …
+Ep 1 (Step 0): Train loss 9.694, Val loss 9.724
+Ep 1 (Step 100): Train loss 6.672, Val loss 6.683
+Ep 1 (Step 200): Train loss 6.543, Val loss 6.434
+Ep 1 (Step 300): Train loss 5.772, Val loss 6.313
+Ep 1 (Step 400): Train loss 5.547, Val loss 6.249
+Ep 1 (Step 500): Train loss 6.182, Val loss 6.155
+Ep 1 (Step 600): Train loss 5.742, Val loss 6.122
+Ep 1 (Step 700): Train loss 6.309, Val loss 5.984
+Ep 1 (Step 800): Train loss 5.435, Val loss 5.975
+Ep 1 (Step 900): Train loss 5.582, Val loss 5.935
+…
+Ep 1 (Step 31900): Train loss 3.664, Val loss 3.946
+Ep 1 (Step 32000): Train loss 3.493, Val loss 3.939
+Ep 1 (Step 32100): Train loss 3.940, Val loss 3.961
+Saved model_checkpoints/model_pg_32188.pth
+Book processed 3h 46m 55s
+Total time elapsed 3h 46m 55s
+ETA for remaining books: 7h 33m 50s
+Tokenizing file 2 of 3: data_small/combined_2.txt
+Training …
+Ep 1 (Step 32200): Train loss 2.982, Val loss 4.094
+Ep 1 (Step 32300): Train loss 3.920, Val loss 4.097
+…</p>
+</div></blockquote>
+<p> </p>
+<blockquote>
+<div><p><strong>Tip:</strong>
+In practice, if you are using macOS or Linux, I recommend using the <code class="docutils literal notranslate"><span class="pre">tee</span></code> command to save the log outputs to a <code class="docutils literal notranslate"><span class="pre">log.txt</span></code> file in addition to printing them on the terminal:</p>
+</div></blockquote>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-u<span class="w"> </span>pretraining_simple.py<span class="w"> </span><span class="p">|</span><span class="w"> </span>tee<span class="w"> </span>log.txt
+</pre></div>
+</div>
+<p> </p>
+<blockquote>
+<div><p><strong>Warning:</strong>
+Note that training on 1 of the ~500 Mb text files in the <code class="docutils literal notranslate"><span class="pre">gutenberg_preprocessed</span></code> folder will take approximately 4 hours on a V100 GPU.
+The folder contains 47 files and will take approximately 200 hours (more than 1 week) to complete. You may want to run it on a smaller number of files.</p>
+</div></blockquote>
+<p> </p>
+</section>
+</section>
+<section id="design-decisions-and-improvements">
+<h2>Design Decisions and Improvements<a class="headerlink" href="#design-decisions-and-improvements" title="Link to this heading">#</a></h2>
+<p>Note that this code focuses on keeping things simple and minimal for educational purposes. The code could be improved in the following ways to improve modeling performance and training efficiency:</p>
+<ol class="arabic simple">
+<li><p>Modify the <code class="docutils literal notranslate"><span class="pre">prepare_dataset.py</span></code> script to strip the Gutenberg boilerplate text from each book file.</p></li>
+<li><p>Update the data preparation and loading utilities to pre-tokenize the dataset and save it in a tokenized form so that it doesn’t have to be re-tokenized each time when calling the pretraining script.</p></li>
+<li><p>Update the <code class="docutils literal notranslate"><span class="pre">train_model_simple</span></code> script by adding the features introduced in <a class="reference internal" href="../../appendix-D/01_main-chapter-code/appendix-D.html"><span class="std std-doc">Appendix D: Adding Bells and Whistles to the Training Loop</span></a>, namely, cosine decay, linear warmup, and gradient clipping.</p></li>
+<li><p>Update the pretraining script to save the optimizer state (see section <em>5.4 Loading and saving weights in PyTorch</em> in chapter 5; <a class="reference internal" href="../01_main-chapter-code/ch05.html"><span class="std std-doc">ch05.ipynb</span></a>) and add the option to load an existing model and optimizer checkpoint and continue training if the training run was interrupted.</p></li>
+<li><p>Add a more advanced logger (for example, Weights and Biases) to view the loss and validation curves live</p></li>
+<li><p>Add distributed data parallelism (DDP) and train the model on multiple GPUs (see section <em>A.9.3 Training with multiple GPUs</em> in appendix A; <a class="reference download internal" download="" href="../../_downloads/7e714d82df95804662bebf1c245a8165/DDP-script.py"><span class="xref download myst">DDP-script.py</span></a>).</p></li>
+<li><p>Swap the from scratch <code class="docutils literal notranslate"><span class="pre">MultiheadAttention</span></code> class in the <code class="docutils literal notranslate"><span class="pre">previous_chapter.py</span></code> script with the efficient <code class="docutils literal notranslate"><span class="pre">MHAPyTorchScaledDotProduct</span></code> class implemented in the <a class="reference internal" href="../../ch03/02_bonus_efficient-multihead-attention/mha-implementations.html"><span class="std std-doc">Efficient Multi-Head Attention Implementations</span></a> bonus section, which uses Flash Attention via PyTorch’s <code class="docutils literal notranslate"><span class="pre">nn.functional.scaled_dot_product_attention</span></code> function.</p></li>
+<li><p>Speeding up the training by optimizing the model via <a class="reference external" href="https://pytorch.org/tutorials/intermediate/torch_compile_tutorial.html">torch.compile</a> (<code class="docutils literal notranslate"><span class="pre">model</span> <span class="pre">=</span> <span class="pre">torch.compile</span></code>) or <a class="reference external" href="https://github.com/Lightning-AI/lightning-thunder">thunder</a> (<code class="docutils literal notranslate"><span class="pre">model</span> <span class="pre">=</span> <span class="pre">thunder.jit(model)</span></code>).</p></li>
+<li><p>Implement Gradient Low-Rank Projection (GaLore) to further speed up the pretraining process. This can be achieved by just replacing the <code class="docutils literal notranslate"><span class="pre">AdamW</span></code> optimizer with the provided <code class="docutils literal notranslate"><span class="pre">GaLoreAdamW</span></code> provided in the <a class="reference external" href="https://github.com/jiaweizzhao/GaLore">GaLore Python library</a>.</p></li>
+</ol>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./ch05/03_bonus_pretraining_on_gutenberg"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../02_alternative_weight_loading/weight-loading-pytorch.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Bonus Code for Chapter 5</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../04_learning_rate_schedulers/README.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Adding Bells and Whistles to the Training Loop</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-use-this-code">How to Use This Code</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#download-the-dataset">1) Download the dataset</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#download-instructions-for-linux-and-macos-users">Download instructions for Linux and macOS users</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#special-instructions-for-windows-users">Special instructions for Windows users</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#prepare-the-dataset">2) Prepare the dataset</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#run-the-pretraining-script">3) Run the pretraining script</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#design-decisions-and-improvements">Design Decisions and Improvements</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Sebastian Raschka
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

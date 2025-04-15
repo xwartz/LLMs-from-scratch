@@ -1,0 +1,1485 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Chapter 7 Exercise solutions &#8212; LLMs from Scratch</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'ch07/01_main-chapter-code/exercise-solutions';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Chapter 7: Finetuning to Follow Instructions" href="../02_dataset-utilities/README.html" />
+    <link rel="prev" title="Load And Use Finetuned Model" href="load-finetuned-model.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../README.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">LLMs from Scratch</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../README.html">
+                    Build a Large Language Model (From Scratch)
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Setup</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../setup/README.html">Optional Setup Instructions</a></li>
+
+
+
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Chapters</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../ch01/README.html">Chapter 1: Understanding Large Language Models</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch02/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/01_main-chapter-code/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/01_main-chapter-code/ch02.html">Chapter 2: Working with Text Data</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/01_main-chapter-code/dataloader.html">The Main Data Loading Pipeline Summarized</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/01_main-chapter-code/exercise-solutions.html">Chapter 2 Exercise solutions</a></li>
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/02_bonus_bytepair-encoder/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/02_bonus_bytepair-encoder/compare-bpe-tiktoken.html">Comparing Various Byte Pair Encoding (BPE) Implementations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/03_bonus_embedding-vs-matmul/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/03_bonus_embedding-vs-matmul/embeddings-and-linear-layers.html">Understanding the Difference Between Embedding Layers and Linear Layers</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/04_bonus_dataloader-intuition/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/04_bonus_dataloader-intuition/dataloader-intuition.html">Data sampling with a sliding window with number data</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/05_bpe-from-scratch/README.html">Byte Pair Encoding (BPE) Tokenizer From Scratch</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/05_bpe-from-scratch/bpe-from-scratch.html">Byte Pair Encoding (BPE) Tokenizer From Scratch</a></li>
+
+
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch03/README.html">Chapter 3: Coding Attention Mechanisms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch03/01_main-chapter-code/README.html">Chapter 3: Coding Attention Mechanisms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/01_main-chapter-code/ch03.html">Chapter 3: Coding Attention Mechanisms</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/01_main-chapter-code/multihead-attention.html">Multi-head Attention Plus Data Loading</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/01_main-chapter-code/exercise-solutions.html">Chapter 3 Exercise solutions</a></li>
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch03/02_bonus_efficient-multihead-attention/README.html">More Efficient Multi-Head Attention Implementations</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/02_bonus_efficient-multihead-attention/mha-implementations.html">Comparing Efficient Multi-Head Attention Implementations</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch03/03_understanding-buffers/README.html">Understanding PyTorch Buffers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/03_understanding-buffers/understanding-buffers.html">Understanding PyTorch Buffers</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch04/README.html">Chapter 4: Implementing a GPT Model from Scratch to Generate Text</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch04/01_main-chapter-code/README.html">Chapter 4: Implementing a GPT Model from Scratch To Generate Text</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch04/01_main-chapter-code/ch04.html">Chapter 4: Implementing a GPT model from Scratch To Generate Text</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch04/01_main-chapter-code/exercise-solutions.html">Chapter 4 Exercise solutions</a></li>
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch04/02_performance-analysis/README.html">Chapter 4: Implementing a GPT Model from Scratch To Generate Text</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch04/02_performance-analysis/flops-analysis.html">FLOPS Analysis</a></li>
+
+
+
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch05/README.html">Chapter 5: Pretraining on Unlabeled Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch05/01_main-chapter-code/README.html">Chapter 5: Pretraining on Unlabeled Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/01_main-chapter-code/ch05.html">Chapter 5: Pretraining on Unlabeled Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/01_main-chapter-code/exercise-solutions.html">Chapter 5 Exercise solutions</a></li>
+
+
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch05/02_alternative_weight_loading/README.html">Alternative Approaches to Loading Pretrained Weights</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/02_alternative_weight_loading/weight-loading-hf-safetensors.html">Bonus Code for Chapter 5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/02_alternative_weight_loading/weight-loading-hf-transformers.html">Bonus Code for Chapter 5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/02_alternative_weight_loading/weight-loading-pytorch.html">Bonus Code for Chapter 5</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch05/03_bonus_pretraining_on_gutenberg/README.html">Pretraining GPT on the Project Gutenberg Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch05/04_learning_rate_schedulers/README.html">Adding Bells and Whistles to the Training Loop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch05/05_bonus_hparam_tuning/README.html">Optimizing Hyperparameters for Pretraining</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch05/06_user_interface/README.html">Building a User Interface to Interact With the Pretrained LLM</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch05/07_gpt_to_llama/README.html">Converting GPT to Llama</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/07_gpt_to_llama/converting-gpt-to-llama2.html">Converting a From-Scratch GPT Architecture to Llama 2</a></li>
+
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/07_gpt_to_llama/converting-llama2-to-llama3.html">Converting Llama 2 to Llama 3.2 From Scratch</a></li>
+
+
+
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/07_gpt_to_llama/standalone-llama32.html">Llama 3.2 From Scratch (A Standalone Notebook)</a></li>
+
+
+
+
+
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/07_gpt_to_llama/standalone-llama32-mem-opt.html">Llama 3.2 From Scratch (A Standalone Notebook)</a></li>
+
+
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch05/08_memory_efficient_weight_loading/README.html">Memory-efficient Model Weight Loading</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/08_memory_efficient_weight_loading/memory-efficient-state-dict.html">Memory-efficient Model Weight Loading</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch05/09_extending-tokenizers/README.html">Extending the Tiktoken BPE Tokenizer with New Tokens</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/09_extending-tokenizers/extend-tiktoken.html">Extending the Tiktoken BPE Tokenizer with New Tokens</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch05/10_llm-training-speed/README.html">PyTorch Performance Tips for Faster LLM Training</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch06/README.html">Chapter 6: Finetuning for Classification</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch06/01_main-chapter-code/README.html">Chapter 6: Finetuning for Classification</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch06/01_main-chapter-code/ch06.html">Chapter 6: Finetuning for Text Classification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch06/01_main-chapter-code/load-finetuned-model.html">Load And Use Finetuned Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch06/01_main-chapter-code/exercise-solutions.html">Chapter 6 Exercise solutions</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch06/02_bonus_additional-experiments/README.html">Additional Classification Finetuning Experiments</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch06/03_bonus_imdb-classification/README.html">Additional Experiments Classifying the Sentiment of 50k IMDB Movie Reviews</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch06/03_bonus_imdb-classification/sklearn-baseline.html">Scikit-learn Logistic Regression Model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch06/04_user_interface/README.html">Building a User Interface to Interact With the GPT-based Spam Classifier</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../README.html">Chapter 7: Finetuning to Follow Instructions</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="README.html">Chapter 7: Finetuning to Follow Instructions</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="ch07.html">Chapter 7: Finetuning To Follow Instructions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="load-finetuned-model.html">Load And Use Finetuned Model</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">Chapter 7 Exercise solutions</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../02_dataset-utilities/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../02_dataset-utilities/create-passive-voice-entries.html">Create “Passive Voice” Entries for an Instruction Dataset</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../03_model-evaluation/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../03_model-evaluation/llm-instruction-eval-ollama.html">Evaluating Instruction Responses Locally Using a Llama 3 Model Via Ollama</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03_model-evaluation/llm-instruction-eval-openai.html">Evaluating Instruction Responses Using the OpenAI API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03_model-evaluation/scores/correlation-analysis.html">Score Correlation Analysis</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../04_preference-tuning-with-dpo/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../04_preference-tuning-with-dpo/create-preference-data-ollama.html">Generating A Preference Dataset With Llama 3.1 70B And Ollama</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04_preference-tuning-with-dpo/dpo-from-scratch.html">Direct Preference Optimization (DPO) for LLM Alignment (From Scratch)</a></li>
+
+
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../05_dataset-generation/README.html">Generating Datasets for Instruction Finetuning</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../05_dataset-generation/llama3-ollama.html">Generating An Instruction Dataset via Llama 3 and Ollama</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05_dataset-generation/reflection-gpt4.html">Improving Instruction-Data Via Reflection-Tuning Using GPT-4</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../06_user_interface/README.html">Building a User Interface to Interact With the Instruction Finetuned GPT Model</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../appendix-A/README.html">Appendix A: Introduction to PyTorch</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/README.html">Appendix A: Introduction to PyTorch</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/code-part1.html">Appendix A: Introduction to PyTorch (Part 1)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/code-part2.html">Appendix A: Introduction to PyTorch (Part 2)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/exercise-solutions.html">Exercise A.1</a></li>
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../appendix-A/02_setup-recommendations/README.html">Python and Environment Setup Recommendations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../appendix-D/README.html">Appendix D: Adding Bells and Whistles to the Training Loop</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../appendix-D/01_main-chapter-code/appendix-D.html">Appendix D: Adding Bells and Whistles to the Training Loop</a></li>
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../appendix-E/README.html">Appendix E: Parameter-efficient Finetuning with LoRA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../appendix-E/01_main-chapter-code/appendix-E.html">Appendix E: Parameter-efficient Finetuning with LoRA</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-launch-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Launch interactive content">
+    <i class="fas fa-rocket"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://mybinder.org/v2/gh/rasbt/llms-from-scratch/main?urlpath=lab/tree/ch07/01_main-chapter-code/exercise-solutions.ipynb" target="_blank"
+   class="btn btn-sm dropdown-item"
+   title="Launch on Binder"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  
+    <img alt="Binder logo" src="../../_static/images/logo_binder.svg">
+  </span>
+<span class="btn__text-container">Binder</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://colab.research.google.com/github/rasbt/llms-from-scratch/blob/main/ch07/01_main-chapter-code/exercise-solutions.ipynb" target="_blank"
+   class="btn btn-sm dropdown-item"
+   title="Launch on Colab"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  
+    <img alt="Colab logo" src="../../_static/images/logo_colab.png">
+  </span>
+<span class="btn__text-container">Colab</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/rasbt/llms-from-scratch" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/rasbt/llms-from-scratch/edit/main/ch07/01_main-chapter-code/exercise-solutions.ipynb" target="_blank"
+   class="btn btn-sm btn-source-edit-button dropdown-item"
+   title="Suggest edit"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="btn__text-container">Suggest edit</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/rasbt/llms-from-scratch/issues/new?title=Issue%20on%20page%20%2Fch07/01_main-chapter-code/exercise-solutions.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/ch07/01_main-chapter-code/exercise-solutions.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Chapter 7 Exercise solutions</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-7-1-changing-prompt-styles">Exercise 7.1: Changing prompt styles</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tip-considering-special-tokens">Tip: Considering special tokens</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-7-2-instruction-and-input-masking">Exercise 7.2: Instruction and input masking</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-7-3-finetuning-on-the-original-alpaca-dataset">Exercise 7.3: Finetuning on the original Alpaca dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-7-4-parameter-efficient-finetuning-with-lora">Exercise 7.4: Parameter-efficient finetuning with LoRA</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <table style="width:100%">
+<tr>
+<td style="vertical-align:middle; text-align:left;">
+<font size="2">
+Supplementary code for the <a href="http://mng.bz/orYv">Build a Large Language Model From Scratch</a> book by <a href="https://sebastianraschka.com">Sebastian Raschka</a><br>
+<br>Code repository: <a href="https://github.com/rasbt/LLMs-from-scratch">https://github.com/rasbt/LLMs-from-scratch</a>
+</font>
+</td>
+<td style="vertical-align:middle; text-align:left;">
+<a href="http://mng.bz/orYv"><img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/cover-small.webp" width="100px"></a>
+</td>
+</tr>
+</table><section class="tex2jax_ignore mathjax_ignore" id="chapter-7-exercise-solutions">
+<h1>Chapter 7 Exercise solutions<a class="headerlink" href="#chapter-7-exercise-solutions" title="Link to this heading">#</a></h1>
+<section id="exercise-7-1-changing-prompt-styles">
+<h2>Exercise 7.1: Changing prompt styles<a class="headerlink" href="#exercise-7-1-changing-prompt-styles" title="Link to this heading">#</a></h2>
+<p>Suppose we have the following data entry:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;instruction&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Identify the correct spelling of the following word.&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;input&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Ocassion&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;output&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The correct spelling is &#39;Occasion.&#39;&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In the main chapter, we formatted it according to the Alpaca-style prompt template:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Below</span> <span class="ow">is</span> <span class="n">an</span> <span class="n">instruction</span> <span class="n">that</span> <span class="n">describes</span> <span class="n">a</span> <span class="n">task</span><span class="o">.</span> <span class="n">Write</span> <span class="n">a</span> <span class="n">response</span> <span class="n">that</span> <span class="n">appropriately</span> <span class="n">completes</span> <span class="n">the</span> <span class="n">request</span><span class="o">.</span>
+
+<span class="c1">### Instruction:</span>
+<span class="n">Identify</span> <span class="n">the</span> <span class="n">correct</span> <span class="n">spelling</span> <span class="n">of</span> <span class="n">the</span> <span class="n">following</span> <span class="n">word</span><span class="o">.</span>
+
+<span class="c1">### Input:</span>
+<span class="n">Occassion</span>
+
+<span class="c1">### Response:</span>
+<span class="n">The</span> <span class="n">correct</span> <span class="n">spelling</span> <span class="ow">is</span> <span class="s1">&#39;Occasion.&#39;</span>
+</pre></div>
+</div>
+<p>In this exercise, we now use the Phi-3 prompt template instead, which formats the data entry as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">user</span><span class="o">&gt;</span>
+<span class="n">Identify</span> <span class="n">the</span> <span class="n">correct</span> <span class="n">spelling</span> <span class="n">of</span> <span class="n">the</span> <span class="n">following</span> <span class="n">word</span><span class="p">:</span> <span class="s1">&#39;Occasion&#39;</span>
+
+<span class="o">&lt;</span><span class="n">assistant</span><span class="o">&gt;</span>
+<span class="n">The</span> <span class="n">correct</span> <span class="n">spelling</span> <span class="ow">is</span> <span class="s1">&#39;Occasion&#39;</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>Note that this prompt template is substantially shorter, which reduces the runtime and hardware requirements for finetuning the LLM and generating text since the input prompts are shorter.
+To make this change, we update the <code class="docutils literal notranslate"><span class="pre">format_input</span></code> function as follows:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">format_input</span><span class="p">(</span><span class="n">entry</span><span class="p">):</span>
+    <span class="n">instruction_text</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;&lt;|user|&gt;</span><span class="se">\n</span><span class="si">{</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;instruction&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">input_text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;input&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;input&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">instruction_text</span> <span class="o">+</span> <span class="n">input_text</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Let’s make sure that it works as intended by applying it to two input samples, one with and one without content in the <code class="docutils literal notranslate"><span class="pre">'input'</span></code> field:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sample_data</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span><span class="s1">&#39;instruction&#39;</span><span class="p">:</span> <span class="s1">&#39;Identify the correct spelling of the following word.&#39;</span><span class="p">,</span> <span class="s1">&#39;input&#39;</span><span class="p">:</span> <span class="s1">&#39;Ocassion&#39;</span><span class="p">,</span> <span class="s1">&#39;output&#39;</span><span class="p">:</span> <span class="s2">&quot;The correct spelling is &#39;Occasion.&#39;&quot;</span><span class="p">},</span> 
+    <span class="p">{</span><span class="s1">&#39;instruction&#39;</span><span class="p">:</span> <span class="s2">&quot;What is an antonym of &#39;complicated&#39;?&quot;</span><span class="p">,</span> <span class="s1">&#39;input&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;output&#39;</span><span class="p">:</span> <span class="s2">&quot;An antonym of &#39;complicated&#39; is &#39;simple&#39;.&quot;</span><span class="p">}</span>
+<span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">format_input</span><span class="p">(</span><span class="n">sample_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">format_input</span><span class="p">(</span><span class="n">sample_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;|user|&gt;
+Identify the correct spelling of the following word.
+Ocassion
+
+&lt;|user|&gt;
+What is an antonym of &#39;complicated&#39;?
+</pre></div>
+</div>
+</div>
+</div>
+<p>Next, we also update the <code class="docutils literal notranslate"><span class="pre">InstructionDataset</span></code> class to use the &lt;|assistant|&gt; prompt template for the response:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tiktoken</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torch.utils.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">InstructionDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+
+        <span class="c1"># Pre-tokenize texts</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encoded_texts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+
+            <span class="c1">###################################################################</span>
+            <span class="c1"># NEW: Use `format_input_phi` and adjust the response text template</span>
+            <span class="n">instruction_plus_input</span> <span class="o">=</span> <span class="n">format_input</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+            <span class="n">response_text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&lt;|assistant|&gt;:</span><span class="se">\n</span><span class="si">{</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="c1">###################################################################</span>
+            <span class="n">full_text</span> <span class="o">=</span> <span class="n">instruction_plus_input</span> <span class="o">+</span> <span class="n">response_text</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">encoded_texts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">tokenizer</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">full_text</span><span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoded_texts</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+
+<span class="n">tokenizer</span> <span class="o">=</span> <span class="n">tiktoken</span><span class="o">.</span><span class="n">get_encoding</span><span class="p">(</span><span class="s2">&quot;gpt2&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Lastly, we also have to update the way we extract the generated response when we collect the test set responses:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">enumerate</span><span class="p">(</span><span class="n">test_data</span><span class="p">),</span> <span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">test_data</span><span class="p">)):</span>
+
+    <span class="n">input_text</span> <span class="o">=</span> <span class="n">format_input</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+    <span class="n">tokenizer</span><span class="o">=</span><span class="n">tokenizer</span>
+
+    <span class="n">token_ids</span> <span class="o">=</span> <span class="n">generate</span><span class="p">(</span>
+        <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+        <span class="n">idx</span><span class="o">=</span><span class="n">text_to_token_ids</span><span class="p">(</span><span class="n">input_text</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">),</span>
+        <span class="n">max_new_tokens</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span>
+        <span class="n">context_size</span><span class="o">=</span><span class="n">BASE_CONFIG</span><span class="p">[</span><span class="s2">&quot;context_length&quot;</span><span class="p">],</span>
+        <span class="n">eos_id</span><span class="o">=</span><span class="mi">50256</span>
+    <span class="p">)</span>
+    <span class="n">generated_text</span> <span class="o">=</span> <span class="n">token_ids_to_text</span><span class="p">(</span><span class="n">token_ids</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">)</span>
+
+    <span class="c1"># New: Adjust ###Response -&gt; &lt;|assistant|&gt;</span>
+    <span class="n">response_text</span> <span class="o">=</span> <span class="n">generated_text</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">input_text</span><span class="p">):]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&lt;|assistant|&gt;:&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+    <span class="n">test_data</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s2">&quot;model_response&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">response_text</span>
+</pre></div>
+</div>
+<p>For your convenience, the exercise solution is implemented in the <a class="reference download internal" download="" href="../../_downloads/7e29c230892dd8750efd4b064ed6b8b7/exercise_experiments.py"><span class="xref download myst">exercise_experiments.py</span></a> script, which you can run as follows:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>exercise_experiments.py<span class="w"> </span>--exercise_solution<span class="w"> </span>phi3_prompt
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">matplotlib</span> <span class="n">version</span><span class="p">:</span> <span class="mf">3.7.1</span>
+<span class="n">tiktoken</span> <span class="n">version</span><span class="p">:</span> <span class="mf">0.7.0</span>
+<span class="n">torch</span> <span class="n">version</span><span class="p">:</span> <span class="mf">2.3.0</span><span class="o">+</span><span class="n">cu121</span>
+<span class="n">tqdm</span> <span class="n">version</span><span class="p">:</span> <span class="mf">4.66.4</span>
+<span class="n">tensorflow</span> <span class="n">version</span><span class="p">:</span> <span class="mf">2.15.0</span>
+<span class="o">--------------------------------------------------</span>
+<span class="n">Training</span> <span class="nb">set</span> <span class="n">length</span><span class="p">:</span> <span class="mi">935</span>
+<span class="n">Validation</span> <span class="nb">set</span> <span class="n">length</span><span class="p">:</span> <span class="mi">55</span>
+<span class="n">Test</span> <span class="nb">set</span> <span class="n">length</span><span class="p">:</span> <span class="mi">110</span>
+<span class="o">--------------------------------------------------</span>
+<span class="n">Device</span><span class="p">:</span> <span class="n">cuda</span>
+<span class="o">--------------------------------------------------</span>
+<span class="o">...</span>
+<span class="n">Loaded</span> <span class="n">model</span><span class="p">:</span> <span class="n">gpt2</span><span class="o">-</span><span class="n">medium</span> <span class="p">(</span><span class="mi">355</span><span class="n">M</span><span class="p">)</span>
+<span class="o">--------------------------------------------------</span>
+<span class="n">Initial</span> <span class="n">losses</span>
+   <span class="n">Training</span> <span class="n">loss</span><span class="p">:</span> <span class="mf">3.71630220413208</span>
+   <span class="n">Validation</span> <span class="n">loss</span><span class="p">:</span> <span class="mf">3.6440994262695314</span>
+<span class="n">Ep</span> <span class="mi">1</span> <span class="p">(</span><span class="n">Step</span> <span class="mi">000000</span><span class="p">):</span> <span class="n">Train</span> <span class="n">loss</span> <span class="mf">2.633</span><span class="p">,</span> <span class="n">Val</span> <span class="n">loss</span> <span class="mf">2.622</span>
+<span class="o">...</span>
+<span class="n">Ep</span> <span class="mi">2</span> <span class="p">(</span><span class="n">Step</span> <span class="mi">000230</span><span class="p">):</span> <span class="n">Train</span> <span class="n">loss</span> <span class="mf">0.424</span><span class="p">,</span> <span class="n">Val</span> <span class="n">loss</span> <span class="mf">0.928</span>
+<span class="o">&lt;|</span><span class="n">user</span><span class="o">|&gt;</span> <span class="n">Convert</span> <span class="n">the</span> <span class="n">active</span> <span class="n">sentence</span> <span class="n">to</span> <span class="n">passive</span><span class="p">:</span> <span class="s1">&#39;The chef cooks the meal every day.&#39;</span> <span class="o">&lt;|</span><span class="n">assistant</span><span class="o">|&gt;</span><span class="p">:</span> <span class="n">The</span> <span class="n">meal</span> <span class="ow">is</span> <span class="n">prepared</span> <span class="n">every</span> <span class="n">day</span> <span class="n">by</span> <span class="n">the</span> <span class="n">chef</span><span class="o">....</span>
+<span class="n">Training</span> <span class="n">completed</span> <span class="ow">in</span> <span class="mf">1.50</span> <span class="n">minutes</span><span class="o">.</span>
+<span class="n">Plot</span> <span class="n">saved</span> <span class="k">as</span> <span class="n">loss</span><span class="o">-</span><span class="n">plot</span><span class="o">-</span><span class="n">phi3</span><span class="o">-</span><span class="n">prompt</span><span class="o">.</span><span class="n">pdf</span>
+<span class="o">--------------------------------------------------</span>
+<span class="n">Generating</span> <span class="n">responses</span>
+<span class="mi">100</span><span class="o">%</span> <span class="mi">110</span><span class="o">/</span><span class="mi">110</span> <span class="p">[</span><span class="mi">00</span><span class="p">:</span><span class="mi">11</span><span class="o">&lt;</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">,</span>  <span class="mf">9.27</span><span class="n">it</span><span class="o">/</span><span class="n">s</span><span class="p">]</span>
+<span class="n">Responses</span> <span class="n">saved</span> <span class="k">as</span> <span class="n">instruction</span><span class="o">-</span><span class="n">data</span><span class="o">-</span><span class="k">with</span><span class="o">-</span><span class="n">response</span><span class="o">-</span><span class="n">phi3</span><span class="o">-</span><span class="n">prompt</span><span class="o">.</span><span class="n">json</span>
+<span class="n">Model</span> <span class="n">saved</span> <span class="k">as</span> <span class="n">gpt2</span><span class="o">-</span><span class="n">medium355M</span><span class="o">-</span><span class="n">sft</span><span class="o">-</span><span class="n">phi3</span><span class="o">-</span><span class="n">prompt</span><span class="o">.</span><span class="n">pth</span>
+</pre></div>
+</div>
+<p>For comparison, you can run the original chapter 7 finetuning code via <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">exercise_experiments.py</span> <span class="pre">--exercise_solution</span> <span class="pre">baseline</span></code>.</p>
+<p>Note that on an Nvidia L4 GPU, the code above, using the Phi-3 prompt template, takes 1.5 min to run. In comparison, the Alpaca-style template takes 1.80 minutes to run. So, the Phi-3 template is approximately 17% faster since it results in shorter model inputs.</p>
+<p>Let’s take a look at some of the responses to make sure they have been formatted correctly:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;instruction&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Rewrite the sentence using a simile.&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;input&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The car is very fast.&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;output&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The car is as fast as lightning.&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;model_response&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The car is as fast as a cheetah.&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;instruction&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;What type of cloud is typically associated with thunderstorms?&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;input&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;output&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The type of cloud typically associated with thunderstorms is cumulonimbus.&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;model_response&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The type of cloud associated with thunderstorms is a cumulus cloud.&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;instruction&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Name the author of &#39;Pride and Prejudice&#39;.&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;input&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;output&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Jane Austen.&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;model_response&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The author of &#39;Pride and Prejudice&#39; is Jane Austen.&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+</pre></div>
+</div>
+<p>We can evaluate the performance using the Ollama Llama 3 method, which is for your convenience, also implemented in the <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">exercise_experiments.py</span></code> script, which we can run as follows:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>ollama_evaluate.py<span class="w"> </span>--file_path<span class="w"> </span>instruction-data-with-response-phi3-prompt.json
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Ollama running: True
+Scoring entries: 100%|████████████████████████| 110/110 [01:08&lt;00:00,  1.60it/s]
+Number of scores: 110 of 110
+Average score: 48.87
+</pre></div>
+</div>
+<p>The score is close to 50, which is in the same ballpark as the score we previously achieved with the Alpaca-style prompts.</p>
+<p>There is no inherent advantage or rationale why the Phi prompt-style should be better, but it can be more concise and efficient, except for the caveat mentioned in the <em>Tip</em> section below.</p>
+<section id="tip-considering-special-tokens">
+<h3>Tip: Considering special tokens<a class="headerlink" href="#tip-considering-special-tokens" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Note that the Phi-3 prompt template contains special tokens such as <code class="docutils literal notranslate"><span class="pre">&lt;|user|&gt;</span></code> and <code class="docutils literal notranslate"><span class="pre">&lt;|assistant|&gt;</span></code>, which can be suboptimal for the GPT-2 tokenizer</p></li>
+<li><p>While the GPT-2 tokenizer recognizes <code class="docutils literal notranslate"><span class="pre">&lt;|endoftext|&gt;</span></code> as a special token (encoded into token ID 50256), it is inefficient at handling other special tokens, such as the aforementioned ones</p></li>
+<li><p>For instance, <code class="docutils literal notranslate"><span class="pre">&lt;|user|&gt;</span></code> is encoded into 5 individual token IDs (27, 91, 7220, 91, 29), which is very inefficient</p></li>
+<li><p>We could add <code class="docutils literal notranslate"><span class="pre">&lt;|user|&gt;</span></code> as a new special token in <code class="docutils literal notranslate"><span class="pre">tiktoken</span></code> via the <code class="docutils literal notranslate"><span class="pre">allowed_special</span></code> argument, but please keep in mind that the GPT-2 vocabulary would not be able to handle it without additional modification</p></li>
+<li><p>If you are curious about how a tokenizer and LLM can be extended to handle special tokens, please see the <a class="reference internal" href="../../ch05/09_extending-tokenizers/extend-tiktoken.html"><span class="std std-doc">extend-tiktoken.ipynb</span></a> bonus materials (note that this is not required here but is just an interesting/bonus consideration for curious readers)</p></li>
+<li><p>Furthermore, we can hypothesize that models that support these special tokens of a prompt template via their vocabulary may perform more efficiently and better overall</p></li>
+</ul>
+<p> </p>
+</section>
+</section>
+<section id="exercise-7-2-instruction-and-input-masking">
+<h2>Exercise 7.2: Instruction and input masking<a class="headerlink" href="#exercise-7-2-instruction-and-input-masking" title="Link to this heading">#</a></h2>
+<p>To mask out the instructions as shown in the following figure, we need to make slight modifications to the <code class="docutils literal notranslate"><span class="pre">InstructionDataset</span></code> class and <code class="docutils literal notranslate"><span class="pre">custom_collate_fn</span></code>.</p>
+<img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/ch07_compressed/mask-instructions.webp" width=600px><div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># This `format_input` function is copied from the original chapter 7 code</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">format_input</span><span class="p">(</span><span class="n">entry</span><span class="p">):</span>
+    <span class="n">instruction_text</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Below is an instruction that describes a task. &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;Write a response that appropriately completes the request.&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">### Instruction:</span><span class="se">\n</span><span class="si">{</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;instruction&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">input_text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">### Input:</span><span class="se">\n</span><span class="si">{</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;input&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;input&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">instruction_text</span> <span class="o">+</span> <span class="n">input_text</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can modify the <code class="docutils literal notranslate"><span class="pre">InstructionDataset</span></code> class to collect the lengths of the instructions, which we will use in the collate function to locate the instruction content positions in the targets when we code the collate function, as follows:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torch.utils.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">InstructionDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+
+        <span class="c1">##########################################################################################</span>
+        <span class="c1"># New: Separate list for instruction lengths</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instruction_lengths</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1">##########################################################################################</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">encoded_texts</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">instruction_plus_input</span> <span class="o">=</span> <span class="n">format_input</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+            <span class="n">response_text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">### Response:</span><span class="se">\n</span><span class="si">{</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">full_text</span> <span class="o">=</span> <span class="n">instruction_plus_input</span> <span class="o">+</span> <span class="n">response_text</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">encoded_texts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">tokenizer</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">full_text</span><span class="p">)</span>
+            <span class="p">)</span>
+
+            <span class="c1">##########################################################################################</span>
+            <span class="c1"># New: collect instruction lengths</span>
+            <span class="n">instruction_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">instruction_plus_input</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">instruction_lengths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">instruction_length</span><span class="p">)</span>
+            <span class="c1">##########################################################################################</span>
+            
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="c1"># New: return both instruction lengths and texts separately</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">instruction_lengths</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoded_texts</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">ModuleNotFoundError</span><span class="g g-Whitespace">                       </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">line</span> <span class="mi">1</span>
+<span class="ne">----&gt; </span><span class="mi">1</span> <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="g g-Whitespace">      </span><span class="mi">2</span> <span class="kn">from</span><span class="w"> </span><span class="nn">torch.utils.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span>
+<span class="g g-Whitespace">      </span><span class="mi">5</span> <span class="k">class</span><span class="w"> </span><span class="nc">InstructionDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+
+<span class="ne">ModuleNotFoundError</span>: No module named &#39;torch&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tiktoken</span>
+
+<span class="n">tokenizer</span> <span class="o">=</span> <span class="n">tiktoken</span><span class="o">.</span><span class="n">get_encoding</span><span class="p">(</span><span class="s2">&quot;gpt2&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Next, we update the <code class="docutils literal notranslate"><span class="pre">custom_collate_fn</span></code> where each <code class="docutils literal notranslate"><span class="pre">batch</span></code> is now a tuple containing <code class="docutils literal notranslate"><span class="pre">(instruction_length,</span> <span class="pre">item)</span></code> instead of just <code class="docutils literal notranslate"><span class="pre">item</span></code> due to the changes in the <code class="docutils literal notranslate"><span class="pre">InstructionDataset</span></code> dataset. In addition, we now mask the corresponding instruction tokens in the target ID list.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">custom_collate_fn</span><span class="p">(</span>
+    <span class="n">batch</span><span class="p">,</span>
+    <span class="n">pad_token_id</span><span class="o">=</span><span class="mi">50256</span><span class="p">,</span>
+    <span class="n">ignore_index</span><span class="o">=-</span><span class="mi">100</span><span class="p">,</span>
+    <span class="n">allowed_max_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span>
+<span class="p">):</span>
+    <span class="c1"># Find the longest sequence in the batch</span>
+    <span class="n">batch_max_length</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">item</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span> <span class="k">for</span> <span class="n">instruction_length</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">batch</span><span class="p">)</span>   <span class="c1"># New: batch is now a tuple</span>
+
+    <span class="c1"># Pad and prepare inputs and targets</span>
+    <span class="n">inputs_lst</span><span class="p">,</span> <span class="n">targets_lst</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">instruction_length</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">batch</span><span class="p">:</span>  <span class="c1"># New: batch is now a tuple</span>
+        <span class="n">new_item</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="c1"># Add an &lt;|endoftext|&gt; token</span>
+        <span class="n">new_item</span> <span class="o">+=</span> <span class="p">[</span><span class="n">pad_token_id</span><span class="p">]</span>
+        <span class="c1"># Pad sequences to max_length</span>
+        <span class="n">padded</span> <span class="o">=</span> <span class="n">new_item</span> <span class="o">+</span> <span class="p">[</span><span class="n">pad_token_id</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">batch_max_length</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_item</span><span class="p">))</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">padded</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># Truncate the last token for inputs</span>
+        <span class="n">targets</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">padded</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>  <span class="c1"># Shift +1 to the right for targets</span>
+
+        <span class="c1"># Replace all but the first padding tokens in targets by ignore_index</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">targets</span> <span class="o">==</span> <span class="n">pad_token_id</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">indices</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">targets</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span> <span class="o">=</span> <span class="n">ignore_index</span>
+
+        <span class="c1">##########################################################################################</span>
+        <span class="c1"># New: Mask all input and instruction tokens in the targets</span>
+        <span class="n">targets</span><span class="p">[:</span><span class="n">instruction_length</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">100</span>
+        <span class="c1">##########################################################################################</span>
+        
+        <span class="c1"># Optionally truncate to maximum sequence length</span>
+        <span class="k">if</span> <span class="n">allowed_max_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">inputs</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[:</span><span class="n">allowed_max_length</span><span class="p">]</span>
+            <span class="n">targets</span> <span class="o">=</span> <span class="n">targets</span><span class="p">[:</span><span class="n">allowed_max_length</span><span class="p">]</span>
+        
+        <span class="n">inputs_lst</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+        <span class="n">targets_lst</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">targets</span><span class="p">)</span>
+
+    <span class="c1"># Convert list of inputs and targets to tensors and transfer to target device</span>
+    <span class="n">inputs_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">inputs_lst</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">targets_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">targets_lst</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">inputs_tensor</span><span class="p">,</span> <span class="n">targets_tensor</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Let’s try it out on some sample data below:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sample_data</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span><span class="s1">&#39;instruction&#39;</span><span class="p">:</span> <span class="s2">&quot;What is an antonym of &#39;complicated&#39;?&quot;</span><span class="p">,</span> <span class="s1">&#39;input&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;output&#39;</span><span class="p">:</span> <span class="s2">&quot;An antonym of &#39;complicated&#39; is &#39;simple&#39;.&quot;</span><span class="p">},</span>
+    <span class="p">{</span><span class="s1">&#39;instruction&#39;</span><span class="p">:</span> <span class="s1">&#39;Sort the following list in alphabetical order.&#39;</span><span class="p">,</span> <span class="s1">&#39;input&#39;</span><span class="p">:</span> <span class="s1">&#39;Zebra, Elephant, Crocodile&#39;</span><span class="p">,</span> <span class="s1">&#39;output&#39;</span><span class="p">:</span> <span class="s1">&#39;Crocodile, Elephant, Zebra&#39;</span><span class="p">},</span>
+    <span class="p">{</span><span class="s1">&#39;instruction&#39;</span><span class="p">:</span> <span class="s1">&#39;Arrange the given numbers in descending order.&#39;</span><span class="p">,</span> <span class="s1">&#39;input&#39;</span><span class="p">:</span> <span class="s1">&#39;5, 12, 8, 3, 15&#39;</span><span class="p">,</span> <span class="s1">&#39;output&#39;</span><span class="p">:</span> <span class="s1">&#39;15, 12, 8, 5, 3.&#39;</span><span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">torch.utils.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataLoader</span>
+
+<span class="n">train_dataset</span> <span class="o">=</span> <span class="n">InstructionDataset</span><span class="p">(</span><span class="n">sample_data</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">)</span>
+<span class="n">train_loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span>
+    <span class="n">train_dataset</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">sample_data</span><span class="p">),</span>
+    <span class="n">collate_fn</span><span class="o">=</span><span class="n">custom_collate_fn</span><span class="p">,</span>
+    <span class="n">num_workers</span><span class="o">=</span><span class="mi">0</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Train loader:&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">targets</span> <span class="ow">in</span> <span class="n">train_loader</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">targets</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Train loader:
+torch.Size([3, 64]) torch.Size([3, 64])
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Inputs:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">inputs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Targets:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">targets</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Inputs:
+ tensor([21106,   318,   281, 12064,   326,  8477,   257,  4876,    13, 19430,
+          257,  2882,   326, 20431, 32543,   262,  2581,    13,   198,   198,
+        21017, 46486,    25,   198, 42758,   262,  1708,  1351,   287, 24830,
+          605,  1502,    13,   198,   198, 21017, 23412,    25,   198,    57,
+        37052,    11, 42651,    11,  9325, 19815,   576,   198,   198, 21017,
+        18261,    25,   198,    34, 12204,   375,   576,    11, 42651,    11,
+         1168, 37052, 50256, 50256])
+
+
+Targets:
+ tensor([ -100,  -100,  -100,  -100,  -100,  -100,  -100,  -100,  -100,  -100,
+         -100,  -100,  -100,  -100,  -100,  -100,  -100,  -100,  -100,  -100,
+         -100,  -100,  -100,  -100,  -100,  -100,  -100,  -100,  -100,  -100,
+         -100,  -100,  -100,  -100,  -100,  -100,  -100,  -100,  -100,  -100,
+         -100,  -100,  -100,  -100,  -100,  -100,   198,   198, 21017, 18261,
+           25,   198,    34, 12204,   375,   576,    11, 42651,    11,  1168,
+        37052, 50256,  -100,  -100])
+</pre></div>
+</div>
+</div>
+</div>
+<p>As we can see based on the <code class="docutils literal notranslate"><span class="pre">targets</span></code> tensor, both the instruction and padding tokens are now masked using the -100 placeholder tokens.
+Let’s decode the inputs just to make sure that they look correct:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">inputs</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Below is an instruction that describes a task. Write a response that appropriately completes the request.
+
+### Instruction:
+Sort the following list in alphabetical order.
+
+### Input:
+Zebra, Elephant, Crocodile
+
+### Response:
+Crocodile, Elephant, Zebra&lt;|endoftext|&gt;&lt;|endoftext|&gt;
+</pre></div>
+</div>
+</div>
+</div>
+<p>Next, let’s decode the non-masked target token IDS:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">non_masked_targets</span> <span class="o">=</span> <span class="n">targets</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">targets</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">100</span><span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">non_masked_targets</span><span class="p">)))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>### Response:
+Crocodile, Elephant, Zebra&lt;|endoftext|&gt;
+</pre></div>
+</div>
+</div>
+</div>
+<p>As shown above, the non-masked target tokens exclude the <code class="docutils literal notranslate"><span class="pre">&quot;Instruction&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;Input&quot;</span></code> fields, as intended. Now, we can run the modified code to see how well the LLM performs when finetuned using this masking strategy.</p>
+<p>For your convenience, you can use the <code class="docutils literal notranslate"><span class="pre">exercise_experiments.py</span></code> code to run a comparison as follows:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>exercise_experiments.py<span class="w"> </span>--exercise_solution<span class="w"> </span>mask_instructions
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">matplotlib</span> <span class="n">version</span><span class="p">:</span> <span class="mf">3.7.1</span>
+<span class="n">tiktoken</span> <span class="n">version</span><span class="p">:</span> <span class="mf">0.7.0</span>
+<span class="n">torch</span> <span class="n">version</span><span class="p">:</span> <span class="mf">2.3.0</span><span class="o">+</span><span class="n">cu121</span>
+<span class="n">tqdm</span> <span class="n">version</span><span class="p">:</span> <span class="mf">4.66.4</span>
+<span class="n">tensorflow</span> <span class="n">version</span><span class="p">:</span> <span class="mf">2.15.0</span>
+<span class="o">--------------------------------------------------</span>
+<span class="n">Training</span> <span class="nb">set</span> <span class="n">length</span><span class="p">:</span> <span class="mi">935</span>
+<span class="n">Validation</span> <span class="nb">set</span> <span class="n">length</span><span class="p">:</span> <span class="mi">55</span>
+<span class="n">Test</span> <span class="nb">set</span> <span class="n">length</span><span class="p">:</span> <span class="mi">110</span>
+<span class="o">--------------------------------------------------</span>
+<span class="n">Device</span><span class="p">:</span> <span class="n">cuda</span>
+<span class="o">--------------------------------------------------</span>
+<span class="o">...</span>
+<span class="n">Loaded</span> <span class="n">model</span><span class="p">:</span> <span class="n">gpt2</span><span class="o">-</span><span class="n">medium</span> <span class="p">(</span><span class="mi">355</span><span class="n">M</span><span class="p">)</span>
+<span class="o">--------------------------------------------------</span>
+<span class="n">Initial</span> <span class="n">losses</span>
+   <span class="n">Training</span> <span class="n">loss</span><span class="p">:</span> <span class="mf">2.280539035797119</span>
+   <span class="n">Validation</span> <span class="n">loss</span><span class="p">:</span> <span class="mf">2.262560224533081</span>
+<span class="n">Ep</span> <span class="mi">1</span> <span class="p">(</span><span class="n">Step</span> <span class="mi">000000</span><span class="p">):</span> <span class="n">Train</span> <span class="n">loss</span> <span class="mf">1.636</span><span class="p">,</span> <span class="n">Val</span> <span class="n">loss</span> <span class="mf">1.620</span>
+<span class="o">...</span>
+<span class="n">Ep</span> <span class="mi">2</span> <span class="p">(</span><span class="n">Step</span> <span class="mi">000230</span><span class="p">):</span> <span class="n">Train</span> <span class="n">loss</span> <span class="mf">0.143</span><span class="p">,</span> <span class="n">Val</span> <span class="n">loss</span> <span class="mf">0.727</span>
+<span class="o">...</span>
+<span class="n">Training</span> <span class="n">completed</span> <span class="ow">in</span> <span class="mf">1.77</span> <span class="n">minutes</span><span class="o">.</span>
+<span class="n">Plot</span> <span class="n">saved</span> <span class="k">as</span> <span class="n">loss</span><span class="o">-</span><span class="n">plot</span><span class="o">-</span><span class="n">mask</span><span class="o">-</span><span class="n">instructions</span><span class="o">.</span><span class="n">pdf</span>
+<span class="o">--------------------------------------------------</span>
+<span class="n">Generating</span> <span class="n">responses</span>
+<span class="mi">100</span><span class="o">%</span> <span class="mi">110</span><span class="o">/</span><span class="mi">110</span> <span class="p">[</span><span class="mi">02</span><span class="p">:</span><span class="mi">10</span><span class="o">&lt;</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">,</span>  <span class="mf">1.19</span><span class="n">s</span><span class="o">/</span><span class="n">it</span><span class="p">]</span>
+<span class="n">Responses</span> <span class="n">saved</span> <span class="k">as</span> <span class="n">instruction</span><span class="o">-</span><span class="n">data</span><span class="o">-</span><span class="k">with</span><span class="o">-</span><span class="n">response</span><span class="o">-</span><span class="n">mask</span><span class="o">-</span><span class="n">instructions</span><span class="o">.</span><span class="n">json</span>
+<span class="n">Model</span> <span class="n">saved</span> <span class="k">as</span> <span class="n">gpt2</span><span class="o">-</span><span class="n">medium355M</span><span class="o">-</span><span class="n">sft</span><span class="o">-</span><span class="n">mask</span><span class="o">-</span><span class="n">instructions</span><span class="o">.</span><span class="n">pth</span>
+</pre></div>
+</div>
+<p>Next, let’s evaluate the performance of the resulting LLM:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>ollama_evaluate.py<span class="w"> </span>--file_path<span class="w"> </span>instruction-data-with-response-mask-instructions.json
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Ollama running: True
+Scoring entries: 100%|██████████████████████████████████████████████████████████████████████████████████████| 110/110 [01:23&lt;00:00,  1.31it/s]
+Number of scores: 110 of 110
+Average score: 47.73
+</pre></div>
+</div>
+<p>As we can see based on the scores, the instruction masking does perform slightly worse, which is consistent with the observation in the “Instruction Tuning With Loss Over Instructions” paper (<a class="reference external" href="https://arxiv.org/abs/2405.14394">https://arxiv.org/abs/2405.14394</a>)</p>
+<p> </p>
+</section>
+<section id="exercise-7-3-finetuning-on-the-original-alpaca-dataset">
+<h2>Exercise 7.3: Finetuning on the original Alpaca dataset<a class="headerlink" href="#exercise-7-3-finetuning-on-the-original-alpaca-dataset" title="Link to this heading">#</a></h2>
+<p>To finetune the model on the original Stanford Alpaca dataset (<a class="github reference external" href="https://github.com/tatsu-lab/stanford_alpaca">tatsu-lab/stanford_alpaca</a>), you just need to change the file URL from</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://raw.githubusercontent.com/rasbt/LLMs-from-scratch/main/ch07/01_main-chapter-code/instruction-data.json&quot;</span>
+</pre></div>
+</div>
+<p>to</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://raw.githubusercontent.com/tatsu-lab/stanford_alpaca/main/alpaca_data.json&quot;</span>
+</pre></div>
+</div>
+<p>Note that the dataset contains 52k entries (50x more than in chapter 7), and the entries are longer than the ones we worked with in chapter 7.
+Thus, it’s highly recommended that the training be run on a GPU.</p>
+<p>If you encounter out-of-memory errors, consider reducing the batch size from 8 to 4, 2, or 1. In addition to lowering the batch size, you may also want to consider lowering the <code class="docutils literal notranslate"><span class="pre">allowed_max_length</span></code> from 1024 to 512 or 256.</p>
+<p>For your convenience, you can use the <code class="docutils literal notranslate"><span class="pre">exercise_experiments.py</span></code> code to finetune the model on the 52k Alpaca dataset with a batch size of 4 and an <code class="docutils literal notranslate"><span class="pre">allowed_max_length</span></code> of 512 as follows:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>exercise_experiments.py<span class="w"> </span>--exercise_solution<span class="w"> </span>alpaca_52k
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">matplotlib</span> <span class="n">version</span><span class="p">:</span> <span class="mf">3.7.1</span>
+<span class="n">tiktoken</span> <span class="n">version</span><span class="p">:</span> <span class="mf">0.7.0</span>
+<span class="n">torch</span> <span class="n">version</span><span class="p">:</span> <span class="mf">2.3.0</span><span class="o">+</span><span class="n">cu121</span>
+<span class="n">tqdm</span> <span class="n">version</span><span class="p">:</span> <span class="mf">4.66.4</span>
+<span class="n">tensorflow</span> <span class="n">version</span><span class="p">:</span> <span class="mf">2.15.0</span>
+<span class="o">--------------------------------------------------</span>
+<span class="n">Training</span> <span class="nb">set</span> <span class="n">length</span><span class="p">:</span> <span class="mi">44201</span>
+<span class="n">Validation</span> <span class="nb">set</span> <span class="n">length</span><span class="p">:</span> <span class="mi">2601</span>
+<span class="n">Test</span> <span class="nb">set</span> <span class="n">length</span><span class="p">:</span> <span class="mi">5200</span>
+<span class="o">--------------------------------------------------</span>
+<span class="n">Device</span><span class="p">:</span> <span class="n">cuda</span>
+<span class="o">--------------------------------------------------</span>
+<span class="o">...</span>
+<span class="n">Loaded</span> <span class="n">model</span><span class="p">:</span> <span class="n">gpt2</span><span class="o">-</span><span class="n">medium</span> <span class="p">(</span><span class="mi">355</span><span class="n">M</span><span class="p">)</span>
+<span class="o">--------------------------------------------------</span>
+<span class="n">Initial</span> <span class="n">losses</span>
+   <span class="n">Training</span> <span class="n">loss</span><span class="p">:</span> <span class="mf">3.3681655883789063</span>
+   <span class="n">Validation</span> <span class="n">loss</span><span class="p">:</span> <span class="mf">3.4122894287109373</span>
+<span class="n">Ep</span> <span class="mi">1</span> <span class="p">(</span><span class="n">Step</span> <span class="mi">000000</span><span class="p">):</span> <span class="n">Train</span> <span class="n">loss</span> <span class="mf">2.477</span><span class="p">,</span> <span class="n">Val</span> <span class="n">loss</span> <span class="mf">2.750</span>
+<span class="o">...</span>
+<span class="n">Ep</span> <span class="mi">2</span> <span class="p">(</span><span class="n">Step</span> <span class="mi">022095</span><span class="p">):</span> <span class="n">Train</span> <span class="n">loss</span> <span class="mf">0.761</span><span class="p">,</span> <span class="n">Val</span> <span class="n">loss</span> <span class="mf">1.557</span>
+<span class="o">...</span>
+<span class="n">Training</span> <span class="n">completed</span> <span class="ow">in</span> <span class="mf">196.38</span> <span class="n">minutes</span><span class="o">.</span>
+<span class="n">Plot</span> <span class="n">saved</span> <span class="k">as</span> <span class="n">loss</span><span class="o">-</span><span class="n">plot</span><span class="o">-</span><span class="n">alpaca52k</span><span class="o">.</span><span class="n">pdf</span>
+<span class="o">--------------------------------------------------</span>
+<span class="n">Generating</span> <span class="n">responses</span>
+<span class="mi">100</span><span class="o">%</span> <span class="mi">5200</span><span class="o">/</span><span class="mi">5200</span> <span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">56</span><span class="p">:</span><span class="mi">33</span><span class="o">&lt;</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">,</span>  <span class="mf">2.04</span><span class="n">s</span><span class="o">/</span><span class="n">it</span><span class="p">]</span>
+<span class="n">Responses</span> <span class="n">saved</span> <span class="k">as</span> <span class="n">instruction</span><span class="o">-</span><span class="n">data</span><span class="o">-</span><span class="k">with</span><span class="o">-</span><span class="n">response</span><span class="o">-</span><span class="n">alpaca52k</span><span class="o">.</span><span class="n">json</span>
+<span class="n">Model</span> <span class="n">saved</span> <span class="k">as</span> <span class="n">gpt2</span><span class="o">-</span><span class="n">medium355M</span><span class="o">-</span><span class="n">sft</span><span class="o">-</span><span class="n">alpaca52k</span><span class="o">.</span><span class="n">pth</span>
+</pre></div>
+</div>
+<p>Below are a few examples from the Alpaca dataset, including the generated model responses:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;instruction&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Edit the following sentence to increase readability: \&quot;He made a huge effort and was so successful.\&quot;&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;input&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;output&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;He exerted a tremendous effort, and thus enjoyed great success.&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;model_response&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;He put in an immense effort and was rewarded with success.&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;instruction&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Rewrite the following sentence to make it more concise: \&quot;I was displeased with the result of the experiment that I conducted.\&quot;&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;input&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;output&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;I was unhappy with my experiment&#39;s outcome.&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;model_response&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;I was displeased with the results of the experiment.&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;instruction&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;How can we build a more efficient GPT model?&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;input&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;output&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;We can build a more efficient GPT model by optimizing the architecture of the model, using smaller model sizes and training with fewer parameters. We can also leverage techniques such as knowledge distillation, transfer learning, dynamic sparsity and hybrid computing to further improve the efficiency of the model.&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;model_response&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Building a more efficient GPT model requires careful planning and optimization. First, it is important to identify the target language and the context in which the model is used. Then, it is important to select the appropriate model architecture, such as backpropagation, hyperparameters, and hyperparameters. Finally, it is important to select the appropriate model weights and optimizers, such as backpropagation, hyperparameters, and hyperparameters.&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>Finally, we can evaluate the finetuned LLM using the <a class="reference download internal" download="" href="../../_downloads/2b4083a8b9b89df008392d03d51417aa/ollama_evaluate.py"><span class="xref download myst">ollama_evaluate.py</span></a> utility function:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>ollama_evaluate.py<span class="w"> </span>--file_path<span class="w"> </span>instruction-data-with-response-alpaca52k.json
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Scoring entries: 100%|████████████████████| 5200/5200 [1:07:52&lt;00:00, 1.28it/s]
+Number of scores: 5188 of 5200
+Average score: 48.16
+</pre></div>
+</div>
+<p>The score is slightly lower than the score we obtained on the dataset we used in this chapter. However, note that the Alpaca test set contains more diverse and partly more challenging instructions than the dataset we used in the main chapter.</p>
+</section>
+<section id="exercise-7-4-parameter-efficient-finetuning-with-lora">
+<h2>Exercise 7.4: Parameter-efficient finetuning with LoRA<a class="headerlink" href="#exercise-7-4-parameter-efficient-finetuning-with-lora" title="Link to this heading">#</a></h2>
+<p>To instruction finetune the model using LoRA, use the relevant classes and functions from appendix E:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">appendix_E</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoRALayer</span><span class="p">,</span> <span class="n">LinearWithLoRA</span><span class="p">,</span> <span class="n">replace_linear_with_lora</span>
+</pre></div>
+</div>
+<p>Next, add the following lines of code below the model loading code in section 7.5:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">total_params</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">()</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total trainable parameters before: </span><span class="si">{</span><span class="n">total_params</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">():</span>
+    <span class="n">param</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="n">total_params</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">()</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total trainable parameters after: </span><span class="si">{</span><span class="n">total_params</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">replace_linear_with_lora</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+
+<span class="n">total_params</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">()</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total trainable LoRA parameters: </span><span class="si">{</span><span class="n">total_params</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For your convenience, you can use the <code class="docutils literal notranslate"><span class="pre">exercise_experiments.py</span></code> code to finetune the model, using LoRA with rank 16 and alpa 16, as follows:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>exercise_experiments.py<span class="w"> </span>--exercise_solution<span class="w"> </span>lora
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">matplotlib</span> <span class="n">version</span><span class="p">:</span> <span class="mf">3.7.1</span>
+<span class="n">tiktoken</span> <span class="n">version</span><span class="p">:</span> <span class="mf">0.7.0</span>
+<span class="n">torch</span> <span class="n">version</span><span class="p">:</span> <span class="mf">2.3.0</span><span class="o">+</span><span class="n">cu121</span>
+<span class="n">tqdm</span> <span class="n">version</span><span class="p">:</span> <span class="mf">4.66.4</span>
+<span class="n">tensorflow</span> <span class="n">version</span><span class="p">:</span> <span class="mf">2.15.0</span>
+<span class="o">--------------------------------------------------</span>
+<span class="n">Training</span> <span class="nb">set</span> <span class="n">length</span><span class="p">:</span> <span class="mi">935</span>
+<span class="n">Validation</span> <span class="nb">set</span> <span class="n">length</span><span class="p">:</span> <span class="mi">55</span>
+<span class="n">Test</span> <span class="nb">set</span> <span class="n">length</span><span class="p">:</span> <span class="mi">110</span>
+<span class="o">--------------------------------------------------</span>
+<span class="n">Device</span><span class="p">:</span> <span class="n">cuda</span>
+<span class="o">--------------------------------------------------</span>
+<span class="n">File</span> <span class="n">already</span> <span class="n">exists</span> <span class="ow">and</span> <span class="ow">is</span> <span class="n">up</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">date</span><span class="p">:</span> <span class="n">gpt2</span><span class="o">/</span><span class="mi">355</span><span class="n">M</span><span class="o">/</span><span class="n">checkpoint</span>
+<span class="n">File</span> <span class="n">already</span> <span class="n">exists</span> <span class="ow">and</span> <span class="ow">is</span> <span class="n">up</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">date</span><span class="p">:</span> <span class="n">gpt2</span><span class="o">/</span><span class="mi">355</span><span class="n">M</span><span class="o">/</span><span class="n">encoder</span><span class="o">.</span><span class="n">json</span>
+<span class="n">File</span> <span class="n">already</span> <span class="n">exists</span> <span class="ow">and</span> <span class="ow">is</span> <span class="n">up</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">date</span><span class="p">:</span> <span class="n">gpt2</span><span class="o">/</span><span class="mi">355</span><span class="n">M</span><span class="o">/</span><span class="n">hparams</span><span class="o">.</span><span class="n">json</span>
+<span class="n">File</span> <span class="n">already</span> <span class="n">exists</span> <span class="ow">and</span> <span class="ow">is</span> <span class="n">up</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">date</span><span class="p">:</span> <span class="n">gpt2</span><span class="o">/</span><span class="mi">355</span><span class="n">M</span><span class="o">/</span><span class="n">model</span><span class="o">.</span><span class="n">ckpt</span><span class="o">.</span><span class="n">data</span><span class="o">-</span><span class="mi">00000</span><span class="o">-</span><span class="n">of</span><span class="o">-</span><span class="mi">00001</span>
+<span class="n">File</span> <span class="n">already</span> <span class="n">exists</span> <span class="ow">and</span> <span class="ow">is</span> <span class="n">up</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">date</span><span class="p">:</span> <span class="n">gpt2</span><span class="o">/</span><span class="mi">355</span><span class="n">M</span><span class="o">/</span><span class="n">model</span><span class="o">.</span><span class="n">ckpt</span><span class="o">.</span><span class="n">index</span>
+<span class="n">File</span> <span class="n">already</span> <span class="n">exists</span> <span class="ow">and</span> <span class="ow">is</span> <span class="n">up</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">date</span><span class="p">:</span> <span class="n">gpt2</span><span class="o">/</span><span class="mi">355</span><span class="n">M</span><span class="o">/</span><span class="n">model</span><span class="o">.</span><span class="n">ckpt</span><span class="o">.</span><span class="n">meta</span>
+<span class="n">File</span> <span class="n">already</span> <span class="n">exists</span> <span class="ow">and</span> <span class="ow">is</span> <span class="n">up</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">date</span><span class="p">:</span> <span class="n">gpt2</span><span class="o">/</span><span class="mi">355</span><span class="n">M</span><span class="o">/</span><span class="n">vocab</span><span class="o">.</span><span class="n">bpe</span>
+<span class="n">Loaded</span> <span class="n">model</span><span class="p">:</span> <span class="n">gpt2</span><span class="o">-</span><span class="n">medium</span> <span class="p">(</span><span class="mi">355</span><span class="n">M</span><span class="p">)</span>
+<span class="o">--------------------------------------------------</span>
+<span class="n">Total</span> <span class="n">trainable</span> <span class="n">parameters</span> <span class="n">before</span><span class="p">:</span> <span class="mi">406</span><span class="p">,</span><span class="mi">286</span><span class="p">,</span><span class="mi">336</span>
+<span class="n">Total</span> <span class="n">trainable</span> <span class="n">parameters</span> <span class="n">after</span><span class="p">:</span> <span class="mi">0</span>
+<span class="n">Total</span> <span class="n">trainable</span> <span class="n">LoRA</span> <span class="n">parameters</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span><span class="mi">898</span><span class="p">,</span><span class="mi">384</span>
+<span class="n">Initial</span> <span class="n">losses</span>
+   <span class="n">Training</span> <span class="n">loss</span><span class="p">:</span> <span class="mf">3.7684114456176756</span>
+   <span class="n">Validation</span> <span class="n">loss</span><span class="p">:</span> <span class="mf">3.7619335651397705</span>
+<span class="n">Ep</span> <span class="mi">1</span> <span class="p">(</span><span class="n">Step</span> <span class="mi">000000</span><span class="p">):</span> <span class="n">Train</span> <span class="n">loss</span> <span class="mf">2.509</span><span class="p">,</span> <span class="n">Val</span> <span class="n">loss</span> <span class="mf">2.519</span>
+<span class="o">...</span>
+<span class="n">Ep</span> <span class="mi">2</span> <span class="p">(</span><span class="n">Step</span> <span class="mi">000230</span><span class="p">):</span> <span class="n">Train</span> <span class="n">loss</span> <span class="mf">0.308</span><span class="p">,</span> <span class="n">Val</span> <span class="n">loss</span> <span class="mf">0.652</span>
+<span class="o">...</span>
+<span class="o">--------------------------------------------------</span>
+<span class="n">Generating</span> <span class="n">responses</span>
+<span class="mi">100</span><span class="o">%</span> <span class="mi">110</span><span class="o">/</span><span class="mi">110</span> <span class="p">[</span><span class="mi">01</span><span class="p">:</span><span class="mi">52</span><span class="o">&lt;</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">,</span>  <span class="mf">1.03</span><span class="n">s</span><span class="o">/</span><span class="n">it</span><span class="p">]</span>
+<span class="n">Responses</span> <span class="n">saved</span> <span class="k">as</span> <span class="n">instruction</span><span class="o">-</span><span class="n">data</span><span class="o">-</span><span class="k">with</span><span class="o">-</span><span class="n">response</span><span class="o">-</span><span class="n">lora</span><span class="o">.</span><span class="n">json</span>
+<span class="n">Model</span> <span class="n">saved</span> <span class="k">as</span> <span class="n">gpt2</span><span class="o">-</span><span class="n">medium355M</span><span class="o">-</span><span class="n">sft</span><span class="o">-</span><span class="n">lora</span><span class="o">.</span><span class="n">pth</span>
+</pre></div>
+</div>
+<p>For comparison, you can run the original chapter 7 finetuning code via <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">exercise_experiments.py</span> <span class="pre">--exercise_solution</span> <span class="pre">baseline</span></code>.</p>
+<p>Note that on an Nvidia L4 GPU, the code above, using LoRA, takes 1.30 min to run. In comparison, the baseline takes 1.80 minutes to run. So, LoRA is approximately 28% faster.</p>
+<p>We can evaluate the performance using the Ollama Llama 3 method, which is for your convenience, also implemented in the <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">exercise_experiments.py</span></code> script, which we can run as follows:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>ollama_evaluate.py<span class="w"> </span>--file_path<span class="w"> </span>instruction-data-with-response-lora.json
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Ollama running: True
+Scoring entries: 100%|████████████████████████| 110/110 [01:13&lt;00:00,  1.50it/s]
+Number of scores: 110 of 110
+Average score: 50.23
+</pre></div>
+</div>
+<p>The score is around 50, which is in the same ballpark as the original model.</p>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./ch07/01_main-chapter-code"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="load-finetuned-model.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Load And Use Finetuned Model</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../02_dataset-utilities/README.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Chapter 7: Finetuning to Follow Instructions</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-7-1-changing-prompt-styles">Exercise 7.1: Changing prompt styles</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tip-considering-special-tokens">Tip: Considering special tokens</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-7-2-instruction-and-input-masking">Exercise 7.2: Instruction and input masking</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-7-3-finetuning-on-the-original-alpaca-dataset">Exercise 7.3: Finetuning on the original Alpaca dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-7-4-parameter-efficient-finetuning-with-lora">Exercise 7.4: Parameter-efficient finetuning with LoRA</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Sebastian Raschka
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

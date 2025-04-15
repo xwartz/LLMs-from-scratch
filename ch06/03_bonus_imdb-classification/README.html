@@ -1,0 +1,1007 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Additional Experiments Classifying the Sentiment of 50k IMDB Movie Reviews &#8212; LLMs from Scratch</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'ch06/03_bonus_imdb-classification/README';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Scikit-learn Logistic Regression Model" href="sklearn-baseline.html" />
+    <link rel="prev" title="Additional Classification Finetuning Experiments" href="../02_bonus_additional-experiments/README.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../README.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">LLMs from Scratch</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../README.html">
+                    Build a Large Language Model (From Scratch)
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Setup</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../setup/README.html">Optional Setup Instructions</a></li>
+
+
+
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Chapters</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../ch01/README.html">Chapter 1: Understanding Large Language Models</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch02/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/01_main-chapter-code/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/01_main-chapter-code/ch02.html">Chapter 2: Working with Text Data</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/01_main-chapter-code/dataloader.html">The Main Data Loading Pipeline Summarized</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/01_main-chapter-code/exercise-solutions.html">Chapter 2 Exercise solutions</a></li>
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/02_bonus_bytepair-encoder/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/02_bonus_bytepair-encoder/compare-bpe-tiktoken.html">Comparing Various Byte Pair Encoding (BPE) Implementations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/03_bonus_embedding-vs-matmul/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/03_bonus_embedding-vs-matmul/embeddings-and-linear-layers.html">Understanding the Difference Between Embedding Layers and Linear Layers</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/04_bonus_dataloader-intuition/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/04_bonus_dataloader-intuition/dataloader-intuition.html">Data sampling with a sliding window with number data</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/05_bpe-from-scratch/README.html">Byte Pair Encoding (BPE) Tokenizer From Scratch</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/05_bpe-from-scratch/bpe-from-scratch.html">Byte Pair Encoding (BPE) Tokenizer From Scratch</a></li>
+
+
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch03/README.html">Chapter 3: Coding Attention Mechanisms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch03/01_main-chapter-code/README.html">Chapter 3: Coding Attention Mechanisms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/01_main-chapter-code/ch03.html">Chapter 3: Coding Attention Mechanisms</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/01_main-chapter-code/multihead-attention.html">Multi-head Attention Plus Data Loading</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/01_main-chapter-code/exercise-solutions.html">Chapter 3 Exercise solutions</a></li>
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch03/02_bonus_efficient-multihead-attention/README.html">More Efficient Multi-Head Attention Implementations</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/02_bonus_efficient-multihead-attention/mha-implementations.html">Comparing Efficient Multi-Head Attention Implementations</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch03/03_understanding-buffers/README.html">Understanding PyTorch Buffers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/03_understanding-buffers/understanding-buffers.html">Understanding PyTorch Buffers</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch04/README.html">Chapter 4: Implementing a GPT Model from Scratch to Generate Text</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch04/01_main-chapter-code/README.html">Chapter 4: Implementing a GPT Model from Scratch To Generate Text</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch04/01_main-chapter-code/ch04.html">Chapter 4: Implementing a GPT model from Scratch To Generate Text</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch04/01_main-chapter-code/exercise-solutions.html">Chapter 4 Exercise solutions</a></li>
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch04/02_performance-analysis/README.html">Chapter 4: Implementing a GPT Model from Scratch To Generate Text</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch04/02_performance-analysis/flops-analysis.html">FLOPS Analysis</a></li>
+
+
+
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch05/README.html">Chapter 5: Pretraining on Unlabeled Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch05/01_main-chapter-code/README.html">Chapter 5: Pretraining on Unlabeled Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/01_main-chapter-code/ch05.html">Chapter 5: Pretraining on Unlabeled Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/01_main-chapter-code/exercise-solutions.html">Chapter 5 Exercise solutions</a></li>
+
+
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch05/02_alternative_weight_loading/README.html">Alternative Approaches to Loading Pretrained Weights</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/02_alternative_weight_loading/weight-loading-hf-safetensors.html">Bonus Code for Chapter 5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/02_alternative_weight_loading/weight-loading-hf-transformers.html">Bonus Code for Chapter 5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/02_alternative_weight_loading/weight-loading-pytorch.html">Bonus Code for Chapter 5</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch05/03_bonus_pretraining_on_gutenberg/README.html">Pretraining GPT on the Project Gutenberg Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch05/04_learning_rate_schedulers/README.html">Adding Bells and Whistles to the Training Loop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch05/05_bonus_hparam_tuning/README.html">Optimizing Hyperparameters for Pretraining</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch05/06_user_interface/README.html">Building a User Interface to Interact With the Pretrained LLM</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch05/07_gpt_to_llama/README.html">Converting GPT to Llama</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/07_gpt_to_llama/converting-gpt-to-llama2.html">Converting a From-Scratch GPT Architecture to Llama 2</a></li>
+
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/07_gpt_to_llama/converting-llama2-to-llama3.html">Converting Llama 2 to Llama 3.2 From Scratch</a></li>
+
+
+
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/07_gpt_to_llama/standalone-llama32.html">Llama 3.2 From Scratch (A Standalone Notebook)</a></li>
+
+
+
+
+
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/07_gpt_to_llama/standalone-llama32-mem-opt.html">Llama 3.2 From Scratch (A Standalone Notebook)</a></li>
+
+
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch05/08_memory_efficient_weight_loading/README.html">Memory-efficient Model Weight Loading</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/08_memory_efficient_weight_loading/memory-efficient-state-dict.html">Memory-efficient Model Weight Loading</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch05/09_extending-tokenizers/README.html">Extending the Tiktoken BPE Tokenizer with New Tokens</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/09_extending-tokenizers/extend-tiktoken.html">Extending the Tiktoken BPE Tokenizer with New Tokens</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch05/10_llm-training-speed/README.html">PyTorch Performance Tips for Faster LLM Training</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../README.html">Chapter 6: Finetuning for Classification</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../01_main-chapter-code/README.html">Chapter 6: Finetuning for Classification</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../01_main-chapter-code/ch06.html">Chapter 6: Finetuning for Text Classification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01_main-chapter-code/load-finetuned-model.html">Load And Use Finetuned Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01_main-chapter-code/exercise-solutions.html">Chapter 6 Exercise solutions</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../02_bonus_additional-experiments/README.html">Additional Classification Finetuning Experiments</a></li>
+<li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">Additional Experiments Classifying the Sentiment of 50k IMDB Movie Reviews</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="sklearn-baseline.html">Scikit-learn Logistic Regression Model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../04_user_interface/README.html">Building a User Interface to Interact With the GPT-based Spam Classifier</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch07/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/01_main-chapter-code/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/01_main-chapter-code/ch07.html">Chapter 7: Finetuning To Follow Instructions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/01_main-chapter-code/load-finetuned-model.html">Load And Use Finetuned Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/01_main-chapter-code/exercise-solutions.html">Chapter 7 Exercise solutions</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/02_dataset-utilities/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/02_dataset-utilities/create-passive-voice-entries.html">Create “Passive Voice” Entries for an Instruction Dataset</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/03_model-evaluation/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/03_model-evaluation/llm-instruction-eval-ollama.html">Evaluating Instruction Responses Locally Using a Llama 3 Model Via Ollama</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/03_model-evaluation/llm-instruction-eval-openai.html">Evaluating Instruction Responses Using the OpenAI API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/03_model-evaluation/scores/correlation-analysis.html">Score Correlation Analysis</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/04_preference-tuning-with-dpo/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/04_preference-tuning-with-dpo/create-preference-data-ollama.html">Generating A Preference Dataset With Llama 3.1 70B And Ollama</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/04_preference-tuning-with-dpo/dpo-from-scratch.html">Direct Preference Optimization (DPO) for LLM Alignment (From Scratch)</a></li>
+
+
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/05_dataset-generation/README.html">Generating Datasets for Instruction Finetuning</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/05_dataset-generation/llama3-ollama.html">Generating An Instruction Dataset via Llama 3 and Ollama</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/05_dataset-generation/reflection-gpt4.html">Improving Instruction-Data Via Reflection-Tuning Using GPT-4</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch07/06_user_interface/README.html">Building a User Interface to Interact With the Instruction Finetuned GPT Model</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../appendix-A/README.html">Appendix A: Introduction to PyTorch</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/README.html">Appendix A: Introduction to PyTorch</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/code-part1.html">Appendix A: Introduction to PyTorch (Part 1)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/code-part2.html">Appendix A: Introduction to PyTorch (Part 2)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/exercise-solutions.html">Exercise A.1</a></li>
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../appendix-A/02_setup-recommendations/README.html">Python and Environment Setup Recommendations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../appendix-D/README.html">Appendix D: Adding Bells and Whistles to the Training Loop</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../appendix-D/01_main-chapter-code/appendix-D.html">Appendix D: Adding Bells and Whistles to the Training Loop</a></li>
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../appendix-E/README.html">Appendix E: Parameter-efficient Finetuning with LoRA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../appendix-E/01_main-chapter-code/appendix-E.html">Appendix E: Parameter-efficient Finetuning with LoRA</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/rasbt/llms-from-scratch" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/rasbt/llms-from-scratch/edit/main/ch06/03_bonus_imdb-classification/README.md" target="_blank"
+   class="btn btn-sm btn-source-edit-button dropdown-item"
+   title="Suggest edit"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="btn__text-container">Suggest edit</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/rasbt/llms-from-scratch/issues/new?title=Issue%20on%20page%20%2Fch06/03_bonus_imdb-classification/README.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/ch06/03_bonus_imdb-classification/README.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Additional Experiments Classifying the Sentiment of 50k IMDB Movie Reviews</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-install-dependencies">Step 1: Install Dependencies</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-download-dataset">Step 2: Download Dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-run-models">Step 3: Run Models</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#m-gpt-2-baseline">1) 124 M GPT-2 Baseline</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#m-bert">2) 340 M BERT</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#m-distilbert">3) 66 M DistilBERT</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#m-roberta">4) 355 M RoBERTa</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#m-modernbert-base">5) 149 M ModernBERT Base</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#m-modernbert-large">6) 395 M ModernBERT Large</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#logistic-regression-baseline">7) Logistic Regression Baseline</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="additional-experiments-classifying-the-sentiment-of-50k-imdb-movie-reviews">
+<h1>Additional Experiments Classifying the Sentiment of 50k IMDB Movie Reviews<a class="headerlink" href="#additional-experiments-classifying-the-sentiment-of-50k-imdb-movie-reviews" title="Link to this heading">#</a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<p>This folder contains additional experiments to compare the (decoder-style) GPT-2 (2018) model from chapter 6 to encoder-style LLMs like <a class="reference external" href="https://arxiv.org/abs/1810.04805">BERT (2018)</a>, <a class="reference external" href="https://arxiv.org/abs/1907.11692">RoBERTa (2019)</a>, and <a class="reference external" href="https://arxiv.org/abs/2412.13663">ModernBERT (2024)</a>. Instead of using the small SPAM dataset from Chapter 6, we are using the 50k movie review dataset from IMDb (<a class="reference external" href="https://ai.stanford.edu/~amaas/data/sentiment/">dataset source</a>) with a binary classification objective, predicting whether a reviewer liked the movie or not. This is a balanced dataset, so a random prediction should yield 50% accuracy.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p></p></th>
+<th class="head"><p>Model</p></th>
+<th class="head"><p>Test accuracy</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>1</strong></p></td>
+<td><p>124 M GPT-2 Baseline</p></td>
+<td><p>91.88%</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>2</strong></p></td>
+<td><p>340 M BERT</p></td>
+<td><p>90.89%</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>3</strong></p></td>
+<td><p>66 M DistilBERT</p></td>
+<td><p>91.40%</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>4</strong></p></td>
+<td><p>355 M RoBERTa</p></td>
+<td><p>92.95%</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>5</strong></p></td>
+<td><p>149 M ModernBERT Base</p></td>
+<td><p>93.79%</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>6</strong></p></td>
+<td><p>395 M ModernBERT Large</p></td>
+<td><p>95.07%</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>7</strong></p></td>
+<td><p>Logistic Regression Baseline</p></td>
+<td><p>88.85%</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p> </p>
+</section>
+<section id="step-1-install-dependencies">
+<h2>Step 1: Install Dependencies<a class="headerlink" href="#step-1-install-dependencies" title="Link to this heading">#</a></h2>
+<p>Install the extra dependencies via</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements-extra.txt
+</pre></div>
+</div>
+<p> </p>
+</section>
+<section id="step-2-download-dataset">
+<h2>Step 2: Download Dataset<a class="headerlink" href="#step-2-download-dataset" title="Link to this heading">#</a></h2>
+<p>The codes are using the 50k movie reviews from IMDb (<a class="reference external" href="https://ai.stanford.edu/~amaas/data/sentiment/">dataset source</a>) to predict whether a movie review is positive or negative.</p>
+<p>Run the following code to create the <code class="docutils literal notranslate"><span class="pre">train.csv</span></code>, <code class="docutils literal notranslate"><span class="pre">validation.csv</span></code>, and <code class="docutils literal notranslate"><span class="pre">test.csv</span></code> datasets:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>download_prepare_dataset.py
+</pre></div>
+</div>
+<p> </p>
+</section>
+<section id="step-3-run-models">
+<h2>Step 3: Run Models<a class="headerlink" href="#step-3-run-models" title="Link to this heading">#</a></h2>
+<p> </p>
+<section id="m-gpt-2-baseline">
+<h3>1) 124 M GPT-2 Baseline<a class="headerlink" href="#m-gpt-2-baseline" title="Link to this heading">#</a></h3>
+<p>The 124M GPT-2 model used in chapter 6, starting with pretrained weights, and finetuning all weights:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>train_gpt.py<span class="w"> </span>--trainable_layers<span class="w"> </span><span class="s2">&quot;all&quot;</span><span class="w"> </span>--num_epochs<span class="w"> </span><span class="m">1</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Ep</span> <span class="mi">1</span> <span class="p">(</span><span class="n">Step</span> <span class="mi">000000</span><span class="p">):</span> <span class="n">Train</span> <span class="n">loss</span> <span class="mf">3.706</span><span class="p">,</span> <span class="n">Val</span> <span class="n">loss</span> <span class="mf">3.853</span>
+<span class="n">Ep</span> <span class="mi">1</span> <span class="p">(</span><span class="n">Step</span> <span class="mi">000050</span><span class="p">):</span> <span class="n">Train</span> <span class="n">loss</span> <span class="mf">0.682</span><span class="p">,</span> <span class="n">Val</span> <span class="n">loss</span> <span class="mf">0.706</span>
+<span class="o">...</span>
+<span class="n">Ep</span> <span class="mi">1</span> <span class="p">(</span><span class="n">Step</span> <span class="mi">004300</span><span class="p">):</span> <span class="n">Train</span> <span class="n">loss</span> <span class="mf">0.199</span><span class="p">,</span> <span class="n">Val</span> <span class="n">loss</span> <span class="mf">0.285</span>
+<span class="n">Ep</span> <span class="mi">1</span> <span class="p">(</span><span class="n">Step</span> <span class="mi">004350</span><span class="p">):</span> <span class="n">Train</span> <span class="n">loss</span> <span class="mf">0.188</span><span class="p">,</span> <span class="n">Val</span> <span class="n">loss</span> <span class="mf">0.208</span>
+<span class="n">Training</span> <span class="n">accuracy</span><span class="p">:</span> <span class="mf">95.62</span><span class="o">%</span> <span class="o">|</span> <span class="n">Validation</span> <span class="n">accuracy</span><span class="p">:</span> <span class="mf">95.00</span><span class="o">%</span>
+<span class="n">Training</span> <span class="n">completed</span> <span class="ow">in</span> <span class="mf">9.48</span> <span class="n">minutes</span><span class="o">.</span>
+
+<span class="n">Evaluating</span> <span class="n">on</span> <span class="n">the</span> <span class="n">full</span> <span class="n">datasets</span> <span class="o">...</span>
+
+<span class="n">Training</span> <span class="n">accuracy</span><span class="p">:</span> <span class="mf">95.64</span><span class="o">%</span>
+<span class="n">Validation</span> <span class="n">accuracy</span><span class="p">:</span> <span class="mf">92.32</span><span class="o">%</span>
+<span class="n">Test</span> <span class="n">accuracy</span><span class="p">:</span> <span class="mf">91.88</span><span class="o">%</span>
+</pre></div>
+</div>
+<br>
+<hr class="docutils" />
+<br>
+<p> </p>
+</section>
+<section id="m-bert">
+<h3>2) 340 M BERT<a class="headerlink" href="#m-bert" title="Link to this heading">#</a></h3>
+<p>A 340M parameter encoder-style <a class="reference external" href="https://arxiv.org/abs/1810.04805">BERT</a> model:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>train_bert_hf.py<span class="w"> </span>--trainable_layers<span class="w"> </span><span class="s2">&quot;all&quot;</span><span class="w"> </span>--num_epochs<span class="w"> </span><span class="m">1</span><span class="w"> </span>--model<span class="w"> </span><span class="s2">&quot;bert&quot;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Ep</span> <span class="mi">1</span> <span class="p">(</span><span class="n">Step</span> <span class="mi">000000</span><span class="p">):</span> <span class="n">Train</span> <span class="n">loss</span> <span class="mf">0.848</span><span class="p">,</span> <span class="n">Val</span> <span class="n">loss</span> <span class="mf">0.775</span>
+<span class="n">Ep</span> <span class="mi">1</span> <span class="p">(</span><span class="n">Step</span> <span class="mi">000050</span><span class="p">):</span> <span class="n">Train</span> <span class="n">loss</span> <span class="mf">0.655</span><span class="p">,</span> <span class="n">Val</span> <span class="n">loss</span> <span class="mf">0.682</span>
+<span class="o">...</span>
+<span class="n">Ep</span> <span class="mi">1</span> <span class="p">(</span><span class="n">Step</span> <span class="mi">004300</span><span class="p">):</span> <span class="n">Train</span> <span class="n">loss</span> <span class="mf">0.146</span><span class="p">,</span> <span class="n">Val</span> <span class="n">loss</span> <span class="mf">0.318</span>
+<span class="n">Ep</span> <span class="mi">1</span> <span class="p">(</span><span class="n">Step</span> <span class="mi">004350</span><span class="p">):</span> <span class="n">Train</span> <span class="n">loss</span> <span class="mf">0.204</span><span class="p">,</span> <span class="n">Val</span> <span class="n">loss</span> <span class="mf">0.217</span>
+<span class="n">Training</span> <span class="n">accuracy</span><span class="p">:</span> <span class="mf">92.50</span><span class="o">%</span> <span class="o">|</span> <span class="n">Validation</span> <span class="n">accuracy</span><span class="p">:</span> <span class="mf">88.75</span><span class="o">%</span>
+<span class="n">Training</span> <span class="n">completed</span> <span class="ow">in</span> <span class="mf">7.65</span> <span class="n">minutes</span><span class="o">.</span>
+
+<span class="n">Evaluating</span> <span class="n">on</span> <span class="n">the</span> <span class="n">full</span> <span class="n">datasets</span> <span class="o">...</span>
+
+<span class="n">Training</span> <span class="n">accuracy</span><span class="p">:</span> <span class="mf">94.35</span><span class="o">%</span>
+<span class="n">Validation</span> <span class="n">accuracy</span><span class="p">:</span> <span class="mf">90.74</span><span class="o">%</span>
+<span class="n">Test</span> <span class="n">accuracy</span><span class="p">:</span> <span class="mf">90.89</span><span class="o">%</span>
+</pre></div>
+</div>
+<br>
+<hr class="docutils" />
+<br>
+<p> </p>
+</section>
+<section id="m-distilbert">
+<h3>3) 66 M DistilBERT<a class="headerlink" href="#m-distilbert" title="Link to this heading">#</a></h3>
+<p>A 66M parameter encoder-style <a class="reference external" href="https://arxiv.org/abs/1910.01108">DistilBERT</a> model (distilled down from a 340M parameter BERT model), starting for the pretrained weights and only training the last transformer block plus output layers:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>train_bert_hf.py<span class="w"> </span>--trainable_layers<span class="w"> </span><span class="s2">&quot;all&quot;</span><span class="w"> </span>--num_epochs<span class="w"> </span><span class="m">1</span><span class="w"> </span>--model<span class="w"> </span><span class="s2">&quot;distilbert&quot;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Ep</span> <span class="mi">1</span> <span class="p">(</span><span class="n">Step</span> <span class="mi">000000</span><span class="p">):</span> <span class="n">Train</span> <span class="n">loss</span> <span class="mf">0.693</span><span class="p">,</span> <span class="n">Val</span> <span class="n">loss</span> <span class="mf">0.688</span>
+<span class="n">Ep</span> <span class="mi">1</span> <span class="p">(</span><span class="n">Step</span> <span class="mi">000050</span><span class="p">):</span> <span class="n">Train</span> <span class="n">loss</span> <span class="mf">0.452</span><span class="p">,</span> <span class="n">Val</span> <span class="n">loss</span> <span class="mf">0.460</span>
+<span class="o">...</span>
+<span class="n">Ep</span> <span class="mi">1</span> <span class="p">(</span><span class="n">Step</span> <span class="mi">004300</span><span class="p">):</span> <span class="n">Train</span> <span class="n">loss</span> <span class="mf">0.179</span><span class="p">,</span> <span class="n">Val</span> <span class="n">loss</span> <span class="mf">0.272</span>
+<span class="n">Ep</span> <span class="mi">1</span> <span class="p">(</span><span class="n">Step</span> <span class="mi">004350</span><span class="p">):</span> <span class="n">Train</span> <span class="n">loss</span> <span class="mf">0.199</span><span class="p">,</span> <span class="n">Val</span> <span class="n">loss</span> <span class="mf">0.182</span>
+<span class="n">Training</span> <span class="n">accuracy</span><span class="p">:</span> <span class="mf">95.62</span><span class="o">%</span> <span class="o">|</span> <span class="n">Validation</span> <span class="n">accuracy</span><span class="p">:</span> <span class="mf">91.25</span><span class="o">%</span>
+<span class="n">Training</span> <span class="n">completed</span> <span class="ow">in</span> <span class="mf">4.26</span> <span class="n">minutes</span><span class="o">.</span>
+
+<span class="n">Evaluating</span> <span class="n">on</span> <span class="n">the</span> <span class="n">full</span> <span class="n">datasets</span> <span class="o">...</span>
+
+<span class="n">Training</span> <span class="n">accuracy</span><span class="p">:</span> <span class="mf">95.30</span><span class="o">%</span>
+<span class="n">Validation</span> <span class="n">accuracy</span><span class="p">:</span> <span class="mf">91.12</span><span class="o">%</span>
+<span class="n">Test</span> <span class="n">accuracy</span><span class="p">:</span> <span class="mf">91.40</span><span class="o">%</span>
+</pre></div>
+</div>
+<br>
+<hr class="docutils" />
+<br>
+<p> </p>
+</section>
+<section id="m-roberta">
+<h3>4) 355 M RoBERTa<a class="headerlink" href="#m-roberta" title="Link to this heading">#</a></h3>
+<p>A 355M parameter encoder-style <a class="reference external" href="https://arxiv.org/abs/1907.11692">RoBERTa</a> model, starting for the pretrained weights and only training the last transformer block plus output layers:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>train_bert_hf.py<span class="w"> </span>--trainable_layers<span class="w"> </span><span class="s2">&quot;last_block&quot;</span><span class="w"> </span>--num_epochs<span class="w"> </span><span class="m">1</span><span class="w"> </span>--model<span class="w"> </span><span class="s2">&quot;roberta&quot;</span><span class="w"> </span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Ep</span> <span class="mi">1</span> <span class="p">(</span><span class="n">Step</span> <span class="mi">000000</span><span class="p">):</span> <span class="n">Train</span> <span class="n">loss</span> <span class="mf">0.695</span><span class="p">,</span> <span class="n">Val</span> <span class="n">loss</span> <span class="mf">0.698</span>
+<span class="n">Ep</span> <span class="mi">1</span> <span class="p">(</span><span class="n">Step</span> <span class="mi">000050</span><span class="p">):</span> <span class="n">Train</span> <span class="n">loss</span> <span class="mf">0.670</span><span class="p">,</span> <span class="n">Val</span> <span class="n">loss</span> <span class="mf">0.690</span>
+<span class="o">...</span>
+<span class="n">Ep</span> <span class="mi">1</span> <span class="p">(</span><span class="n">Step</span> <span class="mi">004300</span><span class="p">):</span> <span class="n">Train</span> <span class="n">loss</span> <span class="mf">0.126</span><span class="p">,</span> <span class="n">Val</span> <span class="n">loss</span> <span class="mf">0.149</span>
+<span class="n">Ep</span> <span class="mi">1</span> <span class="p">(</span><span class="n">Step</span> <span class="mi">004350</span><span class="p">):</span> <span class="n">Train</span> <span class="n">loss</span> <span class="mf">0.211</span><span class="p">,</span> <span class="n">Val</span> <span class="n">loss</span> <span class="mf">0.138</span>
+<span class="n">Training</span> <span class="n">accuracy</span><span class="p">:</span> <span class="mf">92.50</span><span class="o">%</span> <span class="o">|</span> <span class="n">Validation</span> <span class="n">accuracy</span><span class="p">:</span> <span class="mf">94.38</span><span class="o">%</span>
+<span class="n">Training</span> <span class="n">completed</span> <span class="ow">in</span> <span class="mf">7.20</span> <span class="n">minutes</span><span class="o">.</span>
+
+<span class="n">Evaluating</span> <span class="n">on</span> <span class="n">the</span> <span class="n">full</span> <span class="n">datasets</span> <span class="o">...</span>
+
+<span class="n">Training</span> <span class="n">accuracy</span><span class="p">:</span> <span class="mf">93.44</span><span class="o">%</span>
+<span class="n">Validation</span> <span class="n">accuracy</span><span class="p">:</span> <span class="mf">93.02</span><span class="o">%</span>
+<span class="n">Test</span> <span class="n">accuracy</span><span class="p">:</span> <span class="mf">92.95</span><span class="o">%</span>
+</pre></div>
+</div>
+<br>
+<hr class="docutils" />
+<br>
+<p> </p>
+</section>
+<section id="m-modernbert-base">
+<h3>5) 149 M ModernBERT Base<a class="headerlink" href="#m-modernbert-base" title="Link to this heading">#</a></h3>
+<p><a class="reference external" href="https://arxiv.org/abs/2412.13663">ModernBERT (2024)</a> is an optimized reimplementation of BERT that incorporates architectural improvements like parallel residual connections and gated linear units (GLUs) to boost efficiency and performance. It maintains BERT’s original pretraining objectives while achieving faster inference and better scalability on modern hardware.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>train_bert_hf.py<span class="w"> </span>--trainable_layers<span class="w"> </span><span class="s2">&quot;all&quot;</span><span class="w"> </span>--num_epochs<span class="w"> </span><span class="m">1</span><span class="w"> </span>--model<span class="w"> </span><span class="s2">&quot;modernbert-base&quot;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Ep</span> <span class="mi">1</span> <span class="p">(</span><span class="n">Step</span> <span class="mi">000000</span><span class="p">):</span> <span class="n">Train</span> <span class="n">loss</span> <span class="mf">0.699</span><span class="p">,</span> <span class="n">Val</span> <span class="n">loss</span> <span class="mf">0.698</span>
+<span class="n">Ep</span> <span class="mi">1</span> <span class="p">(</span><span class="n">Step</span> <span class="mi">000050</span><span class="p">):</span> <span class="n">Train</span> <span class="n">loss</span> <span class="mf">0.564</span><span class="p">,</span> <span class="n">Val</span> <span class="n">loss</span> <span class="mf">0.606</span>
+<span class="o">...</span>
+<span class="n">Ep</span> <span class="mi">1</span> <span class="p">(</span><span class="n">Step</span> <span class="mi">004300</span><span class="p">):</span> <span class="n">Train</span> <span class="n">loss</span> <span class="mf">0.086</span><span class="p">,</span> <span class="n">Val</span> <span class="n">loss</span> <span class="mf">0.168</span>
+<span class="n">Ep</span> <span class="mi">1</span> <span class="p">(</span><span class="n">Step</span> <span class="mi">004350</span><span class="p">):</span> <span class="n">Train</span> <span class="n">loss</span> <span class="mf">0.160</span><span class="p">,</span> <span class="n">Val</span> <span class="n">loss</span> <span class="mf">0.131</span>
+<span class="n">Training</span> <span class="n">accuracy</span><span class="p">:</span> <span class="mf">95.62</span><span class="o">%</span> <span class="o">|</span> <span class="n">Validation</span> <span class="n">accuracy</span><span class="p">:</span> <span class="mf">93.75</span><span class="o">%</span>
+<span class="n">Training</span> <span class="n">completed</span> <span class="ow">in</span> <span class="mf">10.27</span> <span class="n">minutes</span><span class="o">.</span>
+
+<span class="n">Evaluating</span> <span class="n">on</span> <span class="n">the</span> <span class="n">full</span> <span class="n">datasets</span> <span class="o">...</span>
+
+<span class="n">Training</span> <span class="n">accuracy</span><span class="p">:</span> <span class="mf">95.72</span><span class="o">%</span>
+<span class="n">Validation</span> <span class="n">accuracy</span><span class="p">:</span> <span class="mf">94.00</span><span class="o">%</span>
+<span class="n">Test</span> <span class="n">accuracy</span><span class="p">:</span> <span class="mf">93.79</span><span class="o">%</span>
+</pre></div>
+</div>
+<br>
+<hr class="docutils" />
+<br>
+<p> </p>
+</section>
+<section id="m-modernbert-large">
+<h3>6) 395 M ModernBERT Large<a class="headerlink" href="#m-modernbert-large" title="Link to this heading">#</a></h3>
+<p>Same as above but using the larger ModernBERT variant.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>train_bert_hf.py<span class="w"> </span>--trainable_layers<span class="w"> </span><span class="s2">&quot;all&quot;</span><span class="w"> </span>--num_epochs<span class="w"> </span><span class="m">1</span><span class="w"> </span>--model<span class="w"> </span><span class="s2">&quot;modernbert-large&quot;</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Ep</span> <span class="mi">1</span> <span class="p">(</span><span class="n">Step</span> <span class="mi">000000</span><span class="p">):</span> <span class="n">Train</span> <span class="n">loss</span> <span class="mf">0.666</span><span class="p">,</span> <span class="n">Val</span> <span class="n">loss</span> <span class="mf">0.662</span>
+<span class="n">Ep</span> <span class="mi">1</span> <span class="p">(</span><span class="n">Step</span> <span class="mi">000050</span><span class="p">):</span> <span class="n">Train</span> <span class="n">loss</span> <span class="mf">0.548</span><span class="p">,</span> <span class="n">Val</span> <span class="n">loss</span> <span class="mf">0.556</span>
+<span class="o">...</span>
+<span class="n">Ep</span> <span class="mi">1</span> <span class="p">(</span><span class="n">Step</span> <span class="mi">004300</span><span class="p">):</span> <span class="n">Train</span> <span class="n">loss</span> <span class="mf">0.083</span><span class="p">,</span> <span class="n">Val</span> <span class="n">loss</span> <span class="mf">0.115</span>
+<span class="n">Ep</span> <span class="mi">1</span> <span class="p">(</span><span class="n">Step</span> <span class="mi">004350</span><span class="p">):</span> <span class="n">Train</span> <span class="n">loss</span> <span class="mf">0.154</span><span class="p">,</span> <span class="n">Val</span> <span class="n">loss</span> <span class="mf">0.116</span>
+<span class="n">Training</span> <span class="n">accuracy</span><span class="p">:</span> <span class="mf">96.88</span><span class="o">%</span> <span class="o">|</span> <span class="n">Validation</span> <span class="n">accuracy</span><span class="p">:</span> <span class="mf">95.62</span><span class="o">%</span>
+<span class="n">Training</span> <span class="n">completed</span> <span class="ow">in</span> <span class="mf">27.69</span> <span class="n">minutes</span><span class="o">.</span>
+
+<span class="n">Evaluating</span> <span class="n">on</span> <span class="n">the</span> <span class="n">full</span> <span class="n">datasets</span> <span class="o">...</span>
+
+<span class="n">Training</span> <span class="n">accuracy</span><span class="p">:</span> <span class="mf">97.04</span><span class="o">%</span>
+<span class="n">Validation</span> <span class="n">accuracy</span><span class="p">:</span> <span class="mf">95.30</span><span class="o">%</span>
+<span class="n">Test</span> <span class="n">accuracy</span><span class="p">:</span> <span class="mf">95.07</span><span class="o">%</span>
+</pre></div>
+</div>
+<br>
+<hr class="docutils" />
+<br>
+<p> </p>
+</section>
+<section id="logistic-regression-baseline">
+<h3>7) Logistic Regression Baseline<a class="headerlink" href="#logistic-regression-baseline" title="Link to this heading">#</a></h3>
+<p>A scikit-learn <a class="reference external" href="https://sebastianraschka.com/blog/2022/losses-learned-part1.html">logistic regression</a> classifier as a baseline:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>train_sklearn_logreg.py
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Dummy</span> <span class="n">classifier</span><span class="p">:</span>
+<span class="n">Training</span> <span class="n">Accuracy</span><span class="p">:</span> <span class="mf">50.01</span><span class="o">%</span>
+<span class="n">Validation</span> <span class="n">Accuracy</span><span class="p">:</span> <span class="mf">50.14</span><span class="o">%</span>
+<span class="n">Test</span> <span class="n">Accuracy</span><span class="p">:</span> <span class="mf">49.91</span><span class="o">%</span>
+
+
+<span class="n">Logistic</span> <span class="n">regression</span> <span class="n">classifier</span><span class="p">:</span>
+<span class="n">Training</span> <span class="n">Accuracy</span><span class="p">:</span> <span class="mf">99.80</span><span class="o">%</span>
+<span class="n">Validation</span> <span class="n">Accuracy</span><span class="p">:</span> <span class="mf">88.62</span><span class="o">%</span>
+<span class="n">Test</span> <span class="n">Accuracy</span><span class="p">:</span> <span class="mf">88.85</span><span class="o">%</span>
+</pre></div>
+</div>
+</section>
+</section>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./ch06/03_bonus_imdb-classification"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../02_bonus_additional-experiments/README.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Additional Classification Finetuning Experiments</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="sklearn-baseline.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Scikit-learn Logistic Regression Model</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-install-dependencies">Step 1: Install Dependencies</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-download-dataset">Step 2: Download Dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-run-models">Step 3: Run Models</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#m-gpt-2-baseline">1) 124 M GPT-2 Baseline</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#m-bert">2) 340 M BERT</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#m-distilbert">3) 66 M DistilBERT</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#m-roberta">4) 355 M RoBERTa</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#m-modernbert-base">5) 149 M ModernBERT Base</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#m-modernbert-large">6) 395 M ModernBERT Large</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#logistic-regression-baseline">7) Logistic Regression Baseline</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Sebastian Raschka
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

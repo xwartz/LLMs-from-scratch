@@ -1,0 +1,1009 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>PyTorch Performance Tips for Faster LLM Training &#8212; LLMs from Scratch</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'ch05/10_llm-training-speed/README';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Chapter 6: Finetuning for Classification" href="../../ch06/README.html" />
+    <link rel="prev" title="Extending the Tiktoken BPE Tokenizer with New Tokens" href="../09_extending-tokenizers/extend-tiktoken.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../README.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">LLMs from Scratch</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../README.html">
+                    Build a Large Language Model (From Scratch)
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Setup</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../setup/README.html">Optional Setup Instructions</a></li>
+
+
+
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Chapters</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../ch01/README.html">Chapter 1: Understanding Large Language Models</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch02/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/01_main-chapter-code/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/01_main-chapter-code/ch02.html">Chapter 2: Working with Text Data</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/01_main-chapter-code/dataloader.html">The Main Data Loading Pipeline Summarized</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/01_main-chapter-code/exercise-solutions.html">Chapter 2 Exercise solutions</a></li>
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/02_bonus_bytepair-encoder/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/02_bonus_bytepair-encoder/compare-bpe-tiktoken.html">Comparing Various Byte Pair Encoding (BPE) Implementations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/03_bonus_embedding-vs-matmul/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/03_bonus_embedding-vs-matmul/embeddings-and-linear-layers.html">Understanding the Difference Between Embedding Layers and Linear Layers</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/04_bonus_dataloader-intuition/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/04_bonus_dataloader-intuition/dataloader-intuition.html">Data sampling with a sliding window with number data</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/05_bpe-from-scratch/README.html">Byte Pair Encoding (BPE) Tokenizer From Scratch</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/05_bpe-from-scratch/bpe-from-scratch.html">Byte Pair Encoding (BPE) Tokenizer From Scratch</a></li>
+
+
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch03/README.html">Chapter 3: Coding Attention Mechanisms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch03/01_main-chapter-code/README.html">Chapter 3: Coding Attention Mechanisms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/01_main-chapter-code/ch03.html">Chapter 3: Coding Attention Mechanisms</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/01_main-chapter-code/multihead-attention.html">Multi-head Attention Plus Data Loading</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/01_main-chapter-code/exercise-solutions.html">Chapter 3 Exercise solutions</a></li>
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch03/02_bonus_efficient-multihead-attention/README.html">More Efficient Multi-Head Attention Implementations</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/02_bonus_efficient-multihead-attention/mha-implementations.html">Comparing Efficient Multi-Head Attention Implementations</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch03/03_understanding-buffers/README.html">Understanding PyTorch Buffers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/03_understanding-buffers/understanding-buffers.html">Understanding PyTorch Buffers</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch04/README.html">Chapter 4: Implementing a GPT Model from Scratch to Generate Text</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch04/01_main-chapter-code/README.html">Chapter 4: Implementing a GPT Model from Scratch To Generate Text</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch04/01_main-chapter-code/ch04.html">Chapter 4: Implementing a GPT model from Scratch To Generate Text</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch04/01_main-chapter-code/exercise-solutions.html">Chapter 4 Exercise solutions</a></li>
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch04/02_performance-analysis/README.html">Chapter 4: Implementing a GPT Model from Scratch To Generate Text</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch04/02_performance-analysis/flops-analysis.html">FLOPS Analysis</a></li>
+
+
+
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../README.html">Chapter 5: Pretraining on Unlabeled Data</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../01_main-chapter-code/README.html">Chapter 5: Pretraining on Unlabeled Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../01_main-chapter-code/ch05.html">Chapter 5: Pretraining on Unlabeled Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01_main-chapter-code/exercise-solutions.html">Chapter 5 Exercise solutions</a></li>
+
+
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../02_alternative_weight_loading/README.html">Alternative Approaches to Loading Pretrained Weights</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../02_alternative_weight_loading/weight-loading-hf-safetensors.html">Bonus Code for Chapter 5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02_alternative_weight_loading/weight-loading-hf-transformers.html">Bonus Code for Chapter 5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02_alternative_weight_loading/weight-loading-pytorch.html">Bonus Code for Chapter 5</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../03_bonus_pretraining_on_gutenberg/README.html">Pretraining GPT on the Project Gutenberg Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04_learning_rate_schedulers/README.html">Adding Bells and Whistles to the Training Loop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05_bonus_hparam_tuning/README.html">Optimizing Hyperparameters for Pretraining</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06_user_interface/README.html">Building a User Interface to Interact With the Pretrained LLM</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../07_gpt_to_llama/README.html">Converting GPT to Llama</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../07_gpt_to_llama/converting-gpt-to-llama2.html">Converting a From-Scratch GPT Architecture to Llama 2</a></li>
+
+
+<li class="toctree-l3"><a class="reference internal" href="../07_gpt_to_llama/converting-llama2-to-llama3.html">Converting Llama 2 to Llama 3.2 From Scratch</a></li>
+
+
+
+
+<li class="toctree-l3"><a class="reference internal" href="../07_gpt_to_llama/standalone-llama32.html">Llama 3.2 From Scratch (A Standalone Notebook)</a></li>
+
+
+
+
+
+
+<li class="toctree-l3"><a class="reference internal" href="../07_gpt_to_llama/standalone-llama32-mem-opt.html">Llama 3.2 From Scratch (A Standalone Notebook)</a></li>
+
+
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../08_memory_efficient_weight_loading/README.html">Memory-efficient Model Weight Loading</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../08_memory_efficient_weight_loading/memory-efficient-state-dict.html">Memory-efficient Model Weight Loading</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../09_extending-tokenizers/README.html">Extending the Tiktoken BPE Tokenizer with New Tokens</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../09_extending-tokenizers/extend-tiktoken.html">Extending the Tiktoken BPE Tokenizer with New Tokens</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">PyTorch Performance Tips for Faster LLM Training</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch06/README.html">Chapter 6: Finetuning for Classification</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch06/01_main-chapter-code/README.html">Chapter 6: Finetuning for Classification</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch06/01_main-chapter-code/ch06.html">Chapter 6: Finetuning for Text Classification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch06/01_main-chapter-code/load-finetuned-model.html">Load And Use Finetuned Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch06/01_main-chapter-code/exercise-solutions.html">Chapter 6 Exercise solutions</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch06/02_bonus_additional-experiments/README.html">Additional Classification Finetuning Experiments</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch06/03_bonus_imdb-classification/README.html">Additional Experiments Classifying the Sentiment of 50k IMDB Movie Reviews</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch06/03_bonus_imdb-classification/sklearn-baseline.html">Scikit-learn Logistic Regression Model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch06/04_user_interface/README.html">Building a User Interface to Interact With the GPT-based Spam Classifier</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch07/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/01_main-chapter-code/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/01_main-chapter-code/ch07.html">Chapter 7: Finetuning To Follow Instructions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/01_main-chapter-code/load-finetuned-model.html">Load And Use Finetuned Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/01_main-chapter-code/exercise-solutions.html">Chapter 7 Exercise solutions</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/02_dataset-utilities/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/02_dataset-utilities/create-passive-voice-entries.html">Create “Passive Voice” Entries for an Instruction Dataset</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/03_model-evaluation/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/03_model-evaluation/llm-instruction-eval-ollama.html">Evaluating Instruction Responses Locally Using a Llama 3 Model Via Ollama</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/03_model-evaluation/llm-instruction-eval-openai.html">Evaluating Instruction Responses Using the OpenAI API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/03_model-evaluation/scores/correlation-analysis.html">Score Correlation Analysis</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/04_preference-tuning-with-dpo/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/04_preference-tuning-with-dpo/create-preference-data-ollama.html">Generating A Preference Dataset With Llama 3.1 70B And Ollama</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/04_preference-tuning-with-dpo/dpo-from-scratch.html">Direct Preference Optimization (DPO) for LLM Alignment (From Scratch)</a></li>
+
+
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/05_dataset-generation/README.html">Generating Datasets for Instruction Finetuning</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/05_dataset-generation/llama3-ollama.html">Generating An Instruction Dataset via Llama 3 and Ollama</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/05_dataset-generation/reflection-gpt4.html">Improving Instruction-Data Via Reflection-Tuning Using GPT-4</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch07/06_user_interface/README.html">Building a User Interface to Interact With the Instruction Finetuned GPT Model</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../appendix-A/README.html">Appendix A: Introduction to PyTorch</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/README.html">Appendix A: Introduction to PyTorch</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/code-part1.html">Appendix A: Introduction to PyTorch (Part 1)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/code-part2.html">Appendix A: Introduction to PyTorch (Part 2)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/exercise-solutions.html">Exercise A.1</a></li>
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../appendix-A/02_setup-recommendations/README.html">Python and Environment Setup Recommendations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../appendix-D/README.html">Appendix D: Adding Bells and Whistles to the Training Loop</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../appendix-D/01_main-chapter-code/appendix-D.html">Appendix D: Adding Bells and Whistles to the Training Loop</a></li>
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../appendix-E/README.html">Appendix E: Parameter-efficient Finetuning with LoRA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../appendix-E/01_main-chapter-code/appendix-E.html">Appendix E: Parameter-efficient Finetuning with LoRA</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/rasbt/llms-from-scratch" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/rasbt/llms-from-scratch/edit/main/ch05/10_llm-training-speed/README.md" target="_blank"
+   class="btn btn-sm btn-source-edit-button dropdown-item"
+   title="Suggest edit"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="btn__text-container">Suggest edit</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/rasbt/llms-from-scratch/issues/new?title=Issue%20on%20page%20%2Fch05/10_llm-training-speed/README.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/ch05/10_llm-training-speed/README.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>PyTorch Performance Tips for Faster LLM Training</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#single-gpu-speed-comparisons">Single GPU speed comparisons</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#baseline">Baseline</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#create-causal-mask-on-the-fly">1. Create causal mask on the fly</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#use-tensor-cores">2. Use  tensor cores</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fused-adamw-optimizer">3. Fused AdamW optimizer</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pinned-memory-in-the-data-loader">4. Pinned memory in the data loader</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-bfloat16-precision">5. Using bfloat16 precision</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#replacing-from-scratch-code-by-pytorch-classes">6. Replacing from-scratch code by PyTorch classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-flashattention">7. Using FlashAttention</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-pytorch-compile">8. Using <code class="docutils literal notranslate"><span class="pre">pytorch.compile</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#vocabulary-padding">9. Vocabulary padding</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#increasing-the-batch-size">10. Increasing the batch size</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#multi-gpu-speed-comparisons">Multi-GPU speed comparisons</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="pytorch-performance-tips-for-faster-llm-training">
+<h1>PyTorch Performance Tips for Faster LLM Training<a class="headerlink" href="#pytorch-performance-tips-for-faster-llm-training" title="Link to this heading">#</a></h1>
+<p>Note that the book is written for education purposes, meaning the original code is kept purposefully simple. This is to aid readability and ensure compatibility across different hardware, including CPUs and GPUs. However, you might be curious about some more advanced PyTorch and GPU features to make the LLM training more performant.</p>
+<p>This folder contains three code files that demonstrate performance optimizations for the LLM and the training function introduced in Chapter 5:</p>
+<ol class="arabic simple">
+<li><p><a class="reference download internal" download="" href="../../_downloads/40c6fe6334d0e46d4c01a76275cc09e9/00_orig.py"><span class="xref download myst"><code class="docutils literal notranslate"><span class="pre">00_orig.py</span></code></span></a>: The original Chapter 5 code for CPU and single-GPU training.<br />
+➤ Run via: <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">00_orig.py</span></code></p></li>
+<li><p><a class="reference download internal" download="" href="../../_downloads/48f5bd755f8ab879344ab57069b1ac95/01_opt_single_gpu.py"><span class="xref download myst"><code class="docutils literal notranslate"><span class="pre">01_opt_single_gpu.py</span></code></span></a>: An optimized version for single-GPU training.<br />
+➤ Run via: <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">01_opt_single_gpu.py</span></code></p></li>
+<li><p><a class="reference download internal" download="" href="../../_downloads/73e4035163118249491e8e56b4ea6795/02_opt_multi_gpu_ddp.py"><span class="xref download myst"><code class="docutils literal notranslate"><span class="pre">02_opt_multi_gpu_ddp.py</span></code></span></a>: An optimized version for multi-GPU training using Distributed Data Parallel (DDP).<br />
+➤ Run via: <code class="docutils literal notranslate"><span class="pre">torchrun</span> <span class="pre">--nproc_per_node=4</span> <span class="pre">02_opt_multi_gpu_ddp.py</span></code><br />
+(<strong>Note:</strong> To keep the changes minimal compared to <code class="docutils literal notranslate"><span class="pre">01_opt_single_gpu.py</span></code>, this script supports multi-processing only via <code class="docutils literal notranslate"><span class="pre">torchrun</span></code> as shown above. This means multi-GPU support is <strong>not</strong> supported via <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">02_opt_multi_gpu_ddp.py</span></code>)</p></li>
+</ol>
+<p><strong>Note that these modifications take the training speed from 12,525 tokens per second (single A100) to 142,156 tokens per second (single A100) and 419,259 tokens per second (4x A100s).</strong></p>
+<p>I plan to expand on the differences in a more detailed write-up sometime in the future. For now, the easiest way to see what improvements have been added to the code is to open the files in Visual Studio Code and look at the differences via the “Compare Selected” feature.</p>
+<p><img alt="VS compare" src="https://sebastianraschka.com/images/LLMs-from-scratch-images/bonus/llm-training-speed/vs-code-compare.png" /></p>
+<p><img alt="PyTorch Tips" src="https://sebastianraschka.com/images/LLMs-from-scratch-images/bonus/pytorch-tips/pytorch-tips.webp?1" /></p>
+<p> </p>
+<section id="single-gpu-speed-comparisons">
+<h2>Single GPU speed comparisons<a class="headerlink" href="#single-gpu-speed-comparisons" title="Link to this heading">#</a></h2>
+<p>As mentioned above, I plan to elaborate more on the changes in the future. For now, this section contains a simple performance overview in terms of tokens/second for each modification. All experiments were run on A100 GPUs.</p>
+<p> </p>
+<section id="baseline">
+<h3>Baseline<a class="headerlink" href="#baseline" title="Link to this heading">#</a></h3>
+<p>Note that <code class="docutils literal notranslate"><span class="pre">00_orig.py</span></code> servers as the baseline and contains no significant modification and uses the code from Chapter 5 as is besides the following:</p>
+<ul class="simple">
+<li><p>4 times larger context length (which explains the relatively large memory footprint of <code class="docutils literal notranslate"><span class="pre">00_orig.py</span></code> compared to Chapter 5);</p></li>
+<li><p>4-times batch size changes (another contributor to the relatively large memory footprint of <code class="docutils literal notranslate"><span class="pre">00_orig.py</span></code>);</p></li>
+<li><p>a larger public domain book to increase the training data size.</p></li>
+</ul>
+<p>The hyperparameters are not very optimized for minimizing loss and reducing overfitting, and the text generated by the LLM at the very end may not be super sophisticated; however, this shouldn’t matter as the main takeaway is the <code class="docutils literal notranslate"><span class="pre">tok/sec</span></code> metric that serves as a speed reference here (higher is better).</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ubuntu@159-13-52-60:~$<span class="w"> </span>python<span class="w"> </span>00_orig.py
+PyTorch<span class="w"> </span>version:<span class="w"> </span><span class="m">2</span>.6.0+cu124
+Using<span class="w"> </span>cuda
+CUDA<span class="w"> </span>version:<span class="w"> </span><span class="m">12</span>.4
+
+Ep<span class="w"> </span><span class="m">1</span>,<span class="w"> </span>Step<span class="w"> </span><span class="m">000000</span>,<span class="w"> </span>Train:<span class="w"> </span><span class="m">9</span>.535,<span class="w"> </span>Val:<span class="w"> </span><span class="m">9</span>.609,<span class="w"> </span>Step<span class="w"> </span>tok/sec:<span class="w"> </span><span class="m">7238</span>,<span class="w"> </span>Avg<span class="w"> </span>tok/sec:<span class="w"> </span><span class="m">0</span>
+Ep<span class="w"> </span><span class="m">1</span>,<span class="w"> </span>Step<span class="w"> </span><span class="m">000015</span>,<span class="w"> </span>Train:<span class="w"> </span><span class="m">6</span>.201,<span class="w"> </span>Val:<span class="w"> </span><span class="m">6</span>.152,<span class="w"> </span>Step<span class="w"> </span>tok/sec:<span class="w"> </span><span class="m">12545</span>,<span class="w"> </span>Avg<span class="w"> </span>tok/sec:<span class="w"> </span><span class="m">12545</span>
+Ep<span class="w"> </span><span class="m">1</span>,<span class="w"> </span>Step<span class="w"> </span><span class="m">000030</span>,<span class="w"> </span>Train:<span class="w"> </span><span class="m">5</span>.663,<span class="w"> </span>Val:<span class="w"> </span><span class="m">5</span>.688,<span class="w"> </span>Step<span class="w"> </span>tok/sec:<span class="w"> </span><span class="m">12490</span>,<span class="w"> </span>Avg<span class="w"> </span>tok/sec:<span class="w"> </span><span class="m">12517</span>
+Ep<span class="w"> </span><span class="m">1</span>,<span class="w"> </span>Step<span class="w"> </span><span class="m">000045</span>,<span class="w"> </span>Train:<span class="w"> </span><span class="m">5</span>.316,<span class="w"> </span>Val:<span class="w"> </span><span class="m">5</span>.362,<span class="w"> </span>Step<span class="w"> </span>tok/sec:<span class="w"> </span><span class="m">12541</span>,<span class="w"> </span>Avg<span class="w"> </span>tok/sec:<span class="w"> </span><span class="m">12525</span>
+Every<span class="w"> </span>effort<span class="w"> </span>moves<span class="w"> </span>you,<span class="w"> </span>and<span class="s1">&#39;s, and I am not be a</span>
+
+<span class="s1">...</span>
+
+<span class="s1">Ep 15, Step 000735, Train: 0.227, Val: 6.818, Step tok/sec: 11599, Avg tok/sec: 12248</span>
+<span class="s1">Ep 15, Step 000750, Train: 0.300, Val: 6.895, Step tok/sec: 12530, Avg tok/sec: 12253</span>
+<span class="s1">Ep 15, Step 000765, Train: 0.150, Val: 6.914, Step tok/sec: 12532, Avg tok/sec: 12259</span>
+<span class="s1">Every effort moves you like best to think which he held in the room in him, the interest was the night, the realities of the affairs Bulstrode&#39;</span>s<span class="w"> </span>duty,<span class="w"> </span>now!<span class="err">&#39;</span><span class="w"> </span>the<span class="w"> </span>fact<span class="w"> </span>is<span class="w"> </span>another<span class="w"> </span>man,<span class="w"> </span>conquests
+
+Allocated<span class="w"> </span>memory:<span class="w"> </span><span class="m">2</span>.5069<span class="w"> </span>GB
+Reserved<span class="w"> </span>memory:<span class="w"> </span><span class="m">26</span>.2617<span class="w"> </span>GB
+</pre></div>
+</div>
+<p>Note that <code class="docutils literal notranslate"><span class="pre">01_opt_single_gpu.py</span></code> contains all the modifications listed sequentially below.</p>
+<p>The comparison is always based on the average tok/sec and allocated memory after the first epoch from the previous section.</p>
+<p> </p>
+</section>
+<section id="create-causal-mask-on-the-fly">
+<h3>1. Create causal mask on the fly<a class="headerlink" href="#create-causal-mask-on-the-fly" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Instead of saving the causal mask, this creates the causal mask on the fly to reduce memory usage (here it has minimal effect, but it can add up in long-context size models like Llama 3.2 with 131k-input-tokens support)</p></li>
+</ul>
+<p>Before:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Avg</span> <span class="pre">tok/sec:</span> <span class="pre">12525</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Reserved</span> <span class="pre">memory:</span> <span class="pre">26.2617</span> <span class="pre">GB</span></code></p></li>
+</ul>
+<p>After:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Avg</span> <span class="pre">tok/sec:</span> <span class="pre">12526</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Reserved</span> <span class="pre">memory:</span> <span class="pre">26.2422</span> <span class="pre">GB</span></code></p></li>
+</ul>
+<p> </p>
+</section>
+<section id="use-tensor-cores">
+<h3>2. Use  tensor cores<a class="headerlink" href="#use-tensor-cores" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Uses tensor cores (only works for Ampere GPUs like A100 and newer)</p></li>
+</ul>
+<p>Before:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Avg</span> <span class="pre">tok/sec:</span> <span class="pre">12526</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Reserved</span> <span class="pre">memory:</span> <span class="pre">26.2422</span> <span class="pre">GB</span></code></p></li>
+</ul>
+<p>After:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Avg</span> <span class="pre">tok/sec:</span> <span class="pre">27648</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Reserved</span> <span class="pre">memory:</span> <span class="pre">26.2422</span> <span class="pre">GB</span></code></p></li>
+</ul>
+<p> </p>
+</section>
+<section id="fused-adamw-optimizer">
+<h3>3. Fused AdamW optimizer<a class="headerlink" href="#fused-adamw-optimizer" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Uses the fused kernels for <code class="docutils literal notranslate"><span class="pre">AdamW</span></code> by setting <code class="docutils literal notranslate"><span class="pre">fused=True</span></code></p></li>
+</ul>
+<p>Before:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Avg</span> <span class="pre">tok/sec:</span> <span class="pre">27648</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Reserved</span> <span class="pre">memory:</span> <span class="pre">26.2422</span> <span class="pre">GB</span></code></p></li>
+</ul>
+<p>After:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Avg</span> <span class="pre">tok/sec:</span> <span class="pre">28399</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Reserved</span> <span class="pre">memory:</span> <span class="pre">26.2422</span> <span class="pre">GB</span></code></p></li>
+</ul>
+<p> </p>
+</section>
+<section id="pinned-memory-in-the-data-loader">
+<h3>4. Pinned memory in the data loader<a class="headerlink" href="#pinned-memory-in-the-data-loader" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Uses <code class="docutils literal notranslate"><span class="pre">pin_memory=True</span></code> in the data loaders to pre-allocate and re-use GPU memory</p></li>
+</ul>
+<p>Before:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Avg</span> <span class="pre">tok/sec:</span> <span class="pre">28399</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Reserved</span> <span class="pre">memory:</span> <span class="pre">26.2422</span> <span class="pre">GB</span></code></p></li>
+</ul>
+<p>After:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Avg</span> <span class="pre">tok/sec:</span> <span class="pre">28402</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Reserved</span> <span class="pre">memory:</span> <span class="pre">26.2422</span> <span class="pre">GB</span></code></p></li>
+</ul>
+<p> </p>
+</section>
+<section id="using-bfloat16-precision">
+<h3>5. Using bfloat16 precision<a class="headerlink" href="#using-bfloat16-precision" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Switches from 32-bit float to 16-bit brain float (bfloat16) precision (for more on this topic, see my <a class="reference external" href="https://magazine.sebastianraschka.com/p/the-missing-bits-llama-2-weights">article here</a>)</p></li>
+</ul>
+<p>Before:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Avg</span> <span class="pre">tok/sec:</span> <span class="pre">28402</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Reserved</span> <span class="pre">memory:</span> <span class="pre">26.2422</span> <span class="pre">GB</span></code></p></li>
+</ul>
+<p>After:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Avg</span> <span class="pre">tok/sec:</span> <span class="pre">45486</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Reserved</span> <span class="pre">memory:</span> <span class="pre">13.7871</span> <span class="pre">GB</span></code></p></li>
+</ul>
+<p> </p>
+</section>
+<section id="replacing-from-scratch-code-by-pytorch-classes">
+<h3>6. Replacing from-scratch code by PyTorch classes<a class="headerlink" href="#replacing-from-scratch-code-by-pytorch-classes" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Replaces the LayerNorm and GeLU from-scratch implementation by PyTorch’s native implementations</p></li>
+</ul>
+<p>Before:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Avg</span> <span class="pre">tok/sec:</span> <span class="pre">45486</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Reserved</span> <span class="pre">memory:</span> <span class="pre">13.7871</span> <span class="pre">GB</span></code></p></li>
+</ul>
+<p>After:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Avg</span> <span class="pre">tok/sec:</span> <span class="pre">55256</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Reserved</span> <span class="pre">memory:</span> <span class="pre">11.5645</span> <span class="pre">GB</span></code></p></li>
+</ul>
+<p> </p>
+</section>
+<section id="using-flashattention">
+<h3>7. Using FlashAttention<a class="headerlink" href="#using-flashattention" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Uses PyTorch’s self-attention function with FlashAttention instead of our from-scratch multi-head attention implementation.</p></li>
+</ul>
+<p>Before:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Avg</span> <span class="pre">tok/sec:</span> <span class="pre">55256</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Reserved</span> <span class="pre">memory:</span> <span class="pre">11.5645</span> <span class="pre">GB</span></code></p></li>
+</ul>
+<p>After:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Avg</span> <span class="pre">tok/sec:</span> <span class="pre">91901</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Reserved</span> <span class="pre">memory:</span> <span class="pre">5.9004</span> <span class="pre">GB</span></code></p></li>
+</ul>
+<p> </p>
+</section>
+<section id="using-pytorch-compile">
+<h3>8. Using <code class="docutils literal notranslate"><span class="pre">pytorch.compile</span></code><a class="headerlink" href="#using-pytorch-compile" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Uses <code class="docutils literal notranslate"><span class="pre">torch.compile(model)</span></code>. Note that the first iterations are always slow before it picks up speed. Since the <code class="docutils literal notranslate"><span class="pre">Avg</span> <span class="pre">tok/sec</span></code> measurement only includes the first row from the average calculation, we now use the <code class="docutils literal notranslate"><span class="pre">Step</span> <span class="pre">tok/sec</span></code> at the end of epoch 1.</p></li>
+</ul>
+<p>Before:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Avg</span> <span class="pre">tok/sec:</span> <span class="pre">91901</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Reserved</span> <span class="pre">memory:</span> <span class="pre">5.9004</span> <span class="pre">GB</span></code></p></li>
+</ul>
+<p>After:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Step</span> <span class="pre">tok/sec:</span> <span class="pre">112046</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Reserved</span> <span class="pre">memory:</span> <span class="pre">6.1875</span> <span class="pre">GB</span></code></p></li>
+</ul>
+<p> </p>
+</section>
+<section id="vocabulary-padding">
+<h3>9. Vocabulary padding<a class="headerlink" href="#vocabulary-padding" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Here, we slightly increase the vocabulary size from 50,257 to 50,304, which is the nearest multiple of 64. This tip was suggested to me by my former colleague Carlos Mocholi, who mentioned that it originally came from Andrej Karpathy (likely from <a class="reference external" href="https://x.com/karpathy/status/1621578354024677377">this post</a>). Karpathy’s recommendation is based on an interaction with the PyTorch team, who gave advice on <code class="docutils literal notranslate"><span class="pre">torch.compile</span></code> as mentioned by <a class="reference external" href="https://www.linkedin.com/feed/update/urn:li:activity:7309569006057795584?commentUrn=urn%3Ali%3Acomment%3A%28activity%3A7309569006057795584%2C7309754284185669632%29&amp;amp;dashCommentUrn=urn%3Ali%3Afsd_comment%3A%287309754284185669632%2Curn%3Ali%3Aactivity%3A7309569006057795584%29">Bertrand Maher</a>. A good resource for this are <a class="reference external" href="https://docs.nvidia.com/deeplearning/performance/mixed-precision-training/index.html#tensor-core-shape">NVIDIA’s guidelines on tensor shapes</a>, where batch sizes and linear layer dimensions are commonly chosen as multiples of certain values. Furthermore, the vocab-padding trick was described by NVIDIA’s Megatron team a long time ago (see the 2019 <a class="reference external" href="https://arxiv.org/abs/1909.08053">Megatron-LM: Training Multi-Billion Parameter Language Models Using Model Parallelism</a> paper).</p></li>
+</ul>
+<p>Before:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Step</span> <span class="pre">tok/sec:</span> <span class="pre">112046</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Reserved</span> <span class="pre">memory:</span> <span class="pre">6.1875</span> <span class="pre">GB</span></code></p></li>
+</ul>
+<p>After:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Step</span> <span class="pre">tok/sec:</span> <span class="pre">127345</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Reserved</span> <span class="pre">memory:</span> <span class="pre">5.8906</span> <span class="pre">GB</span></code></p></li>
+</ul>
+<p> </p>
+</section>
+<section id="increasing-the-batch-size">
+<h3>10. Increasing the batch size<a class="headerlink" href="#increasing-the-batch-size" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Lastly, we increase the batch size to the largest power of 2 supported by the GPU</p></li>
+</ul>
+<p>Before:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Step</span> <span class="pre">tok/sec:</span> <span class="pre">127345</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Reserved</span> <span class="pre">memory:</span> <span class="pre">5.8906</span> <span class="pre">GB</span></code></p></li>
+</ul>
+<p>After:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Step</span> <span class="pre">tok/sec:</span> <span class="pre">142156</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Reserved</span> <span class="pre">memory:</span> <span class="pre">22.5078</span> <span class="pre">GB</span></code></p></li>
+</ul>
+<p> </p>
+</section>
+</section>
+<section id="multi-gpu-speed-comparisons">
+<h2>Multi-GPU speed comparisons<a class="headerlink" href="#multi-gpu-speed-comparisons" title="Link to this heading">#</a></h2>
+<p>This may not be an entirely fair comparison as we now use 4 GPUs instead of 1, but using distributed data parallelism, the fastest multi-GPU technique that can be used if the training is not bottle-necked by limited GPU memory, can, of course, result in noticeable speed-ups:</p>
+<p>Before (single GPU):</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Step</span> <span class="pre">tok/sec:</span> <span class="pre">142156</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Reserved</span> <span class="pre">memory:</span> <span class="pre">22.5078</span> <span class="pre">GB</span></code></p></li>
+</ul>
+<p>After (4 GPUs):</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Step</span> <span class="pre">tok/sec:</span> <span class="pre">419259</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Reserved</span> <span class="pre">memory:</span> <span class="pre">22.7969</span> <span class="pre">GB</span></code></p></li>
+</ul>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./ch05/10_llm-training-speed"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../09_extending-tokenizers/extend-tiktoken.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Extending the Tiktoken BPE Tokenizer with New Tokens</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../../ch06/README.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Chapter 6: Finetuning for Classification</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#single-gpu-speed-comparisons">Single GPU speed comparisons</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#baseline">Baseline</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#create-causal-mask-on-the-fly">1. Create causal mask on the fly</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#use-tensor-cores">2. Use  tensor cores</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fused-adamw-optimizer">3. Fused AdamW optimizer</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pinned-memory-in-the-data-loader">4. Pinned memory in the data loader</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-bfloat16-precision">5. Using bfloat16 precision</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#replacing-from-scratch-code-by-pytorch-classes">6. Replacing from-scratch code by PyTorch classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-flashattention">7. Using FlashAttention</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-pytorch-compile">8. Using <code class="docutils literal notranslate"><span class="pre">pytorch.compile</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#vocabulary-padding">9. Vocabulary padding</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#increasing-the-batch-size">10. Increasing the batch size</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#multi-gpu-speed-comparisons">Multi-GPU speed comparisons</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Sebastian Raschka
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

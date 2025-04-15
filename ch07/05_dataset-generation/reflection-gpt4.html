@@ -1,0 +1,1559 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Improving Instruction-Data Via Reflection-Tuning Using GPT-4 &#8212; LLMs from Scratch</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'ch07/05_dataset-generation/reflection-gpt4';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Building a User Interface to Interact With the Instruction Finetuned GPT Model" href="../06_user_interface/README.html" />
+    <link rel="prev" title="Generating An Instruction Dataset via Llama 3 and Ollama" href="llama3-ollama.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../README.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">LLMs from Scratch</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../README.html">
+                    Build a Large Language Model (From Scratch)
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Setup</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../setup/README.html">Optional Setup Instructions</a></li>
+
+
+
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Chapters</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../ch01/README.html">Chapter 1: Understanding Large Language Models</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch02/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/01_main-chapter-code/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/01_main-chapter-code/ch02.html">Chapter 2: Working with Text Data</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/01_main-chapter-code/dataloader.html">The Main Data Loading Pipeline Summarized</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/01_main-chapter-code/exercise-solutions.html">Chapter 2 Exercise solutions</a></li>
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/02_bonus_bytepair-encoder/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/02_bonus_bytepair-encoder/compare-bpe-tiktoken.html">Comparing Various Byte Pair Encoding (BPE) Implementations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/03_bonus_embedding-vs-matmul/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/03_bonus_embedding-vs-matmul/embeddings-and-linear-layers.html">Understanding the Difference Between Embedding Layers and Linear Layers</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/04_bonus_dataloader-intuition/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/04_bonus_dataloader-intuition/dataloader-intuition.html">Data sampling with a sliding window with number data</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch02/05_bpe-from-scratch/README.html">Byte Pair Encoding (BPE) Tokenizer From Scratch</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch02/05_bpe-from-scratch/bpe-from-scratch.html">Byte Pair Encoding (BPE) Tokenizer From Scratch</a></li>
+
+
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch03/README.html">Chapter 3: Coding Attention Mechanisms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch03/01_main-chapter-code/README.html">Chapter 3: Coding Attention Mechanisms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/01_main-chapter-code/ch03.html">Chapter 3: Coding Attention Mechanisms</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/01_main-chapter-code/multihead-attention.html">Multi-head Attention Plus Data Loading</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/01_main-chapter-code/exercise-solutions.html">Chapter 3 Exercise solutions</a></li>
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch03/02_bonus_efficient-multihead-attention/README.html">More Efficient Multi-Head Attention Implementations</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/02_bonus_efficient-multihead-attention/mha-implementations.html">Comparing Efficient Multi-Head Attention Implementations</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch03/03_understanding-buffers/README.html">Understanding PyTorch Buffers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/03_understanding-buffers/understanding-buffers.html">Understanding PyTorch Buffers</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch04/README.html">Chapter 4: Implementing a GPT Model from Scratch to Generate Text</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch04/01_main-chapter-code/README.html">Chapter 4: Implementing a GPT Model from Scratch To Generate Text</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch04/01_main-chapter-code/ch04.html">Chapter 4: Implementing a GPT model from Scratch To Generate Text</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch04/01_main-chapter-code/exercise-solutions.html">Chapter 4 Exercise solutions</a></li>
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch04/02_performance-analysis/README.html">Chapter 4: Implementing a GPT Model from Scratch To Generate Text</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch04/02_performance-analysis/flops-analysis.html">FLOPS Analysis</a></li>
+
+
+
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch05/README.html">Chapter 5: Pretraining on Unlabeled Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch05/01_main-chapter-code/README.html">Chapter 5: Pretraining on Unlabeled Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/01_main-chapter-code/ch05.html">Chapter 5: Pretraining on Unlabeled Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/01_main-chapter-code/exercise-solutions.html">Chapter 5 Exercise solutions</a></li>
+
+
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch05/02_alternative_weight_loading/README.html">Alternative Approaches to Loading Pretrained Weights</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/02_alternative_weight_loading/weight-loading-hf-safetensors.html">Bonus Code for Chapter 5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/02_alternative_weight_loading/weight-loading-hf-transformers.html">Bonus Code for Chapter 5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/02_alternative_weight_loading/weight-loading-pytorch.html">Bonus Code for Chapter 5</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch05/03_bonus_pretraining_on_gutenberg/README.html">Pretraining GPT on the Project Gutenberg Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch05/04_learning_rate_schedulers/README.html">Adding Bells and Whistles to the Training Loop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch05/05_bonus_hparam_tuning/README.html">Optimizing Hyperparameters for Pretraining</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch05/06_user_interface/README.html">Building a User Interface to Interact With the Pretrained LLM</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch05/07_gpt_to_llama/README.html">Converting GPT to Llama</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/07_gpt_to_llama/converting-gpt-to-llama2.html">Converting a From-Scratch GPT Architecture to Llama 2</a></li>
+
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/07_gpt_to_llama/converting-llama2-to-llama3.html">Converting Llama 2 to Llama 3.2 From Scratch</a></li>
+
+
+
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/07_gpt_to_llama/standalone-llama32.html">Llama 3.2 From Scratch (A Standalone Notebook)</a></li>
+
+
+
+
+
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/07_gpt_to_llama/standalone-llama32-mem-opt.html">Llama 3.2 From Scratch (A Standalone Notebook)</a></li>
+
+
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch05/08_memory_efficient_weight_loading/README.html">Memory-efficient Model Weight Loading</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/08_memory_efficient_weight_loading/memory-efficient-state-dict.html">Memory-efficient Model Weight Loading</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch05/09_extending-tokenizers/README.html">Extending the Tiktoken BPE Tokenizer with New Tokens</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/09_extending-tokenizers/extend-tiktoken.html">Extending the Tiktoken BPE Tokenizer with New Tokens</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch05/10_llm-training-speed/README.html">PyTorch Performance Tips for Faster LLM Training</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch06/README.html">Chapter 6: Finetuning for Classification</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch06/01_main-chapter-code/README.html">Chapter 6: Finetuning for Classification</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch06/01_main-chapter-code/ch06.html">Chapter 6: Finetuning for Text Classification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch06/01_main-chapter-code/load-finetuned-model.html">Load And Use Finetuned Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch06/01_main-chapter-code/exercise-solutions.html">Chapter 6 Exercise solutions</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch06/02_bonus_additional-experiments/README.html">Additional Classification Finetuning Experiments</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch06/03_bonus_imdb-classification/README.html">Additional Experiments Classifying the Sentiment of 50k IMDB Movie Reviews</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch06/03_bonus_imdb-classification/sklearn-baseline.html">Scikit-learn Logistic Regression Model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch06/04_user_interface/README.html">Building a User Interface to Interact With the GPT-based Spam Classifier</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../README.html">Chapter 7: Finetuning to Follow Instructions</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../01_main-chapter-code/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../01_main-chapter-code/ch07.html">Chapter 7: Finetuning To Follow Instructions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01_main-chapter-code/load-finetuned-model.html">Load And Use Finetuned Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01_main-chapter-code/exercise-solutions.html">Chapter 7 Exercise solutions</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../02_dataset-utilities/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../02_dataset-utilities/create-passive-voice-entries.html">Create “Passive Voice” Entries for an Instruction Dataset</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../03_model-evaluation/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../03_model-evaluation/llm-instruction-eval-ollama.html">Evaluating Instruction Responses Locally Using a Llama 3 Model Via Ollama</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03_model-evaluation/llm-instruction-eval-openai.html">Evaluating Instruction Responses Using the OpenAI API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03_model-evaluation/scores/correlation-analysis.html">Score Correlation Analysis</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../04_preference-tuning-with-dpo/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../04_preference-tuning-with-dpo/create-preference-data-ollama.html">Generating A Preference Dataset With Llama 3.1 70B And Ollama</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04_preference-tuning-with-dpo/dpo-from-scratch.html">Direct Preference Optimization (DPO) for LLM Alignment (From Scratch)</a></li>
+
+
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="README.html">Generating Datasets for Instruction Finetuning</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="llama3-ollama.html">Generating An Instruction Dataset via Llama 3 and Ollama</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">Improving Instruction-Data Via Reflection-Tuning Using GPT-4</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../06_user_interface/README.html">Building a User Interface to Interact With the Instruction Finetuned GPT Model</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../appendix-A/README.html">Appendix A: Introduction to PyTorch</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/README.html">Appendix A: Introduction to PyTorch</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/code-part1.html">Appendix A: Introduction to PyTorch (Part 1)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/code-part2.html">Appendix A: Introduction to PyTorch (Part 2)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/exercise-solutions.html">Exercise A.1</a></li>
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../appendix-A/02_setup-recommendations/README.html">Python and Environment Setup Recommendations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../appendix-D/README.html">Appendix D: Adding Bells and Whistles to the Training Loop</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../appendix-D/01_main-chapter-code/appendix-D.html">Appendix D: Adding Bells and Whistles to the Training Loop</a></li>
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../appendix-E/README.html">Appendix E: Parameter-efficient Finetuning with LoRA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../appendix-E/01_main-chapter-code/appendix-E.html">Appendix E: Parameter-efficient Finetuning with LoRA</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-launch-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Launch interactive content">
+    <i class="fas fa-rocket"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://mybinder.org/v2/gh/rasbt/llms-from-scratch/main?urlpath=lab/tree/ch07/05_dataset-generation/reflection-gpt4.ipynb" target="_blank"
+   class="btn btn-sm dropdown-item"
+   title="Launch on Binder"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  
+    <img alt="Binder logo" src="../../_static/images/logo_binder.svg">
+  </span>
+<span class="btn__text-container">Binder</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://colab.research.google.com/github/rasbt/llms-from-scratch/blob/main/ch07/05_dataset-generation/reflection-gpt4.ipynb" target="_blank"
+   class="btn btn-sm dropdown-item"
+   title="Launch on Colab"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  
+    <img alt="Colab logo" src="../../_static/images/logo_colab.png">
+  </span>
+<span class="btn__text-container">Colab</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/rasbt/llms-from-scratch" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/rasbt/llms-from-scratch/edit/main/ch07/05_dataset-generation/reflection-gpt4.ipynb" target="_blank"
+   class="btn btn-sm btn-source-edit-button dropdown-item"
+   title="Suggest edit"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="btn__text-container">Suggest edit</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/rasbt/llms-from-scratch/issues/new?title=Issue%20on%20page%20%2Fch07/05_dataset-generation/reflection-gpt4.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/ch07/05_dataset-generation/reflection-gpt4.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Improving Instruction-Data Via Reflection-Tuning Using GPT-4</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#test-openai-api">Test OpenAI API</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-json-entries">Load JSON Entries</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#improve-instructions">Improve Instructions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#improve-responses">Improve Responses</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#improving-the-dataset">Improving the Dataset</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reflect-instructions">Reflect instructions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reflect-responses">Reflect responses</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-improved-instruction-data">Creating Improved Instruction Data</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <table style="width:100%">
+<tr>
+<td style="vertical-align:middle; text-align:left;">
+<font size="2">
+Supplementary code for the <a href="http://mng.bz/orYv">Build a Large Language Model From Scratch</a> book by <a href="https://sebastianraschka.com">Sebastian Raschka</a><br>
+<br>Code repository: <a href="https://github.com/rasbt/LLMs-from-scratch">https://github.com/rasbt/LLMs-from-scratch</a>
+</font>
+</td>
+<td style="vertical-align:middle; text-align:left;">
+<a href="http://mng.bz/orYv"><img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/cover-small.webp" width="100px"></a>
+</td>
+</tr>
+</table><section class="tex2jax_ignore mathjax_ignore" id="improving-instruction-data-via-reflection-tuning-using-gpt-4">
+<h1>Improving Instruction-Data Via Reflection-Tuning Using GPT-4<a class="headerlink" href="#improving-instruction-data-via-reflection-tuning-using-gpt-4" title="Link to this heading">#</a></h1>
+<ul class="simple">
+<li><p>This notebook uses OpenAI’s GPT-4 API to implement the dataset refinement process from the <a class="reference external" href="https://arxiv.org/abs/2310.11716">Reflection-Tuning: Data Recycling Improves LLM Instruction-Tuning</a> paper</p></li>
+</ul>
+<p><img alt="" src="https://sebastianraschka.com/images/LLMs-from-scratch-images/bonus/reflection-tuning/reflection-tuning.webp" /></p>
+<ul class="simple">
+<li><p>In the original paper, the researchers refined the <a class="reference external" href="https://huggingface.co/datasets/tatsu-lab/alpaca">Alpaca</a> and <a class="reference external" href="https://huggingface.co/datasets/WizardLMTeam/WizardLM_evol_instruct_70k">WizardLM</a> instruction-finetuning datasets; in this notebook, we refine the <a class="reference external" href="https://github.com/rasbt/LLMs-from-scratch/blob/main/ch07/01_main-chapter-code/instruction-data.json">instruction-dataset used in chapter 7</a> (however, since it has the same format as Alpaca, the same code works with the Alpaca dataset as well)</p></li>
+<li><p>The expected dataset format is as follows:</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="p">{</span>
+        <span class="s2">&quot;instruction&quot;</span><span class="p">:</span> <span class="s2">&quot;Edit the following sentence for grammar.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;input&quot;</span><span class="p">:</span> <span class="s2">&quot;He go to the park every day.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;output&quot;</span><span class="p">:</span> <span class="s2">&quot;He goes to the park every day.&quot;</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;instruction&quot;</span><span class="p">:</span> <span class="s2">&quot;Convert 45 kilometers to meters.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;input&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;output&quot;</span><span class="p">:</span> <span class="s2">&quot;45 kilometers is 45000 meters.&quot;</span>
+    <span class="p">},</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Please note that this notebook reproduces the approach from the paper in which the authors used the GPT API to enhance existing datasets. However, it’s important to be aware that GPT API-generated data may not be used to develop models that compete with OpenAI, as specified in the <a class="reference external" href="https://openai.com/policies/row-terms-of-use/">OpenAI Terms of Use</a>: “What you cannot do… Use Output to develop models that compete with OpenAI.”
+You can find a relevant discussion <a class="reference external" href="https://www.reddit.com/r/LocalLLaMA/comments/17vbg1f/does_openai_tos_prohibit_generating_datasets_for/">here</a>).</p>
+</div></blockquote>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># pip install -r requirements-extra.txt</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">importlib.metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">version</span>
+
+<span class="n">pkgs</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;openai&quot;</span><span class="p">,</span>  <span class="c1"># OpenAI API</span>
+    <span class="s2">&quot;tqdm&quot;</span><span class="p">,</span>    <span class="c1"># Progress bar</span>
+<span class="p">]</span>
+
+<span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pkgs</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2"> version: </span><span class="si">{</span><span class="n">version</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>openai version: 0.27.1
+tqdm version: 4.65.0
+</pre></div>
+</div>
+</div>
+</div>
+<section id="test-openai-api">
+<h2>Test OpenAI API<a class="headerlink" href="#test-openai-api" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>First, let’s test if the OpenAI API is correctly set up</p></li>
+<li><p>If you don’t have an account yet, you need to create one at <a class="reference external" href="https://platform.openai.com/">https://platform.openai.com/</a></p></li>
+<li><p>Note that you will also have to transfer some funds to your account as the GPT-4 API is not free (see <a class="reference external" href="https://platform.openai.com/settings/organization/billing/overview">https://platform.openai.com/settings/organization/billing/overview</a>)</p></li>
+<li><p>Running the code exactly as it appears in this notebook costs about $0.03 (3 cents) with GPT-4o-mini as of this writing</p></li>
+<li><p>Applying the two methodologies above to all 1100 entries in the chapter 7 instruction dataset costs about $0.60 (60 cents)</p></li>
+</ul>
+<ul class="simple">
+<li><p>First, we need to provide our OpenAI API secret key, which can be found at <a class="reference external" href="https://platform.openai.com/api-keys">https://platform.openai.com/api-keys</a></p></li>
+<li><p>Make sure not to share this key with anyone</p></li>
+<li><p>Add this secret key (<code class="docutils literal notranslate"><span class="pre">&quot;sk-...&quot;</span></code>) to the <code class="docutils literal notranslate"><span class="pre">config.json</span></code> file in this folder</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenAI</span>
+
+<span class="c1"># Load API key from a JSON file.</span>
+<span class="c1"># Make sure to replace &quot;sk-...&quot; with your actual API key from https://platform.openai.com/api-keys</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;config.json&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+    <span class="n">api_key</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">]</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">OpenAI</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">ImportError</span><span class="g g-Whitespace">                               </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">line</span> <span class="mi">2</span>
+<span class="g g-Whitespace">      </span><span class="mi">1</span> <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="ne">----&gt; </span><span class="mi">2</span> <span class="kn">from</span><span class="w"> </span><span class="nn">openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenAI</span>
+<span class="g g-Whitespace">      </span><span class="mi">4</span> <span class="c1"># Load API key from a JSON file.</span>
+<span class="g g-Whitespace">      </span><span class="mi">5</span> <span class="c1"># Make sure to replace &quot;sk-...&quot; with your actual API key from https://platform.openai.com/api-keys</span>
+<span class="g g-Whitespace">      </span><span class="mi">6</span> <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;config.json&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
+
+<span class="ne">ImportError</span>: cannot import name &#39;OpenAI&#39; from &#39;openai&#39; (/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/site-packages/openai/__init__.py)
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>First, let’s try the API with a simple example to make sure it works as intended:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">run_chatgpt</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">client</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4o-mini&quot;</span><span class="p">,</span> <span class="n">system_prompt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="c1"># Define the system message if a system_prompt is provided</span>
+    <span class="n">messages</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="k">if</span> <span class="n">system_prompt</span><span class="p">:</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;system&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">system_prompt</span><span class="p">})</span>
+    
+    <span class="c1"># Add the user prompt to the messages</span>
+    <span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">prompt</span><span class="p">})</span>
+
+    <span class="c1"># Call the API</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+        <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+        <span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">,</span>
+        <span class="n">temperature</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">seed</span><span class="o">=</span><span class="mi">123</span><span class="p">,</span>
+    <span class="p">)</span>
+    
+    <span class="c1"># Return the model&#39;s response</span>
+    <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span>
+
+
+<span class="n">prompt</span> <span class="o">=</span> <span class="s2">&quot;Respond with &#39;hello world&#39; if you got this message.&quot;</span>
+<span class="n">run_chatgpt</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">client</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&#39;hello world&#39;
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="load-json-entries">
+<h2>Load JSON Entries<a class="headerlink" href="#load-json-entries" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Next, let’s load and process the instruction dataset</p></li>
+<li><p>Here, we assume that we saved the test dataset and the model responses as a JSON file that we can load as follows:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+
+<span class="n">json_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;..&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;01_main-chapter-code&quot;</span> <span class="o">/</span> <span class="s2">&quot;instruction-data.json&quot;</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+    <span class="n">json_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of entries:&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">json_data</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Number of entries: 1100
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>Let’s print one of the dataset entries to see its structure:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pprint</span><span class="w"> </span><span class="kn">import</span> <span class="n">pp</span> <span class="k">as</span> <span class="n">pprint</span>
+
+<span class="n">pprint</span><span class="p">(</span><span class="n">json_data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;instruction&#39;: &#39;Evaluate the following phrase by transforming it into the &#39;
+                &#39;spelling given.&#39;,
+ &#39;input&#39;: &#39;freind --&gt; friend&#39;,
+ &#39;output&#39;: &#39;The spelling of the given phrase &quot;freind&quot; is incorrect, the &#39;
+           &#39;correct spelling is &quot;friend&quot;.&#39;}
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="improve-instructions">
+<h2>Improve Instructions<a class="headerlink" href="#improve-instructions" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>The Reflection-Tuning authors shared two approaches: (1) improving the instructions and (2) improving the responses</p></li>
+<li><p>Let’s begin by improving the instructions in a given dataset</p></li>
+<li><p>Below is a small utility function from the <a class="reference external" href="https://github.com/tianyi-lab/Reflection_Tuning/blob/main/reflection_code/reflect_response.py">Reflection-Tuning repository</a> to format the inputs to the GPT-4 model for this dataset refinement</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">instr_prompt_no_input</span><span class="p">(</span><span class="n">ins</span><span class="p">,</span> <span class="n">outp</span><span class="p">):</span>
+
+    <span class="n">sys_prompt</span> <span class="o">=</span> <span class="s2">&quot;You are a helpful, precise but picky assistant for checking the quality of a given instruction.&quot;</span>
+    <span class="n">prompt_template</span> <span class="o">=</span> <span class="s2">&quot;[Instruction]</span><span class="se">\n</span><span class="si">{ins}</span><span class="se">\n\n</span><span class="s2">[The Start of Answer]</span><span class="se">\n</span><span class="si">{outp}</span><span class="se">\n\n</span><span class="s2">[The End of Answer]</span><span class="se">\n\n</span><span class="s2">[System]</span><span class="se">\n</span><span class="si">{criteria}</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="n">criteria</span> <span class="o">=</span> <span class="s2">&quot;We would like you to answer several questions related to the quality of a given instruction. </span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> \
+                <span class="s2">&quot;1. Why this instruction is not good? First analyse the instruction based on Complexity of the Topic, Level of Detail Required, Knowledge Required, Ambiguity of the Instruction and Logical Reasoning or Problem-Solving Involved. </span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> \
+                <span class="s2">&quot;Then analyse why this answer is not good for the given instruction? Analyse based on the Helpfulness, Relevance, Accuracy and Level of Details. </span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> \
+                <span class="s2">&quot;Finally analyse why this bad instruction lead to a bad answer. &quot;</span> <span class="o">+</span>\
+                <span class="s2">&quot;2. Based on the reason you provided, generate a new and complete instruction which is complex and difficult to answer directly. &quot;</span> <span class="o">+</span> \
+                <span class="s2">&quot;Make sure the new instruction is relevent but independent to the original instruction, which can be answered without knowing the original instruction, put the new instruction in the format of [New Instruction] your instruction [End]&quot;</span> <span class="o">+</span>\
+                <span class="s2">&quot;3. Answer the newly generated instruction as detailed as possible, in the format of [New Answer] your answer [End] </span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="n">prompt</span> <span class="o">=</span> <span class="n">prompt_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">ins</span><span class="o">=</span><span class="n">ins</span><span class="p">,</span> <span class="n">outp</span><span class="o">=</span><span class="n">outp</span><span class="p">,</span> <span class="n">criteria</span><span class="o">=</span><span class="n">criteria</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">sys_prompt</span><span class="p">,</span> <span class="n">prompt</span>
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>To see how it works, consider the dataset entry, <code class="docutils literal notranslate"><span class="pre">json_data[2]</span></code></p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pprint</span><span class="p">(</span><span class="n">json_data</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;instruction&#39;: &#39;Convert 45 kilometers to meters.&#39;,
+ &#39;input&#39;: &#39;&#39;,
+ &#39;output&#39;: &#39;45 kilometers is 45000 meters.&#39;}
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>We can refine the instruction as follows, using <code class="docutils literal notranslate"><span class="pre">instr_prompt_no_input</span></code> function defined above:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">entry</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+<span class="n">system_prompt</span><span class="p">,</span> <span class="n">prompt</span> <span class="o">=</span> <span class="n">instr_prompt_no_input</span><span class="p">(</span><span class="n">ins</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;instruction&quot;</span><span class="p">],</span> <span class="n">outp</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">])</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">run_chatgpt</span><span class="p">(</span><span class="n">prompt</span><span class="o">=</span><span class="n">prompt</span><span class="p">,</span> <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">,</span> <span class="n">system_prompt</span><span class="o">=</span><span class="n">system_prompt</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>1. **Analysis of the Instruction:**
+
+   - **Complexity of the Topic:** The topic of converting kilometers to meters is relatively simple and straightforward, as it involves basic unit conversion.
+   - **Level of Detail Required:** The instruction does not require much detail; it simply asks for a conversion without any additional context or explanation.
+   - **Knowledge Required:** Basic knowledge of metric units and their conversions is required, which is common knowledge.
+   - **Ambiguity of the Instruction:** The instruction is clear and unambiguous; it specifies exactly what needs to be converted.
+   - **Logical Reasoning or Problem-Solving Involved:** There is minimal logical reasoning involved, as the conversion factor (1 kilometer = 1000 meters) is a standard fact.
+
+   **Analysis of the Answer:**
+
+   - **Helpfulness:** The answer is helpful in that it provides the correct conversion.
+   - **Relevance:** The answer is relevant to the instruction, as it directly addresses the conversion requested.
+   - **Accuracy:** The answer is accurate; 45 kilometers does indeed equal 45,000 meters.
+   - **Level of Details:** The answer lacks detail. It does not explain the conversion process or provide any context, which could be beneficial for someone unfamiliar with metric conversions.
+
+   **Why the Bad Instruction Leads to a Bad Answer:** While the instruction itself is not bad, the simplicity of the task may lead to a lack of depth in the answer. The answer could have been improved by including an explanation of the conversion process, which would enhance understanding.
+
+2. **New Instruction:**
+   [New Instruction] Explain the significance of the metric system in global trade and provide examples of how unit conversions can impact international business transactions. [End]
+
+3. **New Answer:**
+   [New Answer] The metric system, also known as the International System of Units (SI), is a decimal-based system of measurement that is used globally. Its significance in global trade lies in its standardization, which facilitates international communication and commerce. 
+
+   One of the primary advantages of the metric system is that it is universally recognized, which reduces confusion and errors in measurement. For example, when a company in the United States imports goods from Europe, the specifications for those goods are often provided in metric units. If the U.S. company is accustomed to using imperial units (like inches or pounds), they must convert these measurements to ensure compatibility. 
+
+   Unit conversions can significantly impact international business transactions. For instance, if a manufacturer orders 100 kilograms of a product but mistakenly interprets it as 100 pounds, they will receive a much smaller quantity than intended, leading to production delays and financial losses. 
+
+   Additionally, in industries such as pharmaceuticals, precise measurements are critical. A dosage specified in milligrams must be accurately converted to ensure patient safety. 
+
+   In summary, the metric system&#39;s role in global trade is crucial for maintaining consistency and accuracy in measurements, which ultimately supports efficient and effective international business operations. [End]
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>The response is very verbose, which is useful for analysis purposes; also, it helps the GPT-4 model to make improvements via the chain-of-thought prompting approach</p></li>
+<li><p>However, to construct the improved dataset, we are actually only interested in new instructions and outputs, not the analyses</p></li>
+<li><p>We can use the following utility code from the <a class="reference external" href="https://github.com/tianyi-lab/Reflection_Tuning/blob/main/reflection_code/reflect_response.py">Reflection-Tuning repository</a> to extract the model’s improved instructions and outputs</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_ins</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">no_input</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">if</span> <span class="s1">&#39;[New Instruction]&#39;</span> <span class="ow">in</span> <span class="n">text</span><span class="p">:</span>
+        <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;(\[New Instruction\])(.*?)(\[End\]|\[New Answer\]|New Answer:)&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;(New Instruction:)(.*?)(\[End\]|\[New Answer\]|New Answer:)&#39;</span>
+    <span class="n">segments</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">seg_ins</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">seg_ins</span> <span class="o">=</span> <span class="n">segments</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">seg_ins</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">3.&quot;</span><span class="p">):</span>
+        <span class="n">seg_ins</span> <span class="o">=</span> <span class="n">seg_ins</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">seg_ins</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_oup</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">no_input</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">if</span> <span class="s1">&#39;[New Answer]&#39;</span> <span class="ow">in</span> <span class="n">text</span><span class="p">:</span>
+        <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;(\[New Answer\])(.*?)(\[End\]|$)&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;(New Answer:)(.*?)(\[End\]|$)&#39;</span>
+        <span class="c1"># pattern = r&#39;(\[New Answer\]|New Answer:)(.*?)(\[End\]|$)&#39;</span>
+    <span class="n">segments</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">seg_oup</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">seg_oup</span> <span class="o">=</span> <span class="n">segments</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">seg_oup</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_instruction</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">text</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">seg_ins</span> <span class="o">=</span> <span class="n">extract_ins</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">no_input</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">seg_oup</span> <span class="o">=</span> <span class="n">extract_oup</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">no_input</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">seg_ins</span><span class="p">,</span> <span class="n">seg_oup</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>Let’s use these utility functions to extract the improved instruction and response from the lengthy GPT-4 output generated earlier:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">new_instr</span><span class="p">,</span> <span class="n">new_outp</span> <span class="o">=</span> <span class="n">extract_instruction</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">new_instr</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Explain the significance of the metric system in global trade and provide examples of how unit conversions can impact international business transactions.
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">new_outp</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The metric system, also known as the International System of Units (SI), is a decimal-based system of measurement that is used globally. Its significance in global trade lies in its standardization, which facilitates international communication and commerce. 
+
+   One of the primary advantages of the metric system is that it is universally recognized, which reduces confusion and errors in measurement. For example, when a company in the United States imports goods from Europe, the specifications for those goods are often provided in metric units. If the U.S. company is accustomed to using imperial units (like inches or pounds), they must convert these measurements to ensure compatibility. 
+
+   Unit conversions can significantly impact international business transactions. For instance, if a manufacturer orders 100 kilograms of a product but mistakenly interprets it as 100 pounds, they will receive a much smaller quantity than intended, leading to production delays and financial losses. 
+
+   Additionally, in industries such as pharmaceuticals, precise measurements are critical. A dosage specified in milligrams must be accurately converted to ensure patient safety. 
+
+   In summary, the metric system&#39;s role in global trade is crucial for maintaining consistency and accuracy in measurements, which ultimately supports efficient and effective international business operations.
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>Note that the instruction-refinement is currently only implemented for dataset entries that don’t have an <code class="docutils literal notranslate"><span class="pre">&quot;input&quot;</span></code> field</p></li>
+</ul>
+</section>
+<section id="improve-responses">
+<h2>Improve Responses<a class="headerlink" href="#improve-responses" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>In a similar fashion, we can also apply the Reflection-Tuning refinement process specifically to the dataset responses (i.e., “output” fields)</p></li>
+<li><p>Below are two small utility functions from the <a class="reference external" href="https://github.com/tianyi-lab/Reflection_Tuning/blob/main/reflection_code/reflect_response.py">Reflection-Tuning repository</a> to format the inputs to the GPT-4 model for dataset refinement</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">res_gen_prompt_no_input</span><span class="p">(</span><span class="n">ins</span><span class="p">,</span> <span class="n">outp</span><span class="p">):</span>
+
+    <span class="n">sys_prompt</span> <span class="o">=</span> <span class="s2">&quot;You are a helpful, precise but picky assistant for checking the quality of the answer to a given instruction.&quot;</span>
+    <span class="n">prompt_template</span> <span class="o">=</span> <span class="s2">&quot;[Instruction]</span><span class="se">\n</span><span class="si">{ins}</span><span class="se">\n\n</span><span class="s2">[The Start of Answer]</span><span class="se">\n</span><span class="si">{outp}</span><span class="se">\n\n</span><span class="s2">[The End of Answer]</span><span class="se">\n\n</span><span class="s2">[System]</span><span class="se">\n</span><span class="si">{criteria}</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="n">criteria</span> <span class="o">=</span> <span class="s2">&quot;We would like you to answer several questions related to the quality of the answer to the given instruction. </span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> \
+                <span class="s2">&quot;1. Why this answer is not good for the given instruction? Analyse based on the Helpfulness, Relevance, Accuracy and Level of Details. </span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> \
+                <span class="s2">&quot;2. Based on the reason you provided, generate a better answer, new and complete, as detailed as possible, in the format of [Better Answer] your answer [End] </span><span class="se">\n</span><span class="s2">&quot;</span> 
+    <span class="n">prompt</span> <span class="o">=</span> <span class="n">prompt_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">ins</span><span class="o">=</span><span class="n">ins</span><span class="p">,</span> <span class="n">outp</span><span class="o">=</span><span class="n">outp</span><span class="p">,</span> <span class="n">criteria</span><span class="o">=</span><span class="n">criteria</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">sys_prompt</span><span class="p">,</span> <span class="n">prompt</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">res_gen_prompt_input</span><span class="p">(</span><span class="n">ins</span><span class="p">,</span> <span class="n">inp</span><span class="p">,</span> <span class="n">outp</span><span class="p">):</span>
+
+    <span class="n">sys_prompt</span> <span class="o">=</span> <span class="s2">&quot;You are a helpful and precise assistant for checking the quality of the answer to a given instruction and its input.&quot;</span>
+    <span class="n">prompt_template</span> <span class="o">=</span> <span class="s2">&quot;[Instruction]</span><span class="se">\n</span><span class="si">{ins}</span><span class="se">\n\n</span><span class="s2">[The Start of Input]</span><span class="se">\n</span><span class="si">{inp}</span><span class="se">\n\n</span><span class="s2">[The End of Input]</span><span class="se">\n\n</span><span class="s2">[The Start of Answer]</span><span class="se">\n</span><span class="si">{outp}</span><span class="se">\n\n</span><span class="s2">[The End of Answer]</span><span class="se">\n\n</span><span class="s2">[System]</span><span class="se">\n</span><span class="si">{criteria}</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="n">criteria</span> <span class="o">=</span> <span class="s2">&quot;We would like you to answer several questions related to the quality of the answer to the given instruction and corresponding input. </span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> \
+                <span class="s2">&quot;1. Why this answer is not good for the given instruction and corresponding input? Analyse based on the Helpfulness, Relevance, Accuracy and Level of Details. </span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> \
+                <span class="s2">&quot;2. Based on the reason you provided, generate a better answer, new and complete, as detailed as possible, in the format of [Better Answer] your answer [End] </span><span class="se">\n</span><span class="s2">&quot;</span> 
+    <span class="n">prompt</span> <span class="o">=</span> <span class="n">prompt_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">ins</span><span class="o">=</span><span class="n">ins</span><span class="p">,</span> <span class="n">inp</span><span class="o">=</span><span class="n">inp</span><span class="p">,</span> <span class="n">outp</span><span class="o">=</span><span class="n">outp</span><span class="p">,</span> <span class="n">criteria</span><span class="o">=</span><span class="n">criteria</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">sys_prompt</span><span class="p">,</span> <span class="n">prompt</span>
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>Again, let’s apply it to one of the dataset entries to see how it works, generating the improved response:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">entry</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+<span class="n">system_prompt</span><span class="p">,</span> <span class="n">prompt</span> <span class="o">=</span> <span class="n">res_gen_prompt_no_input</span><span class="p">(</span><span class="n">ins</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;instruction&quot;</span><span class="p">],</span> <span class="n">outp</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">])</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">run_chatgpt</span><span class="p">(</span><span class="n">prompt</span><span class="o">=</span><span class="n">prompt</span><span class="p">,</span> <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">,</span> <span class="n">system_prompt</span><span class="o">=</span><span class="n">system_prompt</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>1. The answer provided is not good for the given instruction for several reasons:
+
+- **Helpfulness**: While the answer does provide the correct conversion, it lacks any explanation or context. A more helpful answer would include a brief explanation of the conversion process, which would aid understanding.
+
+- **Relevance**: The answer is relevant in that it addresses the instruction to convert kilometers to meters, but it could be more relevant by including the conversion factor used (1 kilometer = 1000 meters).
+
+- **Accuracy**: The answer is accurate in terms of the numerical conversion (45 kilometers = 45000 meters). However, it could be misleading if the reader does not understand how the conversion was derived.
+
+- **Level of Details**: The answer is very brief and lacks detail. A more detailed response would include the conversion factor and a step-by-step explanation of how the conversion is performed.
+
+2. [Better Answer] To convert kilometers to meters, you can use the conversion factor that 1 kilometer is equal to 1000 meters. Therefore, to convert 45 kilometers to meters, you multiply 45 by 1000. 
+
+So, 45 kilometers × 1000 meters/kilometer = 45000 meters. 
+
+Thus, 45 kilometers is equal to 45000 meters. [End]
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>As we can see above, the response includes an analysis of the original response; we can extract the new response using the following utility function from the <a class="reference external" href="https://github.com/tianyi-lab/Reflection_Tuning/blob/main/reflection_code/reflect_response.py">Reflection-Tuning repository</a></p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">extract_response</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;[Better Answer]&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;\[(Better Answer)\](.*?)(\[End\]|\[Better Answer\]|$)&#39;</span>
+        <span class="n">segments</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># pattern = r&#39;\[(Better Answer)\](.*?)\[End\]&#39;</span>
+        <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;\[(Better Answer)\](.*?)(\[End\]|End|$)&#39;</span>
+        <span class="n">segments</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">segment</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">segment</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">response</span> <span class="o">=</span> <span class="n">extract_response</span><span class="p">(</span><span class="n">output</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>To convert kilometers to meters, you can use the conversion factor that 1 kilometer is equal to 1000 meters. Therefore, to convert 45 kilometers to meters, you multiply 45 by 1000. 
+
+So, 45 kilometers × 1000 meters/kilometer = 45000 meters. 
+
+Thus, 45 kilometers is equal to 45000 meters.
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="improving-the-dataset">
+<h2>Improving the Dataset<a class="headerlink" href="#improving-the-dataset" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Now, let’s apply the instruction-reflection and response-reflection techniques to the actual dataset</p></li>
+<li><p>Note: we only apply it to a small data subset here for demo purposes; to apply it to the whole dataset, change</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">data_to_process</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>to</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">data_to_process</span> <span class="o">=</span> <span class="n">json_data</span>
+</pre></div>
+</div>
+<section id="reflect-instructions">
+<h3>Reflect instructions<a class="headerlink" href="#reflect-instructions" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The following code applies the Reflection-Tuning methodology for dataset refinement to the instructions in the original dataset</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data_to_process</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">reflect_instructions</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span> <span class="n">client</span><span class="p">):</span>
+    <span class="n">new_json_data</span> <span class="o">=</span> <span class="p">[]</span> 
+    
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">json_data</span><span class="p">):</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;input&quot;</span><span class="p">]:</span>
+            <span class="n">system_prompt</span><span class="p">,</span> <span class="n">prompt</span> <span class="o">=</span> <span class="n">instr_prompt_no_input</span><span class="p">(</span><span class="n">ins</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;instruction&quot;</span><span class="p">],</span> <span class="n">outp</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">])</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="n">run_chatgpt</span><span class="p">(</span><span class="n">prompt</span><span class="o">=</span><span class="n">prompt</span><span class="p">,</span> <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">,</span> <span class="n">system_prompt</span><span class="o">=</span><span class="n">system_prompt</span><span class="p">)</span>
+            <span class="n">new_instr</span><span class="p">,</span> <span class="n">new_outp</span> <span class="o">=</span> <span class="n">extract_instruction</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+            <span class="n">new_entry</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;instruction&quot;</span><span class="p">:</span> <span class="n">new_instr</span><span class="p">,</span> <span class="s2">&quot;input&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;output&quot;</span><span class="p">:</span> <span class="n">new_outp</span><span class="p">}</span>
+            <span class="n">new_json_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_entry</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">new_json_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">new_json_data</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data_to_process</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+
+<span class="n">new_json_data</span> <span class="o">=</span> <span class="n">reflect_instructions</span><span class="p">(</span><span class="n">data_to_process</span><span class="p">,</span> <span class="n">client</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|█████████████████████████████████████████████| 3/3 [00:06&lt;00:00,  2.17s/it]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">new_json_data</span><span class="p">[:</span><span class="mi">3</span><span class="p">]:</span>
+    <span class="n">pprint</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;instruction&#39;: &#39;Evaluate the following phrase by transforming it into the &#39;
+                &#39;spelling given.&#39;,
+ &#39;input&#39;: &#39;freind --&gt; friend&#39;,
+ &#39;output&#39;: &#39;The spelling of the given phrase &quot;freind&quot; is incorrect, the &#39;
+           &#39;correct spelling is &quot;friend&quot;.&#39;}
+
+
+
+{&#39;instruction&#39;: &#39;Edit the following sentence for grammar.&#39;,
+ &#39;input&#39;: &#39;He go to the park every day.&#39;,
+ &#39;output&#39;: &#39;He goes to the park every day.&#39;}
+
+
+
+{&#39;instruction&#39;: &#39;Explain the significance of understanding metric conversions &#39;
+                &#39;in scientific research, and provide an example of how a &#39;
+                &#39;miscalculation in unit conversion could impact experimental &#39;
+                &#39;results.&#39;,
+ &#39;input&#39;: &#39;&#39;,
+ &#39;output&#39;: &#39;Understanding metric conversions is crucial in scientific research &#39;
+           &#39;because accurate measurements are fundamental to the validity of &#39;
+           &#39;experimental results. The metric system is widely used in &#39;
+           &#39;scientific disciplines due to its ease of use and universal &#39;
+           &#39;acceptance, allowing researchers from different countries to &#39;
+           &#39;communicate their findings effectively.\n&#39;
+           &#39;\n&#39;
+           &#39;   For example, consider a scenario in a chemistry experiment &#39;
+           &#39;where a researcher needs to prepare a solution with a specific &#39;
+           &#39;concentration. If the researcher intends to prepare a 1 molar (1 &#39;
+           &#39;M) solution of sodium chloride (NaCl) in 1 liter of water, they &#39;
+           &#39;must accurately measure the mass of NaCl required. The molar mass &#39;
+           &#39;of NaCl is approximately 58.44 grams per mole. Therefore, to &#39;
+           &#39;prepare 1 liter of a 1 M solution, the researcher needs to &#39;
+           &#39;dissolve 58.44 grams of NaCl in water.\n&#39;
+           &#39;\n&#39;
+           &#39;   However, if the researcher mistakenly converts the volume from &#39;
+           &#39;liters to milliliters and uses 1 mL instead of 1 L, they would &#39;
+           &#39;only need 0.05844 grams of NaCl. This significant error in unit &#39;
+           &#39;conversion would lead to a solution that is 1,000 times more &#39;
+           &#39;concentrated than intended. Such a miscalculation could result in &#39;
+           &#39;erroneous experimental outcomes, potentially leading to incorrect &#39;
+           &#39;conclusions about the behavior of the solution in reactions or &#39;
+           &#39;biological systems. This example highlights the importance of &#39;
+           &#39;precise unit conversions in ensuring the accuracy and reliability &#39;
+           &#39;of scientific research.&#39;}
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>Let’s save the new dataset:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;instruction-reflected.json&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+    <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">new_json_data</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="reflect-responses">
+<h3>Reflect responses<a class="headerlink" href="#reflect-responses" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Let’s now do the same for the response-reflection:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data_to_process</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">reflect_responses</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span> <span class="n">client</span><span class="p">):</span>
+    <span class="n">new_json_data</span> <span class="o">=</span> <span class="p">[]</span> 
+    
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">json_data</span><span class="p">):</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;input&quot;</span><span class="p">]:</span>
+            <span class="n">system_prompt</span><span class="p">,</span> <span class="n">prompt</span> <span class="o">=</span> <span class="n">res_gen_prompt_no_input</span><span class="p">(</span><span class="n">ins</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;instruction&quot;</span><span class="p">],</span> <span class="n">outp</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">])</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="n">run_chatgpt</span><span class="p">(</span><span class="n">prompt</span><span class="o">=</span><span class="n">prompt</span><span class="p">,</span> <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">,</span> <span class="n">system_prompt</span><span class="o">=</span><span class="n">system_prompt</span><span class="p">)</span>
+            <span class="n">new_response</span> <span class="o">=</span> <span class="n">extract_response</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_response</span><span class="p">):</span>
+                <span class="n">new_response</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]</span>
+                      
+            <span class="n">new_entry</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;instruction&quot;</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;instruction&quot;</span><span class="p">],</span> <span class="s2">&quot;input&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;output&quot;</span><span class="p">:</span> <span class="n">new_response</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
+            <span class="n">new_json_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_entry</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">system_prompt</span><span class="p">,</span> <span class="n">prompt</span> <span class="o">=</span> <span class="n">res_gen_prompt_input</span><span class="p">(</span><span class="n">ins</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;instruction&quot;</span><span class="p">],</span> <span class="n">inp</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;input&quot;</span><span class="p">],</span> <span class="n">outp</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">])</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="n">run_chatgpt</span><span class="p">(</span><span class="n">prompt</span><span class="o">=</span><span class="n">prompt</span><span class="p">,</span> <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">,</span> <span class="n">system_prompt</span><span class="o">=</span><span class="n">system_prompt</span><span class="p">)</span>
+            <span class="n">new_response</span> <span class="o">=</span> <span class="n">extract_response</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_response</span><span class="p">):</span>
+                <span class="n">new_response</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]</span>
+
+            <span class="n">new_entry</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;instruction&quot;</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;instruction&quot;</span><span class="p">],</span> <span class="s2">&quot;input&quot;</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;input&quot;</span><span class="p">],</span> <span class="s2">&quot;output&quot;</span><span class="p">:</span> <span class="n">new_response</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
+            <span class="n">new_json_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_entry</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">new_json_data</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">new_json_data</span> <span class="o">=</span> <span class="n">reflect_responses</span><span class="p">(</span><span class="n">data_to_process</span><span class="p">,</span> <span class="n">client</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|█████████████████████████████████████████████| 3/3 [00:07&lt;00:00,  2.40s/it]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">new_json_data</span><span class="p">[:</span><span class="mi">3</span><span class="p">]:</span>
+    <span class="n">pprint</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;instruction&#39;: &#39;Evaluate the following phrase by transforming it into the &#39;
+                &#39;spelling given.&#39;,
+ &#39;input&#39;: &#39;freind --&gt; friend&#39;,
+ &#39;output&#39;: &#39;The input phrase &quot;freind&quot; contains a spelling error. The correct &#39;
+           &#39;transformation of the word is as follows: &quot;freind&quot; should be &#39;
+           &#39;corrected to &quot;friend.&quot; Therefore, the correct spelling is &#39;
+           &#39;&quot;friend.&quot;&#39;}
+
+
+
+{&#39;instruction&#39;: &#39;Edit the following sentence for grammar.&#39;,
+ &#39;input&#39;: &#39;He go to the park every day.&#39;,
+ &#39;output&#39;: &#39;The original sentence &quot;He go to the park every day&quot; contains a &#39;
+           &#39;grammatical error in the verb form. The correct form should be &quot;He &#39;
+           &#39;goes to the park every day.&quot; This is because the subject &quot;He&quot; is &#39;
+           &#39;third person singular, and in English, the verb &quot;to go&quot; changes to &#39;
+           &#39;&quot;goes&quot; when used with third person singular subjects. Therefore, &#39;
+           &#39;the corrected sentence is grammatically accurate and maintains the &#39;
+           &#39;original meaning.&#39;}
+
+
+
+{&#39;instruction&#39;: &#39;Convert 45 kilometers to meters.&#39;,
+ &#39;input&#39;: &#39;&#39;,
+ &#39;output&#39;: &#39;To convert kilometers to meters, you can use the conversion factor &#39;
+           &#39;that 1 kilometer is equal to 1,000 meters. Therefore, to convert &#39;
+           &#39;45 kilometers to meters, you multiply 45 by 1,000. \n&#39;
+           &#39;\n&#39;
+           &#39;So, 45 kilometers is equal to 45,000 meters (45 km × 1,000 m/km = &#39;
+           &#39;45,000 m). \n&#39;
+           &#39;\n&#39;
+           &#39;This conversion is useful in various contexts, such as distance &#39;
+           &#39;measurement in travel or scientific calculations.&#39;}
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>Let’s save the new dataset:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;response-reflected.json&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+    <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">new_json_data</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="creating-improved-instruction-data">
+<h2>Creating Improved Instruction Data<a class="headerlink" href="#creating-improved-instruction-data" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Applying the two methodologies above to all 1100 entries in the chapter 7 instruction dataset costs about $0.60 (60 cents)</p></li>
+<li><p>To avoid bloating the GitHub repository with dataset files, the resulting dataset files are available from Google Drive:</p>
+<ul>
+<li><p><a class="reference external" href="https://drive.google.com/file/d/1c1QnuTdt9nP1u51vBn4_b05mWR_ZNGBv/view?usp=sharing">instruction-reflected.json</a></p></li>
+<li><p><a class="reference external" href="https://drive.google.com/file/d/1RNckTZ2ELcdUoJtaylao6NvyZPMtNv1v/view?usp=sharing">response-reflected.json</a></p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./ch07/05_dataset-generation"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="llama3-ollama.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Generating An Instruction Dataset via Llama 3 and Ollama</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../06_user_interface/README.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Building a User Interface to Interact With the Instruction Finetuned GPT Model</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#test-openai-api">Test OpenAI API</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-json-entries">Load JSON Entries</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#improve-instructions">Improve Instructions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#improve-responses">Improve Responses</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#improving-the-dataset">Improving the Dataset</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reflect-instructions">Reflect instructions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reflect-responses">Reflect responses</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-improved-instruction-data">Creating Improved Instruction Data</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Sebastian Raschka
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

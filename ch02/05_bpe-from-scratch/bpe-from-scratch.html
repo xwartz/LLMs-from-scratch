@@ -1,0 +1,1943 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Byte Pair Encoding (BPE) Tokenizer From Scratch &#8212; LLMs from Scratch</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'ch02/05_bpe-from-scratch/bpe-from-scratch';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Chapter 3: Coding Attention Mechanisms" href="../../ch03/README.html" />
+    <link rel="prev" title="Byte Pair Encoding (BPE) Tokenizer From Scratch" href="README.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../README.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">LLMs from Scratch</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../README.html">
+                    Build a Large Language Model (From Scratch)
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Setup</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../setup/README.html">Optional Setup Instructions</a></li>
+
+
+
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Chapters</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../ch01/README.html">Chapter 1: Understanding Large Language Models</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../README.html">Chapter 2: Working with Text Data</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../01_main-chapter-code/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../01_main-chapter-code/ch02.html">Chapter 2: Working with Text Data</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="../01_main-chapter-code/dataloader.html">The Main Data Loading Pipeline Summarized</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01_main-chapter-code/exercise-solutions.html">Chapter 2 Exercise solutions</a></li>
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../02_bonus_bytepair-encoder/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../02_bonus_bytepair-encoder/compare-bpe-tiktoken.html">Comparing Various Byte Pair Encoding (BPE) Implementations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../03_bonus_embedding-vs-matmul/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../03_bonus_embedding-vs-matmul/embeddings-and-linear-layers.html">Understanding the Difference Between Embedding Layers and Linear Layers</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../04_bonus_dataloader-intuition/README.html">Chapter 2: Working with Text Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../04_bonus_dataloader-intuition/dataloader-intuition.html">Data sampling with a sliding window with number data</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="README.html">Byte Pair Encoding (BPE) Tokenizer From Scratch</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">Byte Pair Encoding (BPE) Tokenizer From Scratch</a></li>
+
+
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch03/README.html">Chapter 3: Coding Attention Mechanisms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch03/01_main-chapter-code/README.html">Chapter 3: Coding Attention Mechanisms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/01_main-chapter-code/ch03.html">Chapter 3: Coding Attention Mechanisms</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/01_main-chapter-code/multihead-attention.html">Multi-head Attention Plus Data Loading</a></li>
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/01_main-chapter-code/exercise-solutions.html">Chapter 3 Exercise solutions</a></li>
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch03/02_bonus_efficient-multihead-attention/README.html">More Efficient Multi-Head Attention Implementations</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/02_bonus_efficient-multihead-attention/mha-implementations.html">Comparing Efficient Multi-Head Attention Implementations</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch03/03_understanding-buffers/README.html">Understanding PyTorch Buffers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch03/03_understanding-buffers/understanding-buffers.html">Understanding PyTorch Buffers</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch04/README.html">Chapter 4: Implementing a GPT Model from Scratch to Generate Text</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch04/01_main-chapter-code/README.html">Chapter 4: Implementing a GPT Model from Scratch To Generate Text</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch04/01_main-chapter-code/ch04.html">Chapter 4: Implementing a GPT model from Scratch To Generate Text</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch04/01_main-chapter-code/exercise-solutions.html">Chapter 4 Exercise solutions</a></li>
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch04/02_performance-analysis/README.html">Chapter 4: Implementing a GPT Model from Scratch To Generate Text</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch04/02_performance-analysis/flops-analysis.html">FLOPS Analysis</a></li>
+
+
+
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch05/README.html">Chapter 5: Pretraining on Unlabeled Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch05/01_main-chapter-code/README.html">Chapter 5: Pretraining on Unlabeled Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/01_main-chapter-code/ch05.html">Chapter 5: Pretraining on Unlabeled Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/01_main-chapter-code/exercise-solutions.html">Chapter 5 Exercise solutions</a></li>
+
+
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch05/02_alternative_weight_loading/README.html">Alternative Approaches to Loading Pretrained Weights</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/02_alternative_weight_loading/weight-loading-hf-safetensors.html">Bonus Code for Chapter 5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/02_alternative_weight_loading/weight-loading-hf-transformers.html">Bonus Code for Chapter 5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/02_alternative_weight_loading/weight-loading-pytorch.html">Bonus Code for Chapter 5</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch05/03_bonus_pretraining_on_gutenberg/README.html">Pretraining GPT on the Project Gutenberg Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch05/04_learning_rate_schedulers/README.html">Adding Bells and Whistles to the Training Loop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch05/05_bonus_hparam_tuning/README.html">Optimizing Hyperparameters for Pretraining</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch05/06_user_interface/README.html">Building a User Interface to Interact With the Pretrained LLM</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch05/07_gpt_to_llama/README.html">Converting GPT to Llama</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/07_gpt_to_llama/converting-gpt-to-llama2.html">Converting a From-Scratch GPT Architecture to Llama 2</a></li>
+
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/07_gpt_to_llama/converting-llama2-to-llama3.html">Converting Llama 2 to Llama 3.2 From Scratch</a></li>
+
+
+
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/07_gpt_to_llama/standalone-llama32.html">Llama 3.2 From Scratch (A Standalone Notebook)</a></li>
+
+
+
+
+
+
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/07_gpt_to_llama/standalone-llama32-mem-opt.html">Llama 3.2 From Scratch (A Standalone Notebook)</a></li>
+
+
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch05/08_memory_efficient_weight_loading/README.html">Memory-efficient Model Weight Loading</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/08_memory_efficient_weight_loading/memory-efficient-state-dict.html">Memory-efficient Model Weight Loading</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch05/09_extending-tokenizers/README.html">Extending the Tiktoken BPE Tokenizer with New Tokens</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch05/09_extending-tokenizers/extend-tiktoken.html">Extending the Tiktoken BPE Tokenizer with New Tokens</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch05/10_llm-training-speed/README.html">PyTorch Performance Tips for Faster LLM Training</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch06/README.html">Chapter 6: Finetuning for Classification</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch06/01_main-chapter-code/README.html">Chapter 6: Finetuning for Classification</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch06/01_main-chapter-code/ch06.html">Chapter 6: Finetuning for Text Classification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch06/01_main-chapter-code/load-finetuned-model.html">Load And Use Finetuned Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch06/01_main-chapter-code/exercise-solutions.html">Chapter 6 Exercise solutions</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch06/02_bonus_additional-experiments/README.html">Additional Classification Finetuning Experiments</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch06/03_bonus_imdb-classification/README.html">Additional Experiments Classifying the Sentiment of 50k IMDB Movie Reviews</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch06/03_bonus_imdb-classification/sklearn-baseline.html">Scikit-learn Logistic Regression Model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch06/04_user_interface/README.html">Building a User Interface to Interact With the GPT-based Spam Classifier</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../ch07/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/01_main-chapter-code/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/01_main-chapter-code/ch07.html">Chapter 7: Finetuning To Follow Instructions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/01_main-chapter-code/load-finetuned-model.html">Load And Use Finetuned Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/01_main-chapter-code/exercise-solutions.html">Chapter 7 Exercise solutions</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/02_dataset-utilities/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/02_dataset-utilities/create-passive-voice-entries.html">Create “Passive Voice” Entries for an Instruction Dataset</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/03_model-evaluation/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/03_model-evaluation/llm-instruction-eval-ollama.html">Evaluating Instruction Responses Locally Using a Llama 3 Model Via Ollama</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/03_model-evaluation/llm-instruction-eval-openai.html">Evaluating Instruction Responses Using the OpenAI API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/03_model-evaluation/scores/correlation-analysis.html">Score Correlation Analysis</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/04_preference-tuning-with-dpo/README.html">Chapter 7: Finetuning to Follow Instructions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/04_preference-tuning-with-dpo/create-preference-data-ollama.html">Generating A Preference Dataset With Llama 3.1 70B And Ollama</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/04_preference-tuning-with-dpo/dpo-from-scratch.html">Direct Preference Optimization (DPO) for LLM Alignment (From Scratch)</a></li>
+
+
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ch07/05_dataset-generation/README.html">Generating Datasets for Instruction Finetuning</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/05_dataset-generation/llama3-ollama.html">Generating An Instruction Dataset via Llama 3 and Ollama</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../ch07/05_dataset-generation/reflection-gpt4.html">Improving Instruction-Data Via Reflection-Tuning Using GPT-4</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ch07/06_user_interface/README.html">Building a User Interface to Interact With the Instruction Finetuned GPT Model</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../appendix-A/README.html">Appendix A: Introduction to PyTorch</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/README.html">Appendix A: Introduction to PyTorch</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/code-part1.html">Appendix A: Introduction to PyTorch (Part 1)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/code-part2.html">Appendix A: Introduction to PyTorch (Part 2)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../appendix-A/01_main-chapter-code/exercise-solutions.html">Exercise A.1</a></li>
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../appendix-A/02_setup-recommendations/README.html">Python and Environment Setup Recommendations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../appendix-D/README.html">Appendix D: Adding Bells and Whistles to the Training Loop</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../appendix-D/01_main-chapter-code/appendix-D.html">Appendix D: Adding Bells and Whistles to the Training Loop</a></li>
+
+
+
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../appendix-E/README.html">Appendix E: Parameter-efficient Finetuning with LoRA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../appendix-E/01_main-chapter-code/appendix-E.html">Appendix E: Parameter-efficient Finetuning with LoRA</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-launch-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Launch interactive content">
+    <i class="fas fa-rocket"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://mybinder.org/v2/gh/rasbt/llms-from-scratch/main?urlpath=lab/tree/ch02/05_bpe-from-scratch/bpe-from-scratch.ipynb" target="_blank"
+   class="btn btn-sm dropdown-item"
+   title="Launch on Binder"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  
+    <img alt="Binder logo" src="../../_static/images/logo_binder.svg">
+  </span>
+<span class="btn__text-container">Binder</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://colab.research.google.com/github/rasbt/llms-from-scratch/blob/main/ch02/05_bpe-from-scratch/bpe-from-scratch.ipynb" target="_blank"
+   class="btn btn-sm dropdown-item"
+   title="Launch on Colab"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  
+    <img alt="Colab logo" src="../../_static/images/logo_colab.png">
+  </span>
+<span class="btn__text-container">Colab</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/rasbt/llms-from-scratch" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/rasbt/llms-from-scratch/edit/main/ch02/05_bpe-from-scratch/bpe-from-scratch.ipynb" target="_blank"
+   class="btn btn-sm btn-source-edit-button dropdown-item"
+   title="Suggest edit"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="btn__text-container">Suggest edit</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/rasbt/llms-from-scratch/issues/new?title=Issue%20on%20page%20%2Fch02/05_bpe-from-scratch/bpe-from-scratch.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/ch02/05_bpe-from-scratch/bpe-from-scratch.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Byte Pair Encoding (BPE) Tokenizer From Scratch</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Byte Pair Encoding (BPE) Tokenizer From Scratch</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#the-main-idea-behind-byte-pair-encoding-bpe">1. The main idea behind byte pair encoding (BPE)</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bits-and-bytes">1.1 Bits and bytes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-the-vocabulary">1.2 Building the vocabulary</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bpe-algorithm-outline">1.3 BPE algorithm outline</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bpe-algorithm-example">1.4 BPE algorithm example</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#concrete-example-of-the-encoding-part-steps-1-2-in-section-1-3">1.4.1 Concrete example of the encoding part (steps 1 &amp; 2 in section 1.3)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#concrete-example-of-the-decoding-part-step-3-in-section-1-3">1.4.2 Concrete example of the decoding part (step 3 in section 1.3)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-simple-bpe-implementation">2. A simple BPE implementation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bpe-implementation-walkthrough">3. BPE implementation walkthrough</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#training-encoding-and-decoding">3.1 Training, encoding, and decoding</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#saving-and-loading-the-tokenizer">3.2 Saving and loading the tokenizer</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-the-original-gpt-2-bpe-tokenizer-from-openai">3.3 Loading the original GPT-2 BPE tokenizer from OpenAI</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#conclusion">4. Conclusion</a></li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <table style="width:100%">
+<tr>
+<td style="vertical-align:middle; text-align:left;">
+<font size="2">
+Supplementary code for the <a href="http://mng.bz/orYv">Build a Large Language Model From Scratch</a> book by <a href="https://sebastianraschka.com">Sebastian Raschka</a><br>
+<br>Code repository: <a href="https://github.com/rasbt/LLMs-from-scratch">https://github.com/rasbt/LLMs-from-scratch</a>
+</font>
+</td>
+<td style="vertical-align:middle; text-align:left;">
+<a href="http://mng.bz/orYv"><img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/cover-small.webp" width="100px"></a>
+</td>
+</tr>
+</table><section class="tex2jax_ignore mathjax_ignore" id="byte-pair-encoding-bpe-tokenizer-from-scratch">
+<h1>Byte Pair Encoding (BPE) Tokenizer From Scratch<a class="headerlink" href="#byte-pair-encoding-bpe-tokenizer-from-scratch" title="Link to this heading">#</a></h1>
+<ul class="simple">
+<li><p>This is a standalone notebook implementing the popular byte pair encoding (BPE) tokenization algorithm, which is used in models like GPT-2 to GPT-4, Llama 3, etc., from scratch for educational purposes</p></li>
+<li><p>For more details about the purpose of tokenization, please refer to <a class="reference external" href="https://github.com/rasbt/LLMs-from-scratch/blob/main/ch02/01_main-chapter-code/ch02.ipynb">Chapter 2</a>; this code here is bonus material explaining the BPE algorithm</p></li>
+<li><p>The original BPE tokenizer that OpenAI implemented for training the original GPT models can be found <a class="reference external" href="https://github.com/openai/gpt-2/blob/master/src/encoder.py">here</a></p></li>
+<li><p>The BPE algorithm was originally described in 1994: “<a class="reference external" href="http://www.pennelynn.com/Documents/CUJ/HTML/94HTML/19940045.HTM">A New Algorithm for Data Compression</a>” by Philip Gage</p></li>
+<li><p>Most projects, including Llama 3, nowadays use OpenAI’s open-source <a class="reference external" href="https://github.com/openai/tiktoken">tiktoken library</a> due to its computational performance; it allows loading pretrained GPT-2 and GPT-4 tokenizers, for example (the Llama 3 models were trained using the GPT-4 tokenizer as well)</p></li>
+<li><p>The difference between the implementations above and my implementation in this notebook, besides it being is that it also includes a function for training the tokenizer (for educational purposes)</p></li>
+<li><p>There’s also an implementation called <a class="reference external" href="https://github.com/karpathy/minbpe">minBPE</a> with training support, which is maybe more performant (my implementation here is focused on educational purposes); in contrast to <code class="docutils literal notranslate"><span class="pre">minbpe</span></code> my implementation additionally allows loading the original OpenAI tokenizer vocabulary and BPE “merges” (additionally, Hugging Face tokenizers are also capable of training and loading various tokenizers; see <a class="reference external" href="https://github.com/rasbt/LLMs-from-scratch/discussions/485">this GitHub discussion</a> by a reader who trained a BPE tokenizer on the Nepali language for more info)</p></li>
+</ul>
+<p> </p>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="the-main-idea-behind-byte-pair-encoding-bpe">
+<h1>1. The main idea behind byte pair encoding (BPE)<a class="headerlink" href="#the-main-idea-behind-byte-pair-encoding-bpe" title="Link to this heading">#</a></h1>
+<ul class="simple">
+<li><p>The main idea in BPE is to convert text into an integer representation (token IDs) for LLM training (see <a class="reference external" href="https://github.com/rasbt/LLMs-from-scratch/blob/main/ch02/01_main-chapter-code/ch02.ipynb">Chapter 2</a>)</p></li>
+</ul>
+<img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/bonus/bpe-from-scratch/bpe-overview.webp" width="600px"><p> </p>
+<section id="bits-and-bytes">
+<h2>1.1 Bits and bytes<a class="headerlink" href="#bits-and-bytes" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Before getting to the BPE algorithm, let’s introduce the notion of bytes</p></li>
+<li><p>Consider converting text into a byte array (BPE stands for “byte” pair encoding after all):</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;This is some text&quot;</span>
+<span class="n">byte_ary</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">byte_ary</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>bytearray(b&#39;This is some text&#39;)
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>When we call <code class="docutils literal notranslate"><span class="pre">list()</span></code> on a <code class="docutils literal notranslate"><span class="pre">bytearray</span></code> object, each byte is treated as an individual element, and the result is a list of integers corresponding to the byte values:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ids</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">byte_ary</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[84, 104, 105, 115, 32, 105, 115, 32, 115, 111, 109, 101, 32, 116, 101, 120, 116]
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>This would be a valid way to convert text into a token ID representation that we need for the embedding layer of an LLM</p></li>
+<li><p>However, the downside of this approach is that it is creating one ID for each character (that’s a lot of IDs for a short text!)</p></li>
+<li><p>I.e., this means for a 17-character input text, we have to use 17 token IDs as input to the LLM:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of characters:&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of token IDs:&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">ids</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Number of characters: 17
+Number of token IDs: 17
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>If you have worked with LLMs before, you may know that the BPE tokenizers have a vocabulary where we have a token ID for whole words or subwords instead of each character</p></li>
+<li><p>For example, the GPT-2 tokenizer tokenizes the same text (“This is some text”) into only 4 instead of 17 tokens: <code class="docutils literal notranslate"><span class="pre">1212,</span> <span class="pre">318,</span> <span class="pre">617,</span> <span class="pre">2420</span></code></p></li>
+<li><p>You can double-check this using the interactive <a class="reference external" href="https://tiktokenizer.vercel.app/?model=gpt2">tiktoken app</a> or the <a class="reference external" href="https://github.com/openai/tiktoken">tiktoken library</a>:</p></li>
+</ul>
+<img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/bonus/bpe-from-scratch/tiktokenizer.webp" width="600px">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tiktoken</span>
+
+<span class="n">gpt2_tokenizer</span> <span class="o">=</span> <span class="n">tiktoken</span><span class="o">.</span><span class="n">get_encoding</span><span class="p">(</span><span class="s2">&quot;gpt2&quot;</span><span class="p">)</span>
+<span class="n">gpt2_tokenizer</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;This is some text&quot;</span><span class="p">)</span>
+<span class="c1"># prints [1212, 318, 617, 2420]</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Since a byte consists of 8 bits, there are 2<sup>8</sup> = 256 possible values that a single byte can represent, ranging from 0 to 255</p></li>
+<li><p>You can confirm this by executing the code <code class="docutils literal notranslate"><span class="pre">bytearray(range(0,</span> <span class="pre">257))</span></code>, which will warn you that <code class="docutils literal notranslate"><span class="pre">ValueError:</span> <span class="pre">byte</span> <span class="pre">must</span> <span class="pre">be</span> <span class="pre">in</span> <span class="pre">range(0,</span> <span class="pre">256)</span></code>)</p></li>
+<li><p>A BPE tokenizer usually uses these 256 values as its first 256 single-character tokens; one could visually check this by running the following code:</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tiktoken</span>
+<span class="n">gpt2_tokenizer</span> <span class="o">=</span> <span class="n">tiktoken</span><span class="o">.</span><span class="n">get_encoding</span><span class="p">(</span><span class="s2">&quot;gpt2&quot;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">300</span><span class="p">):</span>
+    <span class="n">decoded</span> <span class="o">=</span> <span class="n">gpt2_tokenizer</span><span class="o">.</span><span class="n">decode</span><span class="p">([</span><span class="n">i</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">decoded</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">prints:</span>
+<span class="sd">0: !</span>
+<span class="sd">1: &quot;</span>
+<span class="sd">2: #</span>
+<span class="sd">...</span>
+<span class="sd">255: �  # &lt;---- single character tokens up to here</span>
+<span class="sd">256:  t</span>
+<span class="sd">257:  a</span>
+<span class="sd">...</span>
+<span class="sd">298: ent</span>
+<span class="sd">299:  n</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Above, note that entries 256 and 257 are not single-character values but double-character values (a whitespace + a letter), which is a little shortcoming of the original GPT-2 BPE Tokenizer (this has been improved in the GPT-4 tokenizer)</p></li>
+</ul>
+<p> </p>
+</section>
+<section id="building-the-vocabulary">
+<h2>1.2 Building the vocabulary<a class="headerlink" href="#building-the-vocabulary" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>The goal of the BPE tokenization algorithm is to build a vocabulary of commonly occurring subwords like <code class="docutils literal notranslate"><span class="pre">298:</span> <span class="pre">ent</span></code> (which can be found in <em>entangle, entertain, enter, entrance, entity, …</em>, for example), or even complete words like</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">318</span><span class="p">:</span> <span class="ow">is</span>
+<span class="mi">617</span><span class="p">:</span> <span class="n">some</span>
+<span class="mi">1212</span><span class="p">:</span> <span class="n">This</span>
+<span class="mi">2420</span><span class="p">:</span> <span class="n">text</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>The BPE algorithm was originally described in 1994: “<a class="reference external" href="http://www.pennelynn.com/Documents/CUJ/HTML/94HTML/19940045.HTM">A New Algorithm for Data Compression</a>” by Philip Gage</p></li>
+<li><p>Before we get to the actual code implementation, the form that is used for LLM tokenizers today can be summarized as described in the following sections.</p></li>
+</ul>
+<p> </p>
+</section>
+<section id="bpe-algorithm-outline">
+<h2>1.3 BPE algorithm outline<a class="headerlink" href="#bpe-algorithm-outline" title="Link to this heading">#</a></h2>
+<p><strong>1. Identify frequent pairs</strong></p>
+<ul class="simple">
+<li><p>In each iteration, scan the text to find the most commonly occurring pair of bytes (or characters)</p></li>
+</ul>
+<p><strong>2. Replace and record</strong></p>
+<ul class="simple">
+<li><p>Replace that pair with a new placeholder ID (one not already in use, e.g., if we start with 0…255, the first placeholder would be 256)</p></li>
+<li><p>Record this mapping in a lookup table</p></li>
+<li><p>The size of the lookup table is a hyperparameter, also called “vocabulary size” (for GPT-2, that’s
+50,257)</p></li>
+</ul>
+<p><strong>3. Repeat until no gains</strong></p>
+<ul class="simple">
+<li><p>Keep repeating steps 1 and 2, continually merging the most frequent pairs</p></li>
+<li><p>Stop when no further compression is possible (e.g., no pair occurs more than once)</p></li>
+</ul>
+<p><strong>Decompression (decoding)</strong></p>
+<ul class="simple">
+<li><p>To restore the original text, reverse the process by substituting each ID with its corresponding pair, using the lookup table</p></li>
+</ul>
+<p> </p>
+</section>
+<section id="bpe-algorithm-example">
+<h2>1.4 BPE algorithm example<a class="headerlink" href="#bpe-algorithm-example" title="Link to this heading">#</a></h2>
+<section id="concrete-example-of-the-encoding-part-steps-1-2-in-section-1-3">
+<h3>1.4.1 Concrete example of the encoding part (steps 1 &amp; 2 in section 1.3)<a class="headerlink" href="#concrete-example-of-the-encoding-part-steps-1-2-in-section-1-3" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Suppose we have the text (training dataset) <code class="docutils literal notranslate"><span class="pre">the</span> <span class="pre">cat</span> <span class="pre">in</span> <span class="pre">the</span> <span class="pre">hat</span></code> from which we want to build the vocabulary for a BPE tokenizer</p></li>
+</ul>
+<p><strong>Iteration 1</strong></p>
+<ol class="arabic simple">
+<li><p>Identify frequent pairs</p></li>
+</ol>
+<ul class="simple">
+<li><p>In this text, “th” appears twice (at the beginning and before the second “e”)</p></li>
+</ul>
+<ol class="arabic simple" start="2">
+<li><p>Replace and record</p></li>
+</ol>
+<ul class="simple">
+<li><p>replace “th” with a new token ID that is not already in use, e.g., 256</p></li>
+<li><p>the new text is: <code class="docutils literal notranslate"><span class="pre">&lt;256&gt;e</span> <span class="pre">cat</span> <span class="pre">in</span> <span class="pre">&lt;256&gt;e</span> <span class="pre">hat</span></code></p></li>
+<li><p>the new vocabulary is</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>  <span class="mi">0</span><span class="p">:</span> <span class="o">...</span>
+  <span class="o">...</span>
+  <span class="mi">256</span><span class="p">:</span> <span class="s2">&quot;th&quot;</span>
+</pre></div>
+</div>
+<p><strong>Iteration 2</strong></p>
+<ol class="arabic">
+<li><p><strong>Identify frequent pairs</strong></p>
+<ul class="simple">
+<li><p>In the text <code class="docutils literal notranslate"><span class="pre">&lt;256&gt;e</span> <span class="pre">cat</span> <span class="pre">in</span> <span class="pre">&lt;256&gt;e</span> <span class="pre">hat</span></code>, the pair <code class="docutils literal notranslate"><span class="pre">&lt;256&gt;e</span></code> appears twice</p></li>
+</ul>
+</li>
+<li><p><strong>Replace and record</strong></p>
+<ul>
+<li><p>replace <code class="docutils literal notranslate"><span class="pre">&lt;256&gt;e</span></code> with a new token ID that is not already in use, for example, <code class="docutils literal notranslate"><span class="pre">257</span></code>.</p></li>
+<li><p>The new text is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="mi">257</span><span class="o">&gt;</span> <span class="n">cat</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="mi">257</span><span class="o">&gt;</span> <span class="n">hat</span>
+</pre></div>
+</div>
+</li>
+<li><p>The updated vocabulary is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">0</span><span class="p">:</span> <span class="o">...</span>
+<span class="o">...</span>
+<span class="mi">256</span><span class="p">:</span> <span class="s2">&quot;th&quot;</span>
+<span class="mi">257</span><span class="p">:</span> <span class="s2">&quot;&lt;256&gt;e&quot;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+</ol>
+<p><strong>Iteration 3</strong></p>
+<ol class="arabic">
+<li><p><strong>Identify frequent pairs</strong></p>
+<ul class="simple">
+<li><p>In the text <code class="docutils literal notranslate"><span class="pre">&lt;257&gt;</span> <span class="pre">cat</span> <span class="pre">in</span> <span class="pre">&lt;257&gt;</span> <span class="pre">hat</span></code>, the pair <code class="docutils literal notranslate"><span class="pre">&lt;257&gt;</span> </code> appears twice (once at the beginning and once before “hat”).</p></li>
+</ul>
+</li>
+<li><p><strong>Replace and record</strong></p>
+<ul>
+<li><p>replace <code class="docutils literal notranslate"><span class="pre">&lt;257&gt;</span> </code> with a new token ID that is not already in use, for example, <code class="docutils literal notranslate"><span class="pre">258</span></code>.</p></li>
+<li><p>the new text is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="mi">258</span><span class="o">&gt;</span><span class="n">cat</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="mi">258</span><span class="o">&gt;</span><span class="n">hat</span>
+</pre></div>
+</div>
+</li>
+<li><p>The updated vocabulary is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">0</span><span class="p">:</span> <span class="o">...</span>
+<span class="o">...</span>
+<span class="mi">256</span><span class="p">:</span> <span class="s2">&quot;th&quot;</span>
+<span class="mi">257</span><span class="p">:</span> <span class="s2">&quot;&lt;256&gt;e&quot;</span>
+<span class="mi">258</span><span class="p">:</span> <span class="s2">&quot;&lt;257&gt; &quot;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+</ol>
+<ul class="simple">
+<li><p>and so forth</p></li>
+</ul>
+<p> </p>
+</section>
+<section id="concrete-example-of-the-decoding-part-step-3-in-section-1-3">
+<h3>1.4.2 Concrete example of the decoding part (step 3 in section 1.3)<a class="headerlink" href="#concrete-example-of-the-decoding-part-step-3-in-section-1-3" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>To restore the original text, we reverse the process by substituting each token ID with its corresponding pair in the reverse order they were introduced</p></li>
+<li><p>Start with the final compressed text: <code class="docutils literal notranslate"><span class="pre">&lt;258&gt;cat</span> <span class="pre">in</span> <span class="pre">&lt;258&gt;hat</span></code></p></li>
+<li><p>Substitute <code class="docutils literal notranslate"><span class="pre">&lt;258&gt;</span></code> → <code class="docutils literal notranslate"><span class="pre">&lt;257&gt;</span> </code>: <code class="docutils literal notranslate"><span class="pre">&lt;257&gt;</span> <span class="pre">cat</span> <span class="pre">in</span> <span class="pre">&lt;257&gt;</span> <span class="pre">hat</span></code></p></li>
+<li><p>Substitute <code class="docutils literal notranslate"><span class="pre">&lt;257&gt;</span></code> → <code class="docutils literal notranslate"><span class="pre">&lt;256&gt;e</span></code>: <code class="docutils literal notranslate"><span class="pre">&lt;256&gt;e</span> <span class="pre">cat</span> <span class="pre">in</span> <span class="pre">&lt;256&gt;e</span> <span class="pre">hat</span></code></p></li>
+<li><p>Substitute <code class="docutils literal notranslate"><span class="pre">&lt;256&gt;</span></code> → “th”: <code class="docutils literal notranslate"><span class="pre">the</span> <span class="pre">cat</span> <span class="pre">in</span> <span class="pre">the</span> <span class="pre">hat</span></code></p></li>
+</ul>
+<p> </p>
+</section>
+</section>
+<section id="a-simple-bpe-implementation">
+<h2>2. A simple BPE implementation<a class="headerlink" href="#a-simple-bpe-implementation" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Below is an implementation of this algorithm described above as a Python class that mimics the <code class="docutils literal notranslate"><span class="pre">tiktoken</span></code> Python user interface</p></li>
+<li><p>Note that the encoding part above describes the original training step via <code class="docutils literal notranslate"><span class="pre">train()</span></code>; however, the <code class="docutils literal notranslate"><span class="pre">encode()</span></code> method works similarly (although it looks a bit more complicated because of the special token handling):</p></li>
+</ul>
+<ol class="arabic simple">
+<li><p>Split the input text into individual bytes</p></li>
+<li><p>Repeatedly find &amp; replace (merge) adjacent tokens (pairs) when they match any pair in the learned BPE merges (from highest to lowest “rank,” i.e., in the order they were learned)</p></li>
+<li><p>Continue merging until no more merges can be applied</p></li>
+<li><p>The final list of token IDs is the encoded output</p></li>
+</ol>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span><span class="p">,</span> <span class="n">deque</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">lru_cache</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">BPETokenizerSimple</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Maps token_id to token_str (e.g., {11246: &quot;some&quot;})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># Maps token_str to token_id (e.g., {&quot;some&quot;: 11246})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inverse_vocab</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># Dictionary of BPE merges: {(token_id1, token_id2): merged_token_id}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bpe_merges</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># For the official OpenAI GPT-2 merges, use a rank dict:</span>
+        <span class="c1">#  of form {(string_A, string_B): rank}, where lower rank = higher priority</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bpe_ranks</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">vocab_size</span><span class="p">,</span> <span class="n">allowed_special</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;&lt;|endoftext|&gt;&quot;</span><span class="p">}):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Train the BPE tokenizer from scratch.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            text (str): The training text.</span>
+<span class="sd">            vocab_size (int): The desired vocabulary size.</span>
+<span class="sd">            allowed_special (set): A set of special tokens to include.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Preprocess: Replace spaces with &quot;Ġ&quot;</span>
+        <span class="c1"># Note that Ġ is a particularity of the GPT-2 BPE implementation</span>
+        <span class="c1"># E.g., &quot;Hello world&quot; might be tokenized as [&quot;Hello&quot;, &quot;Ġworld&quot;]</span>
+        <span class="c1"># (GPT-4 BPE would tokenize it as [&quot;Hello&quot;, &quot; world&quot;])</span>
+        <span class="n">processed_text</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">char</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">char</span> <span class="o">==</span> <span class="s2">&quot; &quot;</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">processed_text</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Ġ&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">char</span> <span class="o">!=</span> <span class="s2">&quot; &quot;</span><span class="p">:</span>
+                <span class="n">processed_text</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">char</span><span class="p">)</span>
+        <span class="n">processed_text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">processed_text</span><span class="p">)</span>
+
+        <span class="c1"># Initialize vocab with unique characters, including &quot;Ġ&quot; if present</span>
+        <span class="c1"># Start with the first 256 ASCII characters</span>
+        <span class="n">unique_chars</span> <span class="o">=</span> <span class="p">[</span><span class="nb">chr</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">256</span><span class="p">)]</span>
+        <span class="n">unique_chars</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+            <span class="n">char</span> <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">processed_text</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">char</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">unique_chars</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;Ġ&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">unique_chars</span><span class="p">:</span>
+            <span class="n">unique_chars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Ġ&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="n">char</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">char</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">unique_chars</span><span class="p">)}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inverse_vocab</span> <span class="o">=</span> <span class="p">{</span><span class="n">char</span><span class="p">:</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">char</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+        <span class="c1"># Add allowed special tokens</span>
+        <span class="k">if</span> <span class="n">allowed_special</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">allowed_special</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">token</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inverse_vocab</span><span class="p">:</span>
+                    <span class="n">new_id</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="p">[</span><span class="n">new_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">token</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">inverse_vocab</span><span class="p">[</span><span class="n">token</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_id</span>
+
+        <span class="c1"># Tokenize the processed_text into token IDs</span>
+        <span class="n">token_ids</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">inverse_vocab</span><span class="p">[</span><span class="n">char</span><span class="p">]</span> <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">processed_text</span><span class="p">]</span>
+
+        <span class="c1"># BPE steps 1-3: Repeatedly find and replace frequent pairs</span>
+        <span class="k">for</span> <span class="n">new_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="p">),</span> <span class="n">vocab_size</span><span class="p">):</span>
+            <span class="n">pair_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_freq_pair</span><span class="p">(</span><span class="n">token_ids</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;most&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pair_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">token_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">replace_pair</span><span class="p">(</span><span class="n">token_ids</span><span class="p">,</span> <span class="n">pair_id</span><span class="p">,</span> <span class="n">new_id</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bpe_merges</span><span class="p">[</span><span class="n">pair_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_id</span>
+
+        <span class="c1"># Build the vocabulary with merged tokens</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">p0</span><span class="p">,</span> <span class="n">p1</span><span class="p">),</span> <span class="n">new_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bpe_merges</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">merged_token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="p">[</span><span class="n">p0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="p">[</span><span class="n">p1</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="p">[</span><span class="n">new_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">merged_token</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inverse_vocab</span><span class="p">[</span><span class="n">merged_token</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_id</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_vocab_and_merges_from_openai</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vocab_path</span><span class="p">,</span> <span class="n">bpe_merges_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load pre-trained vocabulary and BPE merges from OpenAI&#39;s GPT-2 files.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            vocab_path (str): Path to the vocab file (GPT-2 calls it &#39;encoder.json&#39;).</span>
+<span class="sd">            bpe_merges_path (str): Path to the bpe_merges file  (GPT-2 calls it &#39;vocab.bpe&#39;).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Load vocabulary</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">vocab_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">loaded_vocab</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+            <span class="c1"># Convert loaded vocabulary to correct format</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">):</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">loaded_vocab</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inverse_vocab</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">loaded_vocab</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+        <span class="c1"># Handle newline character without adding a new token</span>
+        <span class="k">if</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inverse_vocab</span><span class="p">:</span>
+            <span class="c1"># Use an existing token ID as a placeholder for &#39;\n&#39;</span>
+            <span class="c1"># Preferentially use &quot;&lt;|endoftext|&gt;&quot; if available</span>
+            <span class="n">fallback_token</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">token</span> <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;&lt;|endoftext|&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;Ġ&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">token</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inverse_vocab</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">fallback_token</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">newline_token_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inverse_vocab</span><span class="p">[</span><span class="n">fallback_token</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># If no fallback token is available, raise an error</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;No suitable token found in vocabulary to map &#39;</span><span class="se">\\</span><span class="s2">n&#39;.&quot;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">inverse_vocab</span><span class="p">[</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">newline_token_id</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="p">[</span><span class="n">newline_token_id</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="c1"># Load GPT-2 merges and store them with an assigned &quot;rank&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bpe_ranks</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># reset ranks</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">bpe_merges_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">lines</span> <span class="ow">and</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">):</span>
+                <span class="n">lines</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+            <span class="n">rank</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+                <span class="n">pair</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">token1</span><span class="p">,</span> <span class="n">token2</span> <span class="o">=</span> <span class="n">pair</span>
+                    <span class="c1"># If token1 or token2 not in vocab, skip</span>
+                    <span class="k">if</span> <span class="n">token1</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inverse_vocab</span> <span class="ow">and</span> <span class="n">token2</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inverse_vocab</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">bpe_ranks</span><span class="p">[(</span><span class="n">token1</span><span class="p">,</span> <span class="n">token2</span><span class="p">)]</span> <span class="o">=</span> <span class="n">rank</span>
+                        <span class="n">rank</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Skipping pair </span><span class="si">{</span><span class="n">pair</span><span class="si">}</span><span class="s2"> as one token is not in the vocabulary.&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">allowed_special</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Encode the input text into a list of token IDs, with tiktoken-style handling of special tokens.</span>
+<span class="sd">    </span>
+<span class="sd">        Args:</span>
+<span class="sd">            text (str): The input text to encode.</span>
+<span class="sd">            allowed_special (set or None): Special tokens to allow passthrough. If None, special handling is disabled.</span>
+<span class="sd">    </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            List of token IDs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+    
+        <span class="n">token_ids</span> <span class="o">=</span> <span class="p">[]</span>
+    
+        <span class="c1"># If special token handling is enabled</span>
+        <span class="k">if</span> <span class="n">allowed_special</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">allowed_special</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Build regex to match allowed special tokens</span>
+            <span class="n">special_pattern</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;(&quot;</span> <span class="o">+</span> <span class="s2">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">tok</span><span class="p">)</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">allowed_special</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="nb">len</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span>
+            <span class="p">)</span>
+    
+            <span class="n">last_index</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">special_pattern</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+                <span class="n">prefix</span> <span class="o">=</span> <span class="n">text</span><span class="p">[</span><span class="n">last_index</span><span class="p">:</span><span class="n">match</span><span class="o">.</span><span class="n">start</span><span class="p">()]</span>
+                <span class="n">token_ids</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">allowed_special</span><span class="o">=</span><span class="kc">None</span><span class="p">))</span>  <span class="c1"># Encode prefix without special handling</span>
+    
+                <span class="n">special_token</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">special_token</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inverse_vocab</span><span class="p">:</span>
+                    <span class="n">token_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inverse_vocab</span><span class="p">[</span><span class="n">special_token</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Special token </span><span class="si">{</span><span class="n">special_token</span><span class="si">}</span><span class="s2"> not found in vocabulary.&quot;</span><span class="p">)</span>
+                <span class="n">last_index</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">end</span><span class="p">()</span>
+    
+            <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="p">[</span><span class="n">last_index</span><span class="p">:]</span>  <span class="c1"># Remaining part to process normally</span>
+    
+            <span class="c1"># Check if any disallowed special tokens are in the remainder</span>
+            <span class="n">disallowed</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">tok</span> <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inverse_vocab</span>
+                <span class="k">if</span> <span class="n">tok</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;&lt;|&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">tok</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;|&gt;&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">text</span> <span class="ow">and</span> <span class="n">tok</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">allowed_special</span>
+            <span class="p">]</span>
+            <span class="k">if</span> <span class="n">disallowed</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Disallowed special tokens encountered in text: </span><span class="si">{</span><span class="n">disallowed</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+        <span class="c1"># If no special tokens, or remaining text after special token split:</span>
+        <span class="n">tokens</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">words</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">word</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">words</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">j</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Ġ&quot;</span> <span class="o">+</span> <span class="n">word</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">j</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Ġ&quot;</span> <span class="o">+</span> <span class="n">word</span><span class="p">)</span>
+    
+        <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">token</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inverse_vocab</span><span class="p">:</span>
+                <span class="n">token_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inverse_vocab</span><span class="p">[</span><span class="n">token</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">token_ids</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tokenize_with_bpe</span><span class="p">(</span><span class="n">token</span><span class="p">))</span>
+    
+        <span class="k">return</span> <span class="n">token_ids</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">tokenize_with_bpe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Tokenize a single token using BPE merges.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            token (str): The token to tokenize.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[int]: The list of token IDs after applying BPE.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Tokenize the token into individual characters (as initial token IDs)</span>
+        <span class="n">token_ids</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">inverse_vocab</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">char</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">token</span><span class="p">]</span>
+        <span class="k">if</span> <span class="kc">None</span> <span class="ow">in</span> <span class="n">token_ids</span><span class="p">:</span>
+            <span class="n">missing_chars</span> <span class="o">=</span> <span class="p">[</span><span class="n">char</span> <span class="k">for</span> <span class="n">char</span><span class="p">,</span> <span class="n">tid</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">token_ids</span><span class="p">)</span> <span class="k">if</span> <span class="n">tid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">]</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Characters not found in vocab: </span><span class="si">{</span><span class="n">missing_chars</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># If we haven&#39;t loaded OpenAI&#39;s GPT-2 merges, use my approach</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">bpe_ranks</span><span class="p">:</span>
+            <span class="n">can_merge</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">while</span> <span class="n">can_merge</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">token_ids</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">can_merge</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">new_tokens</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">token_ids</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">pair</span> <span class="o">=</span> <span class="p">(</span><span class="n">token_ids</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">token_ids</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="n">pair</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bpe_merges</span><span class="p">:</span>
+                        <span class="n">merged_token_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bpe_merges</span><span class="p">[</span><span class="n">pair</span><span class="p">]</span>
+                        <span class="n">new_tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">merged_token_id</span><span class="p">)</span>
+                        <span class="c1"># Uncomment for educational purposes:</span>
+                        <span class="c1"># print(f&quot;Merged pair {pair} -&gt; {merged_token_id} (&#39;{self.vocab[merged_token_id]}&#39;)&quot;)</span>
+                        <span class="n">i</span> <span class="o">+=</span> <span class="mi">2</span>  <span class="c1"># Skip the next token as it&#39;s merged</span>
+                        <span class="n">can_merge</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">new_tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token_ids</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">token_ids</span><span class="p">):</span>
+                    <span class="n">new_tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token_ids</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="n">token_ids</span> <span class="o">=</span> <span class="n">new_tokens</span>
+            <span class="k">return</span> <span class="n">token_ids</span>
+
+        <span class="c1"># Otherwise, do GPT-2-style merging with the ranks:</span>
+        <span class="c1"># 1) Convert token_ids back to string &quot;symbols&quot; for each ID</span>
+        <span class="n">symbols</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="p">[</span><span class="n">id_num</span><span class="p">]</span> <span class="k">for</span> <span class="n">id_num</span> <span class="ow">in</span> <span class="n">token_ids</span><span class="p">]</span>
+
+        <span class="c1"># Repeatedly merge all occurrences of the lowest-rank pair</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="c1"># Collect all adjacent pairs</span>
+            <span class="n">pairs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">symbols</span><span class="p">,</span> <span class="n">symbols</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">pairs</span><span class="p">:</span>
+                <span class="k">break</span>
+
+            <span class="c1"># Find the pair with the best (lowest) rank</span>
+            <span class="n">min_rank</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
+            <span class="n">bigram</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bpe_ranks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">r</span> <span class="o">&lt;</span> <span class="n">min_rank</span><span class="p">:</span>
+                    <span class="n">min_rank</span> <span class="o">=</span> <span class="n">r</span>
+                    <span class="n">bigram</span> <span class="o">=</span> <span class="n">p</span>
+
+            <span class="c1"># If no valid ranked pair is present, we&#39;re done</span>
+            <span class="k">if</span> <span class="n">bigram</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">bigram</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bpe_ranks</span><span class="p">:</span>
+                <span class="k">break</span>
+
+            <span class="c1"># Merge all occurrences of that pair</span>
+            <span class="n">first</span><span class="p">,</span> <span class="n">second</span> <span class="o">=</span> <span class="n">bigram</span>
+            <span class="n">new_symbols</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">symbols</span><span class="p">):</span>
+                <span class="c1"># If we see (first, second) at position i, merge them</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">symbols</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">symbols</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">first</span> <span class="ow">and</span> <span class="n">symbols</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">second</span><span class="p">:</span>
+                    <span class="n">new_symbols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">first</span> <span class="o">+</span> <span class="n">second</span><span class="p">)</span>  <span class="c1"># merged symbol</span>
+                    <span class="n">i</span> <span class="o">+=</span> <span class="mi">2</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">new_symbols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">symbols</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">symbols</span> <span class="o">=</span> <span class="n">new_symbols</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">symbols</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">break</span>
+
+        <span class="c1"># Finally, convert merged symbols back to IDs</span>
+        <span class="n">merged_ids</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">inverse_vocab</span><span class="p">[</span><span class="n">sym</span><span class="p">]</span> <span class="k">for</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">symbols</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">merged_ids</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token_ids</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Decode a list of token IDs back into a string.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            token_ids (List[int]): The list of token IDs to decode.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: The decoded string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">decoded_string</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">token_id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">token_ids</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">token_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Token ID </span><span class="si">{</span><span class="n">token_id</span><span class="si">}</span><span class="s2"> not found in vocab.&quot;</span><span class="p">)</span>
+            <span class="n">token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="p">[</span><span class="n">token_id</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">token</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">decoded_string</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">decoded_string</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">):</span>
+                    <span class="n">decoded_string</span> <span class="o">+=</span> <span class="s2">&quot; &quot;</span>  <span class="c1"># Add space if not present before a newline</span>
+                <span class="n">decoded_string</span> <span class="o">+=</span> <span class="n">token</span>
+            <span class="k">elif</span> <span class="n">token</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Ġ&quot;</span><span class="p">):</span>
+                <span class="n">decoded_string</span> <span class="o">+=</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">token</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">decoded_string</span> <span class="o">+=</span> <span class="n">token</span>
+        <span class="k">return</span> <span class="n">decoded_string</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_vocab_and_merges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vocab_path</span><span class="p">,</span> <span class="n">bpe_merges_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save the vocabulary and BPE merges to JSON files.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            vocab_path (str): Path to save the vocabulary.</span>
+<span class="sd">            bpe_merges_path (str): Path to save the BPE merges.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Save vocabulary</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">vocab_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># Save BPE merges as a list of dictionaries</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">bpe_merges_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">merges_list</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;pair&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">pair</span><span class="p">),</span> <span class="s2">&quot;new_id&quot;</span><span class="p">:</span> <span class="n">new_id</span><span class="p">}</span>
+                           <span class="k">for</span> <span class="n">pair</span><span class="p">,</span> <span class="n">new_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bpe_merges</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">merges_list</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_vocab_and_merges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vocab_path</span><span class="p">,</span> <span class="n">bpe_merges_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load the vocabulary and BPE merges from JSON files.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            vocab_path (str): Path to the vocabulary file.</span>
+<span class="sd">            bpe_merges_path (str): Path to the BPE merges file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Load vocabulary</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">vocab_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">loaded_vocab</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">loaded_vocab</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inverse_vocab</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">loaded_vocab</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+        <span class="c1"># Load BPE merges</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">bpe_merges_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">merges_list</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">merge</span> <span class="ow">in</span> <span class="n">merges_list</span><span class="p">:</span>
+                <span class="n">pair</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">merge</span><span class="p">[</span><span class="s2">&quot;pair&quot;</span><span class="p">])</span>
+                <span class="n">new_id</span> <span class="o">=</span> <span class="n">merge</span><span class="p">[</span><span class="s2">&quot;new_id&quot;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">bpe_merges</span><span class="p">[</span><span class="n">pair</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_id</span>
+
+    <span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_special_token_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">inverse_vocab</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">find_freq_pair</span><span class="p">(</span><span class="n">token_ids</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;most&quot;</span><span class="p">):</span>
+        <span class="n">pairs</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">token_ids</span><span class="p">,</span> <span class="n">token_ids</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">pairs</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;most&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">pairs</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;least&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">pairs</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid mode. Choose &#39;most&#39; or &#39;least&#39;.&quot;</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">replace_pair</span><span class="p">(</span><span class="n">token_ids</span><span class="p">,</span> <span class="n">pair_id</span><span class="p">,</span> <span class="n">new_id</span><span class="p">):</span>
+        <span class="n">dq</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">token_ids</span><span class="p">)</span>
+        <span class="n">replaced</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">while</span> <span class="n">dq</span><span class="p">:</span>
+            <span class="n">current</span> <span class="o">=</span> <span class="n">dq</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">dq</span> <span class="ow">and</span> <span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">dq</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="n">pair_id</span><span class="p">:</span>
+                <span class="n">replaced</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_id</span><span class="p">)</span>
+                <span class="c1"># Remove the 2nd token of the pair, 1st was already removed</span>
+                <span class="n">dq</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">replaced</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">replaced</span>
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>There is a lot of code in the <code class="docutils literal notranslate"><span class="pre">BPETokenizerSimple</span></code> class above, and discussing it in detail is out of scope for this notebook, but the next section offers a short overview of the usage to understand the class methods a bit better</p></li>
+</ul>
+</section>
+<section id="bpe-implementation-walkthrough">
+<h2>3. BPE implementation walkthrough<a class="headerlink" href="#bpe-implementation-walkthrough" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>In practice, I highly recommend using <a class="reference external" href="https://github.com/openai/tiktoken">tiktoken</a> as my implementation above focuses on readability and educational purposes, not on performance</p></li>
+<li><p>However, the usage is more or less similar to tiktoken, except that tiktoken does not have a training method</p></li>
+<li><p>Let’s see how my <code class="docutils literal notranslate"><span class="pre">BPETokenizerSimple</span></code> Python code above works by looking at some examples below (a detailed code discussion is out of scope for this notebook)</p></li>
+</ul>
+<section id="training-encoding-and-decoding">
+<h3>3.1 Training, encoding, and decoding<a class="headerlink" href="#training-encoding-and-decoding" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>First, let’s consider some sample text as our training dataset:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">urllib.request</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">download_file_if_absent</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">search_dirs</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">directory</span> <span class="ow">in</span> <span class="n">search_dirs</span><span class="p">:</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> already exists in </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">file_path</span>
+
+    <span class="n">target_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">search_dirs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">)</span> <span class="k">as</span> <span class="n">response</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">target_path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out_file</span><span class="p">:</span>
+            <span class="n">out_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Downloaded </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">target_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to download </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">. Error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">target_path</span>
+
+<span class="n">verdict_path</span> <span class="o">=</span> <span class="n">download_file_if_absent</span><span class="p">(</span>
+    <span class="n">url</span><span class="o">=</span><span class="p">(</span>
+         <span class="s2">&quot;https://raw.githubusercontent.com/rasbt/&quot;</span>
+         <span class="s2">&quot;LLMs-from-scratch/main/ch02/01_main-chapter-code/&quot;</span>
+         <span class="s2">&quot;the-verdict.txt&quot;</span>
+    <span class="p">),</span>
+    <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;the-verdict.txt&quot;</span><span class="p">,</span>
+    <span class="n">search_dirs</span><span class="o">=</span><span class="s2">&quot;.&quot;</span>
+<span class="p">)</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">verdict_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span> <span class="c1"># added ../01_main-chapter-code/</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Failed to download the-verdict.txt. Error: &lt;urlopen error EOF occurred in violation of protocol (_ssl.c:997)&gt;
+</pre></div>
+</div>
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">FileNotFoundError</span><span class="g g-Whitespace">                         </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span> <span class="n">line</span> <span class="mi">30</span>
+<span class="g g-Whitespace">     </span><span class="mi">18</span>     <span class="k">return</span> <span class="n">target_path</span>
+<span class="g g-Whitespace">     </span><span class="mi">20</span> <span class="n">verdict_path</span> <span class="o">=</span> <span class="n">download_file_if_absent</span><span class="p">(</span>
+<span class="g g-Whitespace">     </span><span class="mi">21</span>     <span class="n">url</span><span class="o">=</span><span class="p">(</span>
+<span class="g g-Whitespace">     </span><span class="mi">22</span>          <span class="s2">&quot;https://raw.githubusercontent.com/rasbt/&quot;</span>
+   <span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="g g-Whitespace">     </span><span class="mi">27</span>     <span class="n">search_dirs</span><span class="o">=</span><span class="s2">&quot;.&quot;</span>
+<span class="g g-Whitespace">     </span><span class="mi">28</span> <span class="p">)</span>
+<span class="ne">---&gt; </span><span class="mi">30</span> <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">verdict_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span> <span class="c1"># added ../01_main-chapter-code/</span>
+<span class="g g-Whitespace">     </span><span class="mi">31</span>     <span class="n">text</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+<span class="nn">File /Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/site-packages/IPython/core/interactiveshell.py:324,</span> in <span class="ni">_modified_open</span><span class="nt">(file, *args, **kwargs)</span>
+<span class="g g-Whitespace">    </span><span class="mi">317</span> <span class="k">if</span> <span class="n">file</span> <span class="ow">in</span> <span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">}:</span>
+<span class="g g-Whitespace">    </span><span class="mi">318</span>     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+<span class="g g-Whitespace">    </span><span class="mi">319</span>         <span class="sa">f</span><span class="s2">&quot;IPython won&#39;t let you open fd=</span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2"> by default &quot;</span>
+<span class="g g-Whitespace">    </span><span class="mi">320</span>         <span class="s2">&quot;as it is likely to crash IPython. If you know what you are doing, &quot;</span>
+<span class="g g-Whitespace">    </span><span class="mi">321</span>         <span class="s2">&quot;you can use builtins&#39; open.&quot;</span>
+<span class="g g-Whitespace">    </span><span class="mi">322</span>     <span class="p">)</span>
+<span class="ne">--&gt; </span><span class="mi">324</span> <span class="k">return</span> <span class="n">io_open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<span class="ne">FileNotFoundError</span>: [Errno 2] No such file or directory: &#39;./the-verdict.txt&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>Next, let’s initialize and train the BPE tokenizer with a vocabulary size of 1,000</p></li>
+<li><p>Note that the vocabulary size is already 255 by default due to the byte values discussed earlier, so we are only “learning” 745 vocabulary entries</p></li>
+<li><p>For comparison, the GPT-2 vocabulary is 50,257 tokens, the GPT-4 vocabulary is 100,256 tokens (<code class="docutils literal notranslate"><span class="pre">cl100k_base</span></code> in tiktoken), and GPT-4o uses 199,997 tokens (<code class="docutils literal notranslate"><span class="pre">o200k_base</span></code> in tiktoken); they have all much bigger training sets compared to our simple example text above</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">BPETokenizerSimple</span><span class="p">()</span>
+<span class="n">tokenizer</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">vocab_size</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">allowed_special</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;&lt;|endoftext|&gt;&quot;</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>You may want to inspect the vocabulary contents (but note it will create a long list)</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># print(tokenizer.vocab)</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">vocab</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>1000
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>This vocabulary is created by merging 742 times (~ <code class="docutils literal notranslate"><span class="pre">1000</span> <span class="pre">-</span> <span class="pre">len(range(0,</span> <span class="pre">256))</span></code>)</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">bpe_merges</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>742
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>This means that the first 256 entries are single-character tokens</p></li>
+</ul>
+<ul class="simple">
+<li><p>Next, let’s use the created merges via the <code class="docutils literal notranslate"><span class="pre">encode</span></code> method to encode some text:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">input_text</span> <span class="o">=</span> <span class="s2">&quot;Jack embraced beauty through art and life.&quot;</span>
+<span class="n">token_ids</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">input_text</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">token_ids</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[424, 256, 654, 531, 302, 311, 256, 296, 97, 465, 121, 595, 841, 116, 287, 466, 256, 326, 972, 46]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">input_text</span> <span class="o">=</span> <span class="s2">&quot;Jack embraced beauty through art and life. &lt;|endoftext|&gt; &quot;</span>
+<span class="n">token_ids</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">input_text</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">token_ids</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[424, 256, 654, 531, 302, 311, 256, 296, 97, 465, 121, 595, 841, 116, 287, 466, 256, 326, 972, 46, 256, 60, 124, 271, 683, 102, 116, 461, 116, 124, 62]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">input_text</span> <span class="o">=</span> <span class="s2">&quot;Jack embraced beauty through art and life. &lt;|endoftext|&gt; &quot;</span>
+<span class="n">token_ids</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">input_text</span><span class="p">,</span> <span class="n">allowed_special</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;&lt;|endoftext|&gt;&quot;</span><span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">token_ids</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[424, 256, 654, 531, 302, 311, 256, 296, 97, 465, 121, 595, 841, 116, 287, 466, 256, 326, 972, 46, 257]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of characters:&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_text</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of token IDs:&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">token_ids</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Number of characters: 57
+Number of token IDs: 21
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>From the lengths above, we can see that a 42-character sentence was encoded into 20 token IDs, effectively cutting the input length roughly in half compared to a character-byte-based encoding</p></li>
+</ul>
+<ul class="simple">
+<li><p>Note that the vocabulary itself is used in the <code class="docutils literal notranslate"><span class="pre">decode()</span></code> method, which allows us to map the token IDs back into text:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">token_ids</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[424, 256, 654, 531, 302, 311, 256, 296, 97, 465, 121, 595, 841, 116, 287, 466, 256, 326, 972, 46, 257]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">token_ids</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Jack embraced beauty through art and life.&lt;|endoftext|&gt;
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>Iterating over each token ID can give us a better understanding of how the token IDs are decoded via the vocabulary:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">token_id</span> <span class="ow">in</span> <span class="n">token_ids</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">token_id</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">decode</span><span class="p">([</span><span class="n">token_id</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>424 -&gt; Jack
+256 -&gt;  
+654 -&gt; em
+531 -&gt; br
+302 -&gt; ac
+311 -&gt; ed
+256 -&gt;  
+296 -&gt; be
+97 -&gt; a
+465 -&gt; ut
+121 -&gt; y
+595 -&gt;  through
+841 -&gt;  ar
+116 -&gt; t
+287 -&gt;  a
+466 -&gt; nd
+256 -&gt;  
+326 -&gt; li
+972 -&gt; fe
+46 -&gt; .
+257 -&gt; &lt;|endoftext|&gt;
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>As we can see, most token IDs represent 2-character subwords; that’s because the training data text is very short with not that many repetitive words, and because we used a relatively small vocabulary size</p></li>
+</ul>
+<ul class="simple">
+<li><p>As a summary, calling <code class="docutils literal notranslate"><span class="pre">decode(encode())</span></code> should be able to reproduce arbitrary input texts:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tokenizer</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span>
+    <span class="n">tokenizer</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;This is some text.&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&#39;This is some text.&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tokenizer</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span>
+    <span class="n">tokenizer</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;This is some text with </span><span class="se">\n</span><span class="s2"> newline characters.&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&#39;This is some text with \n newline characters.&#39;
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="saving-and-loading-the-tokenizer">
+<h3>3.2 Saving and loading the tokenizer<a class="headerlink" href="#saving-and-loading-the-tokenizer" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Next, let’s look at how we can save the trained tokenizer for reuse later:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Save trained tokenizer</span>
+<span class="n">tokenizer</span><span class="o">.</span><span class="n">save_vocab_and_merges</span><span class="p">(</span><span class="n">vocab_path</span><span class="o">=</span><span class="s2">&quot;vocab.json&quot;</span><span class="p">,</span> <span class="n">bpe_merges_path</span><span class="o">=</span><span class="s2">&quot;bpe_merges.txt&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load tokenizer</span>
+<span class="n">tokenizer2</span> <span class="o">=</span> <span class="n">BPETokenizerSimple</span><span class="p">()</span>
+<span class="n">tokenizer2</span><span class="o">.</span><span class="n">load_vocab_and_merges</span><span class="p">(</span><span class="n">vocab_path</span><span class="o">=</span><span class="s2">&quot;vocab.json&quot;</span><span class="p">,</span> <span class="n">bpe_merges_path</span><span class="o">=</span><span class="s2">&quot;bpe_merges.txt&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>The loaded tokenizer should be able to produce the same results as before:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">tokenizer2</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">token_ids</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Jack embraced beauty through art and life.&lt;|endoftext|&gt;
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tokenizer2</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span>
+    <span class="n">tokenizer2</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;This is some text with </span><span class="se">\n</span><span class="s2"> newline characters.&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&#39;This is some text with \n newline characters.&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<p> </p>
+</section>
+<section id="loading-the-original-gpt-2-bpe-tokenizer-from-openai">
+<h3>3.3 Loading the original GPT-2 BPE tokenizer from OpenAI<a class="headerlink" href="#loading-the-original-gpt-2-bpe-tokenizer-from-openai" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Finally, let’s load OpenAI’s GPT-2 tokenizer files</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Download files if not already present in this directory</span>
+
+<span class="c1"># Define the directories to search and the files to download</span>
+<span class="n">search_directories</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;../02_bonus_bytepair-encoder/gpt2_model/&quot;</span><span class="p">]</span>
+
+<span class="n">files_to_download</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;https://openaipublic.blob.core.windows.net/gpt-2/models/124M/vocab.bpe&quot;</span><span class="p">:</span> <span class="s2">&quot;vocab.bpe&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;https://openaipublic.blob.core.windows.net/gpt-2/models/124M/encoder.json&quot;</span><span class="p">:</span> <span class="s2">&quot;encoder.json&quot;</span>
+<span class="p">}</span>
+
+<span class="c1"># Ensure directories exist and download files if needed</span>
+<span class="n">paths</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">url</span><span class="p">,</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">files_to_download</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">paths</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">=</span> <span class="n">download_file_if_absent</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">search_directories</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>vocab.bpe already exists in ../02_bonus_bytepair-encoder/gpt2_model/vocab.bpe
+encoder.json already exists in ../02_bonus_bytepair-encoder/gpt2_model/encoder.json
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>Next, we load the files via the <code class="docutils literal notranslate"><span class="pre">load_vocab_and_merges_from_openai</span></code> method:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tokenizer_gpt2</span> <span class="o">=</span> <span class="n">BPETokenizerSimple</span><span class="p">()</span>
+<span class="n">tokenizer_gpt2</span><span class="o">.</span><span class="n">load_vocab_and_merges_from_openai</span><span class="p">(</span>
+    <span class="n">vocab_path</span><span class="o">=</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;encoder.json&quot;</span><span class="p">],</span> <span class="n">bpe_merges_path</span><span class="o">=</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;vocab.bpe&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>The vocabulary size should be <code class="docutils literal notranslate"><span class="pre">50257</span></code> as we can confirm via the code below:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">len</span><span class="p">(</span><span class="n">tokenizer_gpt2</span><span class="o">.</span><span class="n">vocab</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>50257
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>We can now use the GPT-2 tokenizer via our <code class="docutils literal notranslate"><span class="pre">BPETokenizerSimple</span></code> object:</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">input_text</span> <span class="o">=</span> <span class="s2">&quot;This is some text&quot;</span>
+<span class="n">token_ids</span> <span class="o">=</span> <span class="n">tokenizer_gpt2</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">input_text</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">token_ids</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[1212, 318, 617, 2420]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">tokenizer_gpt2</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">token_ids</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>This is some text
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>You can double-check that this produces the correct tokens using the interactive <a class="reference external" href="https://tiktokenizer.vercel.app/?model=gpt2">tiktoken app</a> or the <a class="reference external" href="https://github.com/openai/tiktoken">tiktoken library</a>:</p></li>
+</ul>
+<img src="https://sebastianraschka.com/images/LLMs-from-scratch-images/bonus/bpe-from-scratch/tiktokenizer.webp" width="600px">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tiktoken</span>
+
+<span class="n">gpt2_tokenizer</span> <span class="o">=</span> <span class="n">tiktoken</span><span class="o">.</span><span class="n">get_encoding</span><span class="p">(</span><span class="s2">&quot;gpt2&quot;</span><span class="p">)</span>
+<span class="n">gpt2_tokenizer</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;This is some text&quot;</span><span class="p">)</span>
+<span class="c1"># prints [1212, 318, 617, 2420]</span>
+</pre></div>
+</div>
+<p> </p>
+</section>
+</section>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="conclusion">
+<h1>4. Conclusion<a class="headerlink" href="#conclusion" title="Link to this heading">#</a></h1>
+<ul class="simple">
+<li><p>That’s it! That’s how BPE works in a nutshell, complete with a training method for creating new tokenizers or loading the GPT-2 tokenizer vocabular and merges from the original OpenAI GPT-2 model</p></li>
+<li><p>I hope you found this brief tutorial useful for educational purposes; if you have any questions, please feel free to open a new Discussion <a class="reference external" href="https://github.com/rasbt/LLMs-from-scratch/discussions/categories/q-a">here</a></p></li>
+<li><p>For a performance comparison with other tokenizer implementations, please see <a class="reference external" href="https://github.com/rasbt/LLMs-from-scratch/blob/main/ch02/02_bonus_bytepair-encoder/compare-bpe-tiktoken.ipynb">this notebook</a></p></li>
+</ul>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./ch02/05_bpe-from-scratch"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="README.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Byte Pair Encoding (BPE) Tokenizer From Scratch</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../../ch03/README.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Chapter 3: Coding Attention Mechanisms</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Byte Pair Encoding (BPE) Tokenizer From Scratch</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#the-main-idea-behind-byte-pair-encoding-bpe">1. The main idea behind byte pair encoding (BPE)</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bits-and-bytes">1.1 Bits and bytes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-the-vocabulary">1.2 Building the vocabulary</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bpe-algorithm-outline">1.3 BPE algorithm outline</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bpe-algorithm-example">1.4 BPE algorithm example</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#concrete-example-of-the-encoding-part-steps-1-2-in-section-1-3">1.4.1 Concrete example of the encoding part (steps 1 &amp; 2 in section 1.3)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#concrete-example-of-the-decoding-part-step-3-in-section-1-3">1.4.2 Concrete example of the decoding part (step 3 in section 1.3)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-simple-bpe-implementation">2. A simple BPE implementation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bpe-implementation-walkthrough">3. BPE implementation walkthrough</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#training-encoding-and-decoding">3.1 Training, encoding, and decoding</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#saving-and-loading-the-tokenizer">3.2 Saving and loading the tokenizer</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-the-original-gpt-2-bpe-tokenizer-from-openai">3.3 Loading the original GPT-2 BPE tokenizer from OpenAI</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#conclusion">4. Conclusion</a></li>
+</ul>
+
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Sebastian Raschka
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
